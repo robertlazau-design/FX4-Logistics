@@ -8,7 +8,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 
 **Before launch:**
 1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`).
-2. Confirm the domain and set `SITE_URL` in `src/seo.ts`.
+2. Confirm the domain, set `SITE_URL` in `src/seo.ts`, add the domain to the `fx4-logistics` Vercel project and redirect `fx4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
 3. Swap the stand-in scene, photo frames and trailer drawings for the photo shoot (if he books it), and the FX4 roundel for his real logo.
 4. Connect the quote form to Robert's Web3Forms account (never the client's), and never submit it as a test.
 5. Re-check the FMCSA/CarrierSource safety numbers in `SAFETY`.
@@ -24,7 +24,8 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 
 ## Stack
 
-- Vite, React 19, React Router 7 and Tailwind CSS 4. Not yet connected to Vercel (planned project name `fx4-logistics`).
+- Vite, React 19, React Router 7 and Tailwind CSS 4.
+- Vercel project `fx4-logistics` (robertlazau-design's projects), linked to this repo. Production branch is `main`; every pushed branch gets a preview build. Standard Protection is on, so the `*.vercel.app` links need a Vercel login until a custom domain is added.
 - `npm run build` builds the client, builds `src/entry-server.tsx` for the server and runs `scripts/prerender.mjs`, which writes `dist/index.html` and `dist/404.html` with each page's title, description and full text. Each page needs exactly one `<h1>` (the build checks).
 - `npm run lint` type-checks. `npm run dev` runs a local server (no prerender).
 - Fonts load from Google Fonts through `<link>` tags in `index.html` (not a CSS `@import`).
