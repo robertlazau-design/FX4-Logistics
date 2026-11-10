@@ -1,0 +1,67 @@
+# FX4 Logistics: notes for Claude
+
+The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, step deck, dry van, hopper) with a new warehouse, based at 23605 NE Halsey St, Ste C, Wood Village, Oregon, off I-84 exit 16. Robert Lazau (Golden Boy Productions) builds and runs it for the owner, Daniel. Read this before changing anything.
+
+## Status: draft preview
+
+`DRAFT = true` in `src/data/business.ts`. In draft mode the site shows a yellow draft banner, the yellow `<Ph>` placeholders (each numbered to match the call agenda) and Robert's call agenda panel, and it keeps search engines out: every page gets `noindex`, `robots.txt` blocks crawlers, and there's no canonical or sitemap.
+
+**Before launch:**
+1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`).
+2. Confirm the domain, set `SITE_URL` in `src/seo.ts`, add the domain to the `fx4-logistics` Vercel project and redirect `fx4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
+3. Swap the stand-in scene, photo frames and trailer drawings for the photo shoot (if he books it), and the FX4 roundel for his real logo.
+4. Connect the quote form to Robert's Web3Forms account (never the client's), and never submit it as a test.
+5. Re-check the FMCSA/CarrierSource safety numbers in `SAFETY`.
+6. Set `DRAFT = false`. The build stops if any `<Ph>` is left. Draft mode off turns on the canonical, sitemap, robots `Allow` and LocalBusiness JSON-LD.
+
+## How Robert works
+
+- **Never commit to `main`.** Use a feature branch and open a pull request; Robert merges.
+- **Keep commits few.** Vercel caps builds per day, so bundle related changes into one PR.
+- **Show the change first.** For anything visual, send screenshots or a short video before opening the PR.
+- **Don't invent facts.** No made-up prices, equipment counts, lanes, transit times, customer names, quotes or certifications. If something is unknown, it stays a `<Ph>` and goes on the call agenda.
+- **Never handle passwords, codes, keys or tokens.**
+
+## Stack
+
+- Vite, React 19, React Router 7 and Tailwind CSS 4.
+- Vercel project `fx4-logistics` (robertlazau-design's projects), linked to this repo. Production branch is `main`; every pushed branch gets a preview build. Standard Protection is on, so the `*.vercel.app` links need a Vercel login until a custom domain is added.
+- `npm run build` builds the client, builds `src/entry-server.tsx` for the server and runs `scripts/prerender.mjs`, which writes `dist/index.html` and `dist/404.html` with each page's title, description and full text. Each page needs exactly one `<h1>` (the build checks).
+- `npm run lint` type-checks. `npm run dev` runs a local server (no prerender).
+- Fonts load from Google Fonts through `<link>` tags in `index.html` (not a CSS `@import`).
+
+| File | What's in it |
+| --- | --- |
+| `src/data/business.ts` | `DRAFT` switch, contact and carrier details (USDOT, MC, phone, address), safety numbers, states, hauls, form choices |
+| `src/data/agenda.ts` | The call agenda questions; ids match the `<Ph q>` placeholders |
+| `src/seo.ts` | Titles, descriptions, `SITE_URL`, JSON-LD (live mode only) |
+| `src/pages/Home.tsx` | The home page: hero with quick quote, safety strip, owner note, trailers, steps, carrier packet, warehouse, route map, hiring, quote form |
+| `src/pages/NotFound.tsx` | 404 page |
+| `src/components/` | Header, Footer, PhoneBar, CallAgenda, RouteMap, Ph, Graphics (shield, roundel, trailer drawings, icons) |
+| `src/effects.tsx` | Motion effects (see below) |
+| `src/index.css` | Brand tokens and all styles |
+
+## Brand
+
+- Colors (CSS variables in `src/index.css`): ink `#0f1a2b`, navy `#1d3150`, navy-dark `#15243b`, Interstate red `#a8332a`, cream `#f6f3ec`, paper `#fffdf8`.
+- Type: Zilla Slab for headings, Source Sans 3 for reading, IBM Plex Mono for the numbers a shipper checks (USDOT, MC, safety data, specs, labels).
+- Trucking details are part of the look: the I-84 shield, USDOT/MC set like cab-door lettering, the bill-of-lading quick quote, the carrier packet, the facility data sheet and the interstate route map. Keep new sections in that vernacular.
+
+## Motion rules (the Golden Boy kit, same as RobertLazau.com)
+
+- Only `transform` and `opacity` move (plus SVG stroke offsets and small paint-only touches). Never animate layout.
+- Easing: `--ease` (`cubic-bezier(.16,1,.3,1)`) for reveals, `--ease-cut` for things that open or close.
+- Every effect has a `prefers-reduced-motion` fallback that shows the finished state.
+- Mouse-only effects sit behind `(hover: hover) and (pointer: fine)`.
+- All text stays in the prerendered HTML. Never hide content until JavaScript runs, and never hide something that was on screen at load.
+- No animation libraries. On phones, nothing may make the page scroll sideways.
+
+## Effects (`src/effects.tsx`, styles in `index.css`)
+
+| Effect | Where | What it does |
+| --- | --- | --- |
+| Headlight sweep (`.sweep`, CSS only) | Hero scene | Warm light passes across the scene once at load, under the text. |
+| Magnetic buttons (`.magnetic`, `usePageEffects`) | Quote, storage and apply buttons | The button leans toward the cursor. |
+| Card light (`.rig`, `usePageEffects`) | Trailer cards | A soft red light follows the mouse; the truck nudges forward on hover. |
+| Widescreen bars (`.lb`, `usePlayOnScroll`) | Warehouse photo | Bars open the first time it scrolls into view. |
+| Route draw-in (`.map`, `usePlayOnScroll`) | Route map | The interstate lines draw themselves, then the states and shields appear. |
