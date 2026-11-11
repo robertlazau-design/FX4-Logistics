@@ -51,6 +51,21 @@ for (const pagePath of ALL_PATHS) {
 fs.writeFileSync(path.join(DIST, '404.html'), renderPage('/404', NOT_FOUND_META, { notFound: true }));
 console.log('prerendered 404.html');
 
+// The team portal (demo): an empty shell the app fills in the browser. Never indexed, in draft
+// or live mode; vercel.json sends every /portal/... address here and adds X-Robots-Tag.
+const portalTitle = 'FX4 Team Portal';
+const portalDesc = 'Sign-in page for the FX4 Logistics team.';
+fs.writeFileSync(
+  path.join(DIST, 'portal.html'),
+  template
+    .replace(/<title>[^<]*<\/title>/, `<title>${portalTitle}</title>`)
+    .replace(/(<meta name="description" content=")[^"]*(")/, `$1${portalDesc}$2`)
+    .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${portalTitle}$2`)
+    .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${portalDesc}$2`)
+    .replace('<!--page-head-->', '<meta name="robots" content="noindex, nofollow" />'),
+);
+console.log('wrote portal.html (team portal shell, noindex)');
+
 const left = placeholdersLeft();
 if (!DRAFT && left.length) {
   throw new Error(`prerender: DRAFT is off but these placeholders are still on the page: ${left.join(', ')}`);
@@ -63,6 +78,6 @@ if (DRAFT) {
   const today = new Date().toISOString().slice(0, 10);
   const urls = ALL_PATHS.map((p) => `  <url><loc>${canonicalUrl(p)}</loc><lastmod>${today}</lastmod></url>`).join('\n');
   fs.writeFileSync(path.join(DIST, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
-  fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+  fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /portal\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
   console.log(`live build: sitemap.xml and robots.txt for ${SITE_URL}`);
 }
