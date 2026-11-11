@@ -1,21 +1,26 @@
+import { useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { DRAFT, BUSINESS } from '../data/business';
+import { NAV } from '../data/pages';
 import { Ph } from './Ph';
 import { PhoneIcon, Roundel } from './Graphics';
 
-const NAV = [
-  { label: 'Home', hash: 'top' },
-  { label: 'Trucking', hash: 'services' },
-  { label: 'Warehousing', hash: 'warehouse' },
-  { label: 'About Us', hash: 'about' },
-  { label: 'Service Area', hash: 'area' },
-  { label: 'Driver Jobs', hash: 'drivers' },
-  { label: 'Contact', hash: 'contact' },
-];
-
-// base is '' on the home page (in-page links) and '/' elsewhere (back to the home page).
-export default function Header({ base, onAgenda, agendaOpen }: { base: string; onAgenda: (el: HTMLElement) => void; agendaOpen: boolean }) {
+export default function Header({ onAgenda, agendaOpen }: { onAgenda: (el: HTMLElement) => void; agendaOpen: boolean }) {
+  const { pathname } = useLocation();
+  const listRef = useRef<HTMLUListElement>(null);
+  // On phones the menu scrolls sideways: keep the current page's item in view.
+  useEffect(() => {
+    const ul = listRef.current;
+    const on = ul?.querySelector<HTMLElement>('a.on');
+    if (!ul || !on) return;
+    const right = on.offsetLeft + on.offsetWidth;
+    if (on.offsetLeft < ul.scrollLeft || right > ul.scrollLeft + ul.clientWidth) ul.scrollLeft = Math.max(0, on.offsetLeft - 20);
+  }, [pathname]);
   return (
     <header>
+      <a className="skip" href="#main">
+        Skip to content
+      </a>
       {DRAFT && (
         <div className="draft" role="note">
           <div className="wrap">
@@ -48,7 +53,7 @@ export default function Header({ base, onAgenda, agendaOpen }: { base: string; o
 
       <div className="head">
         <div className="wrap">
-          <a className="brand" href={`${base}#top`} aria-label="FX4 Logistics home">
+          <Link className="brand" to="/" aria-label="FX4 Logistics home">
             <Roundel />
             <span>
               <span className="name">{BUSINESS.name}</span>
@@ -56,7 +61,7 @@ export default function Header({ base, onAgenda, agendaOpen }: { base: string; o
                 Trucking &amp; Warehousing<span className="sub-x"> · {BUSINESS.city}, {BUSINESS.region}</span>
               </span>
             </span>
-          </a>
+          </Link>
           <div className="callbox">
             <div className="lbl">
               Call for a quote
@@ -67,22 +72,25 @@ export default function Header({ base, onAgenda, agendaOpen }: { base: string; o
             <a className="ph-icon" href={BUSINESS.phoneHref} aria-label={`Call FX4 at ${BUSINESS.phoneDisplay}`}>
               <PhoneIcon />
             </a>
-            <a className="btn btn-red magnetic" href={`${base}#contact`}>
+            <Link className="btn btn-red magnetic" to="/contact">
               Request a Quote
-            </a>
+            </Link>
           </div>
         </div>
       </div>
 
       <nav className="main" aria-label="Main">
-        <ul>
-          {NAV.map((n, i) => (
-            <li key={n.hash}>
-              <a className={i === 0 && base === '' ? 'on' : undefined} aria-current={i === 0 && base === '' ? 'page' : undefined} href={`${base}#${n.hash}`}>
-                {n.label}
-              </a>
-            </li>
-          ))}
+        <ul ref={listRef}>
+          {NAV.map((n) => {
+            const on = pathname === n.path;
+            return (
+              <li key={n.path}>
+                <Link className={on ? 'on' : undefined} aria-current={on ? 'page' : undefined} to={n.path}>
+                  {n.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </header>

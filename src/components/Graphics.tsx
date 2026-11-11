@@ -67,6 +67,48 @@ export function PhoneIcon() {
   );
 }
 
+// Stand-in hero scene until the shoot: dusk on I-84 through the Gorge. Used by the home hero
+// and the top of every other page. The gradients get an id prefix so two scenes never clash.
+export function Scene({ id = 'sc' }: { id?: string }) {
+  return (
+    <div className="scene" aria-hidden="true">
+      <svg viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#0f1a2b" />
+            <stop offset=".55" stopColor="#233a5e" />
+            <stop offset=".8" stopColor="#7a4a46" />
+            <stop offset="1" stopColor="#c98a5c" />
+          </linearGradient>
+          <linearGradient id={`${id}-road`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#2a3446" />
+            <stop offset="1" stopColor="#121a27" />
+          </linearGradient>
+        </defs>
+        <rect width="1440" height="700" fill={`url(#${id}-sky)`} />
+        <path d="M0 395 170 330 300 360 470 300 640 352 780 318 930 360 1080 300 1240 350 1440 310V700H0Z" fill="#2c3d5b" opacity=".85" />
+        <path d="M0 430 210 372 380 410 560 360 720 402 900 366 1060 404 1250 362 1440 398V700H0Z" fill="#1d2b44" />
+        <path d="M0 470 260 432 520 456 760 430 1010 452 1240 428 1440 446V700H0Z" fill="#162238" />
+        <path d="M560 700 700 452H740L880 700Z" fill={`url(#${id}-road)`} />
+        <path d="M720 460V700" stroke="#e8c58e" strokeWidth="3" strokeDasharray="18 26" opacity=".7" />
+        <path d="M560 700 700 452M880 700 740 452" stroke="#c9d4e2" strokeWidth="2" opacity=".35" />
+        <circle cx="1030" cy="296" r="2" fill="#fff" opacity=".6" />
+        <circle cx="380" cy="200" r="1.4" fill="#fff" opacity=".5" />
+        <circle cx="1210" cy="160" r="1.2" fill="#fff" opacity=".5" />
+      </svg>
+    </div>
+  );
+}
+
+// The slanted exit arrow from a highway guide sign, for the home page's page signs.
+export function ExitArrow() {
+  return (
+    <svg className="arrow" width="38" height="38" viewBox="0 0 38 38" aria-hidden="true">
+      <path d="M11 30 27 14M15 11h14v14" fill="none" stroke="#fff" strokeWidth="4.2" strokeLinecap="square" />
+    </svg>
+  );
+}
+
 // "Photo slot" label on the stand-in frames until the photo shoot.
 export function PhotoTag({ children }: { children: string }) {
   return (

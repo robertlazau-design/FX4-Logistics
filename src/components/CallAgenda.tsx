@@ -1,9 +1,21 @@
 // Robert's call agenda (draft mode only). Numbered questions for Daniel that match the yellow
-// spots on the page. Answers are kept in this browser only (localStorage) and "Copy notes"
-// copies everything as text. Not part of the live site.
+// spots on the site. "show" jumps to the spot, opening its page first if needed. Answers are
+// kept in this browser only (localStorage) and "Copy notes" copies everything as text.
+// Not part of the live site.
 import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AGENDA } from '../data/agenda';
 import { reducedMotion } from '../effects';
+
+// The first copy of a placeholder that's actually on screen (the top bar's copy is hidden on phones).
+const findSpot = (id: string) => [...document.querySelectorAll<HTMLElement>(`.ph[data-q="${id}"]`)].find((el) => el.getClientRects().length > 0);
+
+const pingSpot = (el: HTMLElement) => {
+  el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'center' });
+  el.classList.remove('ping');
+  void el.offsetWidth;
+  el.classList.add('ping');
+};
 
 const KEY = 'fx4-call-notes-v2';
 
@@ -13,6 +25,19 @@ export default function CallAgenda({ open, onOpen, onClose }: { open: boolean; o
   const [numbersOff, setNumbersOff] = useState(false);
   const [clearArmed, setClearArmed] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Arrived from a "show" link on another page: point at the spot once the page is drawn.
+  useEffect(() => {
+    const id = (location.state as { ping?: string } | null)?.ping;
+    if (!id) return;
+    const t = window.setTimeout(() => {
+      const el = findSpot(id);
+      if (el) pingSpot(el);
+    }, 60);
+    return () => clearTimeout(t);
+  }, [location.key]);
 
   useEffect(() => {
     try {
@@ -43,14 +68,11 @@ export default function CallAgenda({ open, onOpen, onClose }: { open: boolean; o
   };
   const done = AGENDA.filter((a) => (answers[a.id] || '').trim()).length;
 
-  const show = (id: string) => {
-    const el = document.querySelector<HTMLElement>(`.ph[data-q="${id}"]`);
-    if (!el) return;
+  const show = (id: string, path?: string) => {
     if (window.innerWidth < 700) onClose();
-    el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'center' });
-    el.classList.remove('ping');
-    void el.offsetWidth;
-    el.classList.add('ping');
+    const here = findSpot(id);
+    if (here) pingSpot(here);
+    else if (path) navigate(path, { state: { ping: id } });
   };
 
   const copy = () => {
@@ -126,11 +148,11 @@ export default function CallAgenda({ open, onOpen, onClose }: { open: boolean; o
                     {a.q}{' '}
                     {a.page !== false && (
                     <a
-                      href={`#${a.id}`}
+                      href={a.path}
                       data-show={a.id}
                       onClick={(e) => {
                         e.preventDefault();
-                        show(a.id);
+                        show(a.id, a.path);
                       }}
                     >
                       show

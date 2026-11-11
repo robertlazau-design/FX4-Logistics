@@ -1,17 +1,18 @@
+import { Link } from 'react-router-dom';
 import { BUSINESS } from '../data/business';
 
-export default function Footer({ base }: { base: string }) {
+export default function Footer() {
   return (
     <footer>
       <div className="wrap">
         <div className="word" aria-hidden="true" />
         <div className="cols">
           <div>
-            <h4>{BUSINESS.name}</h4>
+            <h2>{BUSINESS.name}</h2>
             <p style={{ margin: 0 }}>Locally owned trucking and warehousing in {BUSINESS.city}, Oregon.</p>
           </div>
           <div>
-            <h4>Contact</h4>
+            <h2>Contact</h2>
             <ul>
               <li>
                 <a href={BUSINESS.phoneHref}>{BUSINESS.phoneDisplay}</a>
@@ -23,17 +24,19 @@ export default function Footer({ base }: { base: string }) {
             </ul>
           </div>
           <div>
-            <h4>Services</h4>
+            <h2>Services</h2>
             <ul>
-              <li><a href={`${base}#services`}>Flatbed &amp; step deck</a></li>
-              <li><a href={`${base}#services`}>Dry van</a></li>
-              <li><a href={`${base}#warehouse`}>Warehousing</a></li>
-              <li><a href={`${base}#drivers`}>Driver jobs</a></li>
+              <li><Link to="/trucking">Flatbed, step deck &amp; dry van</Link></li>
+              <li><Link to="/warehousing">Warehousing &amp; storage</Link></li>
+              <li><Link to="/service-area">Service area</Link></li>
+              <li><Link to="/driver-jobs">Driver jobs</Link></li>
             </ul>
           </div>
           <div>
-            <h4>Company</h4>
+            <h2>Company</h2>
             <ul>
+              <li><Link to="/about">About us</Link></li>
+              <li><Link to="/contact">Request a quote</Link></li>
               <li className="mono" style={{ fontSize: 14 }}>USDOT {BUSINESS.usdot}</li>
               <li className="mono" style={{ fontSize: 14 }}>MC {BUSINESS.mc}</li>
               <li>Sister company: {BUSINESS.sister}, heavy truck &amp; trailer repair</li>
