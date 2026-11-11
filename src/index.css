@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* The team portal has its own stylesheet (src/portal/portal.css); keep its words out of the site CSS. */
+@source not "./portal";
 
 /* FX4 Logistics. Navy, Interstate red and dock-paper cream; Zilla Slab for headings, Source Sans 3
    for reading, IBM Plex Mono for the numbers a shipper checks (USDOT, MC, safety data, specs).
