@@ -1,13 +1,13 @@
 # FX4 Logistics: notes for Claude
 
-The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, step deck, dry van, hopper) with a new warehouse, based at 23605 NE Halsey St, Ste C, Wood Village, Oregon, off I-84 exit 16. Robert Lazau (Golden Boy Productions) builds and runs it for the owner, Daniel. Read this before changing anything.
+The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, step deck, dry van; no hopper or farm loads) with a new 25,000 sq ft warehouse, based at 23605 NE Halsey St, Ste C, Wood Village, Oregon, off I-84 exit 16. Robert Lazau (Golden Boy Productions) builds and runs it for the owner, Daniel. Read this before changing anything.
 
 ## Status: draft preview
 
 `DRAFT = true` in `src/data/business.ts`. In draft mode the site shows a yellow draft banner, the yellow `<Ph>` placeholders (each numbered to match the call agenda) and Robert's call agenda panel, and it keeps search engines out: every page gets `noindex`, `robots.txt` blocks crawlers, and there's no canonical or sitemap.
 
 **Before launch:**
-1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`).
+1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`). His answers from the Nov 11 call are already in `src/data/business.ts` (`BUSINESS`, `STATES`, `LANES`, `WAREHOUSE`, `DRIVERS`); the call agenda now holds only the follow-ups. Don't show an email address until FX4 owns its domain (fx4logistics.com belongs to someone else).
 2. Confirm the domain, set `SITE_URL` in `src/seo.ts`, add the domain to the `fx-4-logistics` Vercel project and redirect `fx-4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
 3. Real FX4 truck photos are in (see Photos below). Still stand-ins: the Warehousing hero and warehouse photo, the About crew photo, the Driver Jobs and Contact heroes, the trailer drawings and the FX4 roundel (swap for his real logo).
 4. Connect the quote form to Robert's Web3Forms account (never the client's), and never submit it as a test.
