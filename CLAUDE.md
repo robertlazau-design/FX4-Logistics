@@ -58,21 +58,23 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 
 A clickable demo of the team portal (Option C in Robert's pitch deck) for showing Daniel before he picks an option. It lives in this repo under `/portal`, but it is not part of the public site.
 
+- **One blanket portal, no logins** (Robert, Nov 11, 2026). Anyone with the link or a QR sticker scan gets in; there are no accounts. A driver picks their name once per phone (`/portal/me`) so rule signatures and reports carry it; that's a label, not a login, and isn't verified. The office side is `/portal/office`, an address only Daniel and David are given; it isn't in the portal's menu. Because nobody can be locked out one by one, the portal must never hold anything a driver could misuse.
+
 - **Private by design.** Never linked from the public pages or the menu. `portal.html` (written by `scripts/prerender.mjs`) has `noindex, nofollow`; `vercel.json` sends every `/portal/...` address to it and adds `X-Robots-Tag: noindex, nofollow`; the live `robots.txt` disallows `/portal`.
 - **Loads only when opened.** `App.tsx` lazy-loads `src/portal/PortalApp.tsx` for `/portal` paths, so the public pages don't download it. Its styles are `src/portal/portal.css`, and `index.css` has `@source not "./portal"` so the site's Tailwind CSS is unchanged. The QR library (`qrcode-generator`) loads only on the stickers screen.
-- **Demo data.** Sign-in (one-time code) is simulated, and sign-offs, reports, announcements and switched-off people are saved in the browser only (`localStorage` key `fx4-portal-demo-v1`); the yellow bar switches people and resets the demo. Sample people, units, reports and handbook text are marked "Sample" on screen. Real facts (phone numbers, address, hours, USDOT/MC, dispatcher) come from `src/data/business.ts`.
+- **Demo data.** Sign-offs, reports, announcements, the team list and the leaving checklists are saved in the browser only (`localStorage` key `fx4-portal-demo-v2`); the yellow bar links to the office side and resets the demo. Sample people, units, reports and handbook text are marked "Sample" on screen. Real facts (phone numbers, address, hours, USDOT/MC, dispatcher) come from `src/data/business.ts`.
 - **Never** put lock codes in the portal, sample or real: drivers get them from Daniel or David by phone. Never present sample people, units or rules as real, and never invent FX4 policy: unknowns show as "To fill in" or "From Daniel".
 - **Guides** (`src/portal/guides.ts`) name their source on screen (49 CFR, Oregon DMV CDL manual, ODOT, Schneider). Check a fact at its source before changing it; Daniel's own procedures replace or add to them. Each step has a photo slot to shoot on FX4's equipment; videos can go in the same slots later.
-- **The real version** swaps `src/portal/store.ts` for a database and a real one-time-code sign-in, adds the step photos, and needs FX4's lawyer to review the handbook and sign-off wording.
-- QR stickers (Office → QR stickers) point at the current web address; reprint them once FX4's domain is set.
+- **The real version** swaps `src/portal/store.ts` for a shared database, adds the step photos, and needs FX4's lawyer to review the handbook and sign-off wording. Drivers stay login-free. Open question for Robert before the real build: the office side can change records, so does it get a login of its own?
+- QR stickers (`/portal/office/stickers`) point at the current web address; reprint them once FX4's domain is set. The Team page shows a number only for people who agreed, and anyone with the link can see it.
 
 | File | What's in it |
 | --- | --- |
 | `src/portal/PortalApp.tsx` | Routes, header, tabs and the demo bar |
-| `src/portal/Driver.tsx` | Sign in, home, trailer and truck pages, report a problem, team, announcements |
+| `src/portal/Driver.tsx` | Home, pick your name, trailer and truck pages, report a problem, team, announcements |
 | `src/portal/GuideScreens.tsx` | Guide list, one guide, the tiedown calculator |
 | `src/portal/Rules.tsx` | Handbook with versioned sign-off |
-| `src/portal/Admin.tsx` | Office: overview, people and access (with the driver-leaving checklist), sign-off record, maintenance board |
+| `src/portal/Admin.tsx` | Office: overview and announcements, team list (whose numbers show, driver-leaving checklist), sign-off record, maintenance board |
 | `src/portal/Stickers.tsx` | Printable QR stickers |
 | `src/portal/data.ts`, `guides.ts`, `store.ts`, `ui.tsx`, `portal.css` | Content, guide steps, demo state, shared pieces, styles |
 
