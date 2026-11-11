@@ -43,7 +43,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 | `src/seo.ts` | Titles and descriptions for every page, `SITE_URL`, JSON-LD (live mode only: LocalBusiness on Home, breadcrumbs elsewhere) |
 | `src/pages/Home.tsx` | Short overview: hero with the quick quote, safety strip, one highway sign per page, call-to-delivery steps, quote band |
 | `src/pages/Trucking.tsx` | Trailer cards, what we haul, why shippers stay, carrier packet |
-| `src/pages/Warehousing.tsx` | Warehouse photo, facility data sheet, trucking + storage |
+| `src/pages/Warehousing.tsx` | Warehouse photo, facility data sheet, trucking + storage, imported freight (after customs only) |
 | `src/pages/About.tsx` | Owner's note, company data sheet, shipper quote |
 | `src/pages/ServiceArea.tsx` | States, local towns, main lanes, route map |
 | `src/pages/DriverJobs.tsx` | Why drive for FX4, pay and home time, apply button |
