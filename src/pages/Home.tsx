@@ -6,8 +6,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BUSINESS, SAFETY, TRAILERS } from '../data/business';
 import { quoteFor, type QuoteNav, type Trailer } from '../data/quote';
 import { Ph } from '../components/Ph';
-import { ExitArrow, PhotoTag, Scene, Shield } from '../components/Graphics';
-import { QuoteBand } from '../components/PageParts';
+import { ExitArrow, Shield } from '../components/Graphics';
+import { HeroPhoto, QuoteBand } from '../components/PageParts';
+import { PHOTOS } from '../data/photos';
 
 const SIGNS = [
   { exit: 1, to: '/trucking', title: 'Trucking', text: 'Flatbed, step deck and dry van, on our own trucks with our own drivers.', go: 'See our trailers' },
@@ -35,13 +36,10 @@ export default function Home() {
   return (
     <>
       {/* HERO */}
-      <div className="hero">
-        <Scene id="hero" />
+      <div className="hero has-photo">
+        <HeroPhoto photo={PHOTOS.home} />
         <div className="sweep" aria-hidden="true">
           <span />
-        </div>
-        <div className="slot">
-          <PhotoTag>Photo/video slot: an FX4 flatbed rolling down I-84 in the Gorge</PhotoTag>
         </div>
 
         <div className="wrap inner">

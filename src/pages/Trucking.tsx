@@ -5,6 +5,7 @@ import { quoteFor, type Trailer } from '../data/quote';
 import { Ph } from '../components/Ph';
 import { TrailerArt } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
+import { PHOTOS, srcSet } from '../data/photos';
 
 const RIGS: { kind: 'flatbed' | 'stepdeck' | 'dryvan' | 'hopper'; title: string; text: string; fits: string[]; equip: Trailer; cta: string; confirm?: string }[] = [
   { kind: 'flatbed', title: 'Flatbed', text: 'Lumber, steel and building materials, strapped and tarped by experienced drivers.', fits: ['Lumber', 'Steel', 'Building materials'], equip: 'Flatbed', cta: 'Get a flatbed quote' },
@@ -20,7 +21,7 @@ export default function Trucking() {
         crumb="Trucking"
         title="Flatbed, step deck & dry van trucking."
         lede="Full truckload service on our own trucks with our own drivers. Lumber, steel, machinery, building materials and farm loads."
-        slot="Photo slot: a loaded FX4 flatbed, strapped and tarped"
+        photo={PHOTOS.trucking}
       >
         <Link className="btn btn-red magnetic" to="/contact" state={quoteFor('Trucking (one load)')}>
           Get a trucking quote <span aria-hidden="true">›</span>
@@ -68,6 +69,21 @@ export default function Trucking() {
               <li key={h}>{h}</li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/* ON THE ROAD: FX4's own trucks */}
+      <section className="onroad">
+        <div className="wrap">
+          <p className="eyebrow">On the road</p>
+          <h2>Our trucks, our drivers, all year.</h2>
+          <div className="road">
+            {PHOTOS.road.map((ph) => (
+              <figure key={ph.src}>
+                <img src={ph.src} srcSet={srcSet(ph)} sizes="(max-width: 640px) 100vw, 33vw" alt={ph.alt} loading="lazy" decoding="async" />
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
 

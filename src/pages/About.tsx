@@ -5,6 +5,7 @@ import { quoteFor } from '../data/quote';
 import { Ph } from '../components/Ph';
 import { PhotoTag, Shield } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
+import { PHOTOS } from '../data/photos';
 
 export default function About() {
   return (
@@ -13,7 +14,7 @@ export default function About() {
         crumb="About Us"
         title="A trucking company you can actually call."
         lede="A locally owned carrier, not a broker, right off I-84 at exit 16 in Wood Village, Oregon."
-        slot="Photo slot: the yard on NE Halsey St with the trucks lined up"
+        photo={PHOTOS.about}
       />
 
       {/* OWNER'S NOTE */}

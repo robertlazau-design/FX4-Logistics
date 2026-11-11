@@ -4,11 +4,12 @@ import { quoteFor } from '../data/quote';
 import { Ph } from '../components/Ph';
 import RouteMap from '../components/RouteMap';
 import { PageHero, QuoteBand } from '../components/PageParts';
+import { PHOTOS } from '../data/photos';
 
 export default function ServiceArea() {
   return (
     <>
-      <PageHero crumb="Service Area" title="Portland roots. Western reach." lede={`Home base is ${BUSINESS.city}, Oregon, right off I-84 at exit 16.`} />
+      <PageHero crumb="Service Area" title="Portland roots. Western reach." lede={`Home base is ${BUSINESS.city}, Oregon, right off I-84 at exit 16.`} photo={PHOTOS.serviceArea} />
 
       <section>
         <div className="wrap area">

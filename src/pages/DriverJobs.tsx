@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { BUSINESS, SAFETY } from '../data/business';
 import { quoteFor } from '../data/quote';
 import { Ph } from '../components/Ph';
-import { PhotoTag } from '../components/Graphics';
 import { PageHero } from '../components/PageParts';
+import { PHOTOS, srcSet } from '../data/photos';
 
 export default function DriverJobs() {
   const apply = quoteFor('Driver job');
@@ -47,7 +47,7 @@ export default function DriverJobs() {
             <p className="foot">*{SAFETY.source}</p>
           </div>
           <div className="photo">
-            <PhotoTag>Photo slot: a driver doing a walk-around before a run</PhotoTag>
+            <img src={PHOTOS.driver.src} srcSet={srcSet(PHOTOS.driver)} sizes="(max-width: 980px) 100vw, 50vw" alt={PHOTOS.driver.alt} loading="lazy" decoding="async" />
           </div>
         </div>
       </section>
