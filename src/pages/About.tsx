@@ -24,13 +24,13 @@ export default function About() {
             <p className="eyebrow">A note from the owner</p>
             <h2>Locally owned. Not a broker.</h2>
             <p>
-              FX4 Logistics is based right off I-84 at exit 16 in Wood Village. We've held our own interstate authority since 2022, and we run our own flatbeds, step decks, dry vans and hoppers. We are a carrier, not a broker, so the company you book is the company that shows up.
+              FX4 Logistics is based right off I-84 at exit 16 in Wood Village. We've held our own interstate authority since 2022, and we run our own flatbeds, step decks and dry vans. We are a carrier, not a broker, so the company you book is the company that shows up.
             </p>
             <p>
-              We haul lumber, steel, machinery, building materials and farm loads across Oregon, Washington, California and the Mountain West. With our new warehouse in <Ph q="wh-city">city</Ph>, we can hold your freight until you need it and deliver it on your schedule.
+              We haul lumber, steel, machinery and building materials across Oregon, Washington, California and the Mountain West. With our new warehouse right here in Wood Village, we can hold your freight until you need it and deliver it on your schedule.
             </p>
             <p>
-              Our sister company, {BUSINESS.sister}, repairs heavy trucks and trailers at the same address, so our equipment gets looked after in-house. <Ph q="bridgetown">confirm</Ph>
+              Our sister company, {BUSINESS.sister}, repairs heavy trucks and trailers at the same address, so our equipment gets looked after in-house.
             </p>
             <div className="sig">
               <svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
@@ -40,10 +40,10 @@ export default function About() {
               </svg>
               <div>
                 <span className="line">
-                  <Ph q="name">Daniel ______</Ph>
+                  {BUSINESS.owner}
                 </span>
                 <small>
-                  <Ph q="name">Owner</Ph> · {BUSINESS.name}
+                  {BUSINESS.ownerTitle} · {BUSINESS.name}
                 </small>
               </div>
             </div>

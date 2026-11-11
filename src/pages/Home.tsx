@@ -5,7 +5,6 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BUSINESS, SAFETY, TRAILERS } from '../data/business';
 import { quoteFor, type QuoteNav, type Trailer } from '../data/quote';
-import { Ph } from '../components/Ph';
 import { ExitArrow, Shield } from '../components/Graphics';
 import { HeroPhoto, QuoteBand } from '../components/PageParts';
 import { PHOTOS } from '../data/photos';
@@ -19,7 +18,7 @@ const SIGNS = [
 
 const STEPS = [
   { title: 'Call or send the load', text: 'Pickup, delivery, what it is and when. We get back to you with a price.' },
-  { title: 'We match the trailer', text: 'Flatbed, step deck, dry van or hopper, based on the load.' },
+  { title: 'We match the trailer', text: 'Flatbed, step deck or dry van, based on the load.' },
   { title: 'Our driver hauls it', text: 'Your freight stays on FX4 equipment the whole way. No hand-offs.' },
   { title: 'Delivered, or stored', text: "Straight to the site, or into our warehouse until you're ready." },
 ];
@@ -129,9 +128,9 @@ export default function Home() {
             <span className="what">our own interstate authority since</span>
           </li>
           <li>
-            <span className="big">{SAFETY.trucksOnRecord}</span>
+            <span className="big">{BUSINESS.fleet}</span>
             <span className="what">
-              trucks on our FMCSA record* <Ph q="fleet">confirm</Ph>
+              trucks and trailers in our fleet
             </span>
           </li>
           <li className="src">*{SAFETY.source}</li>

@@ -2,7 +2,7 @@
 // storage and trucking work together.
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { BUSINESS } from '../data/business';
+import { BUSINESS, WAREHOUSE } from '../data/business';
 import { quoteFor } from '../data/quote';
 import { Ph } from '../components/Ph';
 import { PhotoTag } from '../components/Graphics';
@@ -42,7 +42,7 @@ export default function Warehousing() {
             <p className="eyebrow">The warehouse</p>
             <h2>Warehouse 1 at a glance.</h2>
             <p>
-              Our new warehouse in <Ph q="wh-city">city</Ph> holds your freight until you need it, and our own trucks deliver it on your schedule.
+              Our new {WAREHOUSE.size} warehouse at our home base in Wood Village holds your freight until you need it, and our own trucks deliver it on your schedule.
             </p>
             <div className="sheet">
               <div className="hd">
@@ -51,21 +51,27 @@ export default function Warehousing() {
               </div>
               <dl>
                 <dt>Location</dt>
-                <dd><Ph q="wh-city">street, city</Ph></dd>
+                <dd>
+                  {WAREHOUSE.street}
+                  <br />
+                  {WAREHOUSE.cityLine}
+                </dd>
                 <dt>Size</dt>
-                <dd><Ph q="wh-size">__,___ sq ft</Ph></dd>
+                <dd>{WAREHOUSE.size}</dd>
                 <dt>Dock doors</dt>
-                <dd><Ph q="wh-doors">__ dock-high, __ drive-in</Ph></dd>
+                <dd>{WAREHOUSE.doors}</dd>
                 <dt>Storage</dt>
-                <dd><Ph q="wh-storage">racked and floor pallet space</Ph></dd>
+                <dd>{WAREHOUSE.storage}</dd>
                 <dt>Services</dt>
                 <dd>
-                  Pallet storage, short &amp; long-term, local delivery<Ph q="wh-xdock">, cross-dock?</Ph>
+                  {WAREHOUSE.services}
                 </dd>
                 <dt>Security</dt>
-                <dd><Ph q="wh-security">cameras, fenced yard, alarm</Ph></dd>
+                <dd>{WAREHOUSE.security}</dd>
                 <dt>Hours</dt>
-                <dd><Ph q="wh-hours">Mon–Fri __ to __</Ph></dd>
+                <dd>
+                  <Ph q="days">Daily?</Ph> {WAREHOUSE.hours}
+                </dd>
               </dl>
             </div>
           </div>

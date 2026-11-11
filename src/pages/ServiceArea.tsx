@@ -1,5 +1,5 @@
 // Service Area: the states, the local towns, the main lanes and the route map.
-import { BUSINESS, LOCAL_TOWNS, STATES } from '../data/business';
+import { BUSINESS, LANES, LOCAL_TOWNS, STATES } from '../data/business';
 import { quoteFor } from '../data/quote';
 import { Ph } from '../components/Ph';
 import RouteMap from '../components/RouteMap';
@@ -17,18 +17,19 @@ export default function ServiceArea() {
             <p className="eyebrow">Where we run</p>
             <h2>Out of Wood Village, across the West.</h2>
             <p>
-              Home base is Wood Village, Oregon. Our trucks run regularly through <Ph q="states">7 states</Ph>:
+              Home base is Wood Village, Oregon. Our trucks run regularly through {STATES.length} states:
             </p>
             <ul className="states">
               {STATES.map((s) => (
                 <li key={s.code} className={s.home ? 'home' : undefined}>
                   {s.name} <span>{s.home ? `${s.code} · Home` : s.code}</span>
+                  {s.confirm && <Ph q={s.confirm}>confirm</Ph>}
                 </li>
               ))}
             </ul>
             <p className="local">Locally we serve {LOCAL_TOWNS.slice(0, -1).join(', ')}, {LOCAL_TOWNS[LOCAL_TOWNS.length - 1]} and the rest of the metro.</p>
             <p className="local">
-              Main lanes: <Ph q="lanes">top 2–3 lanes from Daniel</Ph>
+              Main lanes: {LANES.join(' · ')}
             </p>
           </div>
           <RouteMap />
