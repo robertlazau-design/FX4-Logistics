@@ -1,6 +1,7 @@
-// Runs after `vite build` and the SSR build: writes one HTML file per page with its own title,
-// description and (when live) canonical, share tags and structured data, plus 404.html,
-// robots.txt and (when live) sitemap.xml. Vercel's cleanUrls serves /about from about.html.
+// Runs after `vite build` and the SSR build: writes one HTML file per page in PAGE_META
+// (src/seo.ts) with its own title, description and (when live) canonical, share tags and
+// structured data, plus 404.html, robots.txt and (when live) sitemap.xml. Vercel's cleanUrls
+// serves /trucking from trucking.html.
 //
 // Draft mode (DRAFT in src/data/business.ts): every page gets noindex, robots.txt blocks
 // crawlers, and there's no canonical or sitemap, because the web address isn't confirmed.
@@ -22,6 +23,7 @@ const renderPage = (pagePath, meta, { notFound = false } = {}) => {
   const body = render(pagePath);
   const h1s = (body.match(/<h1[\s>]/g) || []).length;
   if (h1s !== 1) throw new Error(`prerender: ${pagePath} has ${h1s} <h1> elements (needs exactly one)`);
+  if (!notFound && body.includes('Page not found.')) throw new Error(`prerender: ${pagePath} is in PAGE_META but has no route in App.tsx`);
   const head = [];
   if (DRAFT || notFound) head.push('<meta name="robots" content="noindex" />');
   if (!DRAFT && !notFound) {
