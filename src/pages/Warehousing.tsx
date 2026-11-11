@@ -1,5 +1,6 @@
-// Warehousing: the facility data sheet (mostly placeholders until Daniel's call) and how
-// storage and trucking work together.
+// Warehousing: the facility data sheet (Daniel's Nov 11 answers) and how storage and trucking
+// work together. Imported freight is stored only after it clears customs: FX4 is not a bonded
+// warehouse or a foreign-trade zone, so never say it is.
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { BUSINESS, WAREHOUSE } from '../data/business';
@@ -89,6 +90,9 @@ export default function Warehousing() {
                 <b>Short and long-term pallet storage.</b> Inventory, overflow or a job-site delivery that isn't ready yet.
               </li>
               <li>
+                <b>Imported freight, once it clears customs.</b> Your customs broker clears it, then we store it and truck it out when you're ready.
+              </li>
+              <li>
                 <b>Local delivery on our own trucks.</b> When you're ready, the same company brings it out. <Link to="/trucking">Our trailers</Link>
               </li>
               <li>
@@ -110,6 +114,8 @@ export default function Warehousing() {
                 <dd>Under a month to ongoing</dd>
                 <dt>In &amp; out</dt>
                 <dd>Where it's coming from and going</dd>
+                <dt>Imported?</dt>
+                <dd>Cleared through customs first</dd>
               </dl>
               <div className="actions">
                 <Link className="btn btn-white" to="/contact" state={quoteFor('Warehousing / storage')}>

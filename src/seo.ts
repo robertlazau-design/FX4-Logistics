@@ -23,7 +23,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/warehousing': {
     title: 'Warehousing & Storage | FX4 Logistics',
     description:
-      "Short and long-term pallet storage with local delivery on FX4's own trucks. Store it with us, ship it with us. Call (971) 380-0602 to ask about space.",
+      "Short and long-term pallet storage, including imported freight after customs, with local delivery on FX4's own trucks. Call (971) 380-0602 to ask about space.",
   },
   '/about': {
     title: 'About FX4 Logistics | Locally Owned Carrier in Wood Village, OR',

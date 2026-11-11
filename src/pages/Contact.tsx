@@ -16,6 +16,7 @@ export default function Contact() {
   const location = useLocation();
   const [quote, setQuote] = useState<QuoteState>(QUOTE_DEFAULT);
   const [sent, setSent] = useState(false);
+  const [imported, setImported] = useState('No');
   const formRef = useRef<HTMLDivElement>(null);
 
   // Prefill from the page that sent the visitor here. Applied after hydration so the
@@ -148,7 +149,20 @@ export default function Contact() {
                       <option>Ongoing</option>
                     </select>
                   </div>
+                  <div>
+                    <label htmlFor="imported">Is it imported?</label>
+                    <select id="imported" value={imported} onChange={(e) => setImported(e.target.value)}>
+                      <option>No</option>
+                      <option>Yes, it has cleared customs</option>
+                      <option>Yes, not cleared yet</option>
+                    </select>
+                  </div>
                 </div>
+                {imported === 'Yes, not cleared yet' && (
+                  <p className="note2" role="status">
+                    We store imported freight once it has cleared customs. Your customs broker handles that first, then we take it from there.
+                  </p>
+                )}
               </fieldset>
 
               <fieldset hidden={!driver}>
