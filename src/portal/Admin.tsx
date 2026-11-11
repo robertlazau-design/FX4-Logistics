@@ -1,5 +1,6 @@
-// The office side, for Daniel and David: what needs attention, people and access (with the
-// checklist for when a driver leaves), the sign-off record, and the maintenance board.
+// The office side, for Daniel and David, at /portal/office (an address only they are given;
+// there are no logins): what needs attention, announcements, the team list (with the
+// checklist for when a driver leaves), the sign-off record and the maintenance board.
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { PEOPLE, RULES, UNITS, personById, unitById, type Unit } from './data';
@@ -8,6 +9,7 @@ import {
   REPORT_STATUSES,
   actions,
   currentVersion,
+  isListed,
   lastSignoff,
   toSign,
   usePortal,
@@ -31,84 +33,101 @@ const cls = (status: string) => `pt-status s-${status.replace(/\s/g, '').toLower
 
 export function AdminHome() {
   const s = usePortal();
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [posted, setPosted] = useState(false);
   const open = s.reports.filter((r) => r.status !== 'Fixed');
   const urgent = open.filter((r) => r.urgent && r.status === 'Open').length;
   const shop = UNITS.filter((u) => unitStatus(s, u) === 'In the shop').length;
-  const waiting = drivers.filter((d) => !s.off[d.id] && toSign(s, d.id).length > 0);
-  const off = Object.keys(s.off).length;
+  const waiting = drivers.filter((d) => toSign(s, d.id).length > 0);
   const notHelpful = Object.entries(
     s.feedback.filter((f) => !f.helped).reduce<Record<string, number>>((a, f) => ({ ...a, [f.guide]: (a[f.guide] ?? 0) + 1 }), {}),
   );
+  const post = (e: FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    actions.post(s.me && personById(s.me)?.role !== 'driver' ? s.me : 'office', title.trim(), body.trim());
+    setTitle('');
+    setBody('');
+    setPosted(true);
+  };
   return (
     <Page title="Office" kicker="Daniel and David" wide>
       <div className="pt-stats">
-        <Link to="/portal/admin/maintenance" className={urgent ? 'pt-stat red' : 'pt-stat'}>
+        <Link to="/portal/office/maintenance" className={urgent ? 'pt-stat red' : 'pt-stat'}>
           <b>{open.length}</b>
           <span>Open problems{urgent ? ` · ${urgent} urgent` : ''}</span>
         </Link>
-        <Link to="/portal/admin/maintenance" className="pt-stat">
+        <Link to="/portal/office/maintenance" className="pt-stat">
           <b>{shop}</b>
           <span>{shop === 1 ? 'Unit in the shop' : 'Units in the shop'}</span>
         </Link>
-        <Link to="/portal/admin/sign-offs" className={waiting.length ? 'pt-stat red' : 'pt-stat'}>
+        <Link to="/portal/office/sign-offs" className={waiting.length ? 'pt-stat red' : 'pt-stat'}>
           <b>{waiting.length}</b>
           <span>{waiting.length === 1 ? 'Driver hasn’t signed' : 'Drivers haven’t signed'}</span>
         </Link>
-        <Link to="/portal/admin/people" className="pt-stat">
-          <b>{off}</b>
-          <span>Access turned off</span>
+        <Link to="/portal/news" className="pt-stat">
+          <b>{s.posts.length}</b>
+          <span>{s.posts.length === 1 ? 'Announcement' : 'Announcements'}</span>
         </Link>
       </div>
 
       <div className="pt-adminlinks">
-        <Link className="pt-tile" to="/portal/admin/people">
+        <Link className="pt-tile" to="/portal/office/team">
           <Icon name="users" size={28} />
-          <b>People and access</b>
-          <small>Turn someone off, and the checklist for when a driver leaves</small>
+          <b>Team list</b>
+          <small>Whose numbers show, and the checklist for when a driver leaves</small>
         </Link>
-        <Link className="pt-tile" to="/portal/admin/sign-offs">
+        <Link className="pt-tile" to="/portal/office/sign-offs">
           <Icon name="shield" size={28} />
           <b>Sign-off record</b>
           <small>Who signed which version of each rule, and when</small>
         </Link>
-        <Link className="pt-tile" to="/portal/admin/maintenance">
+        <Link className="pt-tile" to="/portal/office/maintenance">
           <Icon name="board" size={28} />
           <b>Maintenance board</b>
           <small>Every problem report, with photos, time and who sent it</small>
         </Link>
-        <Link className="pt-tile" to="/portal/admin/stickers">
+        <Link className="pt-tile" to="/portal/office/stickers">
           <Icon name="qr" size={28} />
           <b>QR stickers</b>
           <small>Print one for every trailer and truck</small>
         </Link>
-        <Link className="pt-tile" to="/portal/news">
-          <Icon name="news" size={28} />
-          <b>Post an announcement</b>
-          <small>Shows as new on every driver’s home screen</small>
-        </Link>
       </div>
 
-      {notHelpful.length > 0 && (
-        <section className="pt-card">
-          <h2>Guides drivers said didn’t help</h2>
-          <ul className="pt-plain">
-            {notHelpful.map(([slug, n]) => (
-              <li key={slug}>
-                <Link to={`/portal/guides/${slug}`}>{guideBySlug(slug)?.title}</Link> · {n} {n === 1 ? 'driver' : 'drivers'}
-              </li>
-            ))}
-          </ul>
-          <p className="pt-fine">These are the questions still reaching your phone. Fix the guide and the calls drop.</p>
-        </section>
-      )}
+      <div className="pt-grid2">
+        <form className="pt-card pt-form" onSubmit={post}>
+          <h2>Post an announcement</h2>
+          <label htmlFor="pt-nt">Headline</label>
+          <input id="pt-nt" value={title} onChange={(e) => { setTitle(e.target.value); setPosted(false); }} />
+          <label htmlFor="pt-nb">Details</label>
+          <textarea id="pt-nb" rows={3} value={body} onChange={(e) => setBody(e.target.value)} />
+          <button className="pt-btn red" type="submit">
+            Post to the team
+          </button>
+          <p className="pt-fine" aria-live="polite">{posted ? 'Posted. It shows as new on every home screen.' : 'Shows as new on every home screen.'}</p>
+        </form>
+        {notHelpful.length > 0 && (
+          <section className="pt-card">
+            <h2>Guides drivers said didn’t help</h2>
+            <ul className="pt-plain">
+              {notHelpful.map(([slug, n]) => (
+                <li key={slug}>
+                  <Link to={`/portal/guides/${slug}`}>{guideBySlug(slug)?.title}</Link> · {n} {n === 1 ? 'time' : 'times'}
+                </li>
+              ))}
+            </ul>
+            <p className="pt-fine">These are the questions still reaching your phone. Fix the guide and the calls drop.</p>
+          </section>
+        )}
+      </div>
     </Page>
   );
 }
 
-/* ---------- People and access ---------- */
+/* ---------- Team list ---------- */
 
 const LEAVING: { step: LeavingStep; label: string }[] = [
-  { step: 'access', label: 'Portal access off' },
   { step: 'codes', label: 'Lock codes changed' },
   { step: 'keys', label: 'Keys back' },
   { step: 'fuel', label: 'Fuel card back' },
@@ -117,15 +136,16 @@ const LEAVING: { step: LeavingStep; label: string }[] = [
 
 export function People() {
   const s = usePortal();
-  const [confirm, setConfirm] = useState<string | null>(null);
   return (
-    <Page title="People and access" back={{ to: '/portal/admin', label: 'Office' }} wide>
-      <p className="pt-lede">Each person signs in with their own one-time code. Turning one person off doesn’t change anyone else’s access.</p>
+    <Page title="Team list" back={{ to: '/portal/office', label: 'Office' }} wide>
+      <p className="pt-lede">
+        The portal is one link for the whole team, with no logins, so nobody can be locked out one by one. That’s why it holds nothing a driver could misuse:
+        no lock codes, load values, customer addresses or pay. When someone leaves, change the lock codes and work through the checklist.
+      </p>
       <ul className="pt-peoplecards">
         {PEOPLE.map((p) => {
-          const offAt = s.off[p.id];
-          const self = p.id === s.me;
-          const done = LEAVING.filter((l) => (l.step === 'access' ? offAt : s.leaving[p.id]?.[l.step])).length;
+          const done = LEAVING.filter((l) => s.leaving[p.id]?.[l.step]).length;
+          const listed = isListed(s, p.id);
           return (
             <li key={p.id} className="pt-card">
               <div className="pt-person-hd">
@@ -133,43 +153,15 @@ export function People() {
                   <b>{p.name}</b> {p.sample && <Sample />}
                   <small>
                     {p.title}
-                    {p.phone ? ` · ${p.phone}` : ''}
-                    {p.listed ? '' : ' · not listed for the team'}
+                    {p.phone ? ` · ${p.phone}` : ' · through the office'}
                   </small>
                 </span>
-                <span className={offAt ? 'pt-status s-off' : 'pt-status s-ok'}>{offAt ? 'Off' : 'Active'}</span>
               </div>
-              {offAt && <p className="pt-fine">Turned off {when(offAt)}.</p>}
-
-              {confirm === p.id ? (
-                <div className="pt-confirm" role="group" aria-label={`Turn off ${p.name}`}>
-                  <p>
-                    Turn off {p.name}? Next time they open the portal they’ll see “Your access is off” and the office number.
-                  </p>
-                  <div className="pt-row2">
-                    <button
-                      className="pt-btn red"
-                      type="button"
-                      onClick={() => {
-                        actions.setOff(p.id, true);
-                        setConfirm(null);
-                      }}
-                    >
-                      Turn off
-                    </button>
-                    <button className="pt-btn line" type="button" onClick={() => setConfirm(null)}>
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : offAt ? (
-                <button className="pt-btn line" type="button" onClick={() => actions.setOff(p.id, false)}>
-                  Turn access back on
-                </button>
-              ) : (
-                <button className="pt-btn line" type="button" disabled={self} onClick={() => setConfirm(p.id)}>
-                  <Icon name="power" size={20} /> {self ? 'This is you' : 'Turn off access'}
-                </button>
+              {p.phone && (
+                <label className="pt-check">
+                  <input type="checkbox" checked={listed} onChange={(e) => actions.setListed(p.id, e.target.checked)} />
+                  Show this number on the Team page (they agreed)
+                </label>
               )}
 
               {p.role === 'driver' && (
@@ -179,15 +171,11 @@ export function People() {
                   </summary>
                   <ul>
                     {LEAVING.map((l) => {
-                      const at = l.step === 'access' ? offAt : s.leaving[p.id]?.[l.step];
+                      const at = s.leaving[p.id]?.[l.step];
                       return (
                         <li key={l.step}>
                           <label className="pt-check">
-                            <input
-                              type="checkbox"
-                              checked={!!at}
-                              onChange={() => (l.step === 'access' ? actions.setOff(p.id, !offAt) : actions.tick(p.id, l.step))}
-                            />
+                            <input type="checkbox" checked={!!at} onChange={() => actions.tick(p.id, l.step)} />
                             {l.label}
                           </label>
                           {at ? <small>{when(at)}</small> : null}
@@ -211,8 +199,8 @@ export function Signoffs() {
   const s = usePortal();
   const signers = PEOPLE.filter((p) => p.role !== 'owner');
   return (
-    <Page title="Sign-off record" back={{ to: '/portal/admin', label: 'Office' }} wide>
-      <p className="pt-lede">Every signature keeps the exact version and time. Publish a change and everyone signs again.</p>
+    <Page title="Sign-off record" back={{ to: '/portal/office', label: 'Office' }} wide>
+      <p className="pt-lede">Every signature keeps the name picked, the exact version and the time. Publish a change and everyone signs again.</p>
       <div className="pt-tablewrap" tabIndex={0} role="region" aria-label="Sign-offs by person and rule">
         <table className="pt-table">
           <thead>
@@ -228,11 +216,8 @@ export function Signoffs() {
           </thead>
           <tbody>
             {signers.map((p) => (
-              <tr key={p.id} className={s.off[p.id] ? 'pt-off' : undefined}>
-                <th scope="row">
-                  {p.name}
-                  {s.off[p.id] && <small>Access off</small>}
-                </th>
+              <tr key={p.id}>
+                <th scope="row">{p.name}</th>
                 {RULES.map((r) => {
                   const cur = currentVersion(s, r.id).version;
                   const last = lastSignoff(s, p.id, r.id);
@@ -307,7 +292,7 @@ export function Maintenance() {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>('Not fixed');
   const list = s.reports.filter((r) => (filter === 'All' ? true : filter === 'Not fixed' ? r.status !== 'Fixed' : r.status === filter));
   return (
-    <Page title="Maintenance board" back={{ to: '/portal/admin', label: 'Office' }} wide>
+    <Page title="Maintenance board" back={{ to: '/portal/office', label: 'Office' }} wide>
       <ul className="pt-unitgrid">
         {UNITS.map((u) => {
           const st = unitStatus(s, u);

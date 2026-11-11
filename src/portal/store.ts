@@ -1,8 +1,12 @@
 // Demo state for the team portal. Everything lives in this browser only (localStorage), so
-// Daniel can click through sign-offs, reports and switching a driver off, then reset.
-// The real portal keeps this in a database behind each person's one-time-code sign-in.
+// Daniel can click through sign-offs, reports and the office side, then reset.
+//
+// The portal is one blanket portal for the whole team: no accounts, no logins. Anyone with
+// the link or a sticker scan gets in. `me` is just the name picked on this phone, so rule
+// signatures and reports carry a name; it isn't a login and isn't verified. The real
+// version keeps this in a shared database instead of the browser.
 import { useSyncExternalStore } from 'react';
-import { RULES } from './data';
+import { PEOPLE, RULES } from './data';
 
 export type ReportKind = 'Defect' | 'Damage' | 'Crash' | 'Breakdown' | 'Inspection' | 'Other';
 export const REPORT_KINDS: ReportKind[] = ['Defect', 'Damage', 'Crash', 'Breakdown', 'Inspection', 'Other'];
@@ -12,14 +16,14 @@ export const REPORT_STATUSES: ReportStatus[] = ['Open', 'In the shop', 'Fixed'];
 export type Report = { id: string; unit: string; kind: ReportKind; text: string; urgent: boolean; by: string; at: number; status: ReportStatus; photos: number; sample?: boolean };
 export type Signoff = { person: string; rule: string; version: number; at: number };
 export type RuleVersion = { rule: string; version: number; at: number; note: string };
-export type LeavingStep = 'access' | 'codes' | 'keys' | 'fuel' | 'files';
+export type LeavingStep = 'codes' | 'keys' | 'fuel' | 'files';
 export type Post = { id: string; title: string; body: string; at: number; by: string; sample?: boolean };
 export type Feedback = { guide: string; helped: boolean; by: string; at: number };
 
 export type State = {
-  v: 1;
-  me: string | null;
-  off: Record<string, number>;
+  v: 2;
+  me: string | null; // name picked on this phone (a person id), not a login
+  listed: Record<string, boolean>; // office overrides: show this person's number on the Team page
   versions: RuleVersion[];
   signoffs: Signoff[];
   reports: Report[];
@@ -29,18 +33,19 @@ export type State = {
   feedback: Feedback[];
 };
 
-const KEY = 'fx4-portal-demo-v1';
+const KEY = 'fx4-portal-demo-v2';
 const DAY = 86_400_000;
 const T0 = Date.UTC(2026, 10, 10, 17, 0); // Nov 10, 2026, 9 am Pacific: the sample handbook's first version
+const PHONE = 'this-phone'; // who "seen" and feedback belong to before a name is picked
 
 function seed(): State {
   const versions = RULES.map((r) => ({ rule: r.id, version: 1, at: T0, note: 'First version' }));
   const sign = (person: string, rules: string[], at: number) => rules.map((rule) => ({ person, rule, version: 1, at }));
   const all = RULES.map((r) => r.id);
   return {
-    v: 1,
+    v: 2,
     me: null,
-    off: {},
+    listed: {},
     versions,
     signoffs: [...sign('d1', all, T0 + 3_600_000), ...sign('d2', all.slice(0, 3), T0 + 5_400_000), ...sign('d4', all, T0 + DAY)],
     reports: [
@@ -68,7 +73,7 @@ function load(): State {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw) as State;
-      if (s && s.v === 1) return { ...seed(), ...s };
+      if (s && s.v === 2) return { ...seed(), ...s };
     }
   } catch {
     /* storage blocked: run in memory */
@@ -104,24 +109,18 @@ export function usePortal(): State {
 }
 
 const uid = () => Math.random().toString(36).slice(2, 9);
+export const viewer = (s: State) => s.me ?? PHONE;
 
 export const actions = {
-  signIn: (person: string) => update((s) => ({ ...s, me: person })),
-  signOut: () => update((s) => ({ ...s, me: null })),
+  setMe: (person: string | null) => update((s) => ({ ...s, me: person })),
   sign: (person: string, rule: string) =>
-    update((s) => ({ ...s, signoffs: [...s.signoffs, { person, rule, version: currentVersion(s, rule).version, at: Date.now() }] })),
+    update((s) => ({ ...s, me: person, signoffs: [...s.signoffs, { person, rule, version: currentVersion(s, rule).version, at: Date.now() }] })),
   publish: (rule: string, note: string) =>
     update((s) => ({ ...s, versions: [...s.versions, { rule, version: currentVersion(s, rule).version + 1, at: Date.now(), note }] })),
   report: (r: Omit<Report, 'id' | 'at' | 'status'>) =>
-    update((s) => ({ ...s, reports: [{ ...r, id: uid(), at: Date.now(), status: 'Open' }, ...s.reports] })),
+    update((s) => ({ ...s, me: r.by, reports: [{ ...r, id: uid(), at: Date.now(), status: 'Open' }, ...s.reports] })),
   setStatus: (id: string, status: ReportStatus) => update((s) => ({ ...s, reports: s.reports.map((r) => (r.id === id ? { ...r, status } : r)) })),
-  setOff: (person: string, off: boolean) =>
-    update((s) => {
-      const next = { ...s.off };
-      if (off) next[person] = Date.now();
-      else delete next[person];
-      return { ...s, off: next };
-    }),
+  setListed: (person: string, listed: boolean) => update((s) => ({ ...s, listed: { ...s.listed, [person]: listed } })),
   tick: (person: string, step: LeavingStep) =>
     update((s) => {
       const cur = { ...(s.leaving[person] ?? {}) };
@@ -130,16 +129,22 @@ export const actions = {
       return { ...s, leaving: { ...s.leaving, [person]: cur } };
     }),
   post: (by: string, title: string, body: string) => update((s) => ({ ...s, posts: [{ id: uid(), title, body, at: Date.now(), by }, ...s.posts] })),
-  seen: (person: string, ids: string[]) =>
+  seen: (ids: string[]) =>
     update((s) => {
-      const had = s.seen[person] ?? [];
+      const who = viewer(s);
+      const had = s.seen[who] ?? [];
       if (ids.every((id) => had.includes(id))) return s;
-      return { ...s, seen: { ...s.seen, [person]: [...new Set([...had, ...ids])] } };
+      return { ...s, seen: { ...s.seen, [who]: [...new Set([...had, ...ids])] } };
     }),
   feedback: (guide: string, helped: boolean) =>
-    update((s) => (s.me ? { ...s, feedback: [...s.feedback.filter((f) => !(f.guide === guide && f.by === s.me)), { guide, helped, by: s.me, at: Date.now() }] } : s)),
+    update((s) => {
+      const by = viewer(s);
+      return { ...s, feedback: [...s.feedback.filter((f) => !(f.guide === guide && f.by === by)), { guide, helped, by, at: Date.now() }] };
+    }),
   reset: () => set({ ...seed(), me: get().me }),
 };
+
+export const isListed = (s: State, person: string) => s.listed[person] ?? PEOPLE.find((p) => p.id === person)?.listed ?? false;
 
 export const currentVersion = (s: State, rule: string) =>
   s.versions.filter((v) => v.rule === rule).reduce((a, b) => (b.version > a.version ? b : a));
@@ -150,7 +155,7 @@ export const lastSignoff = (s: State, person: string, rule: string) =>
 export const toSign = (s: State, person: string) =>
   RULES.filter((r) => (lastSignoff(s, person, r.id)?.version ?? 0) < currentVersion(s, r.id).version);
 
-export const unseenPosts = (s: State, person: string) => s.posts.filter((p) => !(s.seen[person] ?? []).includes(p.id));
+export const unseenPosts = (s: State) => s.posts.filter((p) => !(s.seen[viewer(s)] ?? []).includes(p.id));
 
 const fmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' });
 const fmtDay = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Los_Angeles' });

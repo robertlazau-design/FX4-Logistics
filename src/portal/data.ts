@@ -14,7 +14,7 @@ export type Person = {
   phone?: string; // display form
   tel?: string; // tel: link
   sample?: boolean;
-  listed: boolean; // agreed to show their number to the team
+  listed: boolean; // agreed to show their number on the Team page (anyone with the portal link can see it)
 };
 
 export const PEOPLE: Person[] = [
@@ -27,7 +27,6 @@ export const PEOPLE: Person[] = [
 ];
 
 export const personById = (id: string) => PEOPLE.find((p) => p.id === id);
-export const isAdmin = (p?: Person) => p?.role === 'owner' || p?.role === 'dispatch';
 
 export type UnitKind = 'truck' | 'flatbed' | 'stepdeck' | 'dryvan';
 

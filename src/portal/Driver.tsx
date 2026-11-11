@@ -1,82 +1,65 @@
-// The screens a driver uses: sign in, home, trailer and truck pages, report a problem,
-// the team list and announcements.
+// The screens a driver uses: home, picking your name, trailer and truck pages, report a
+// problem, the team list and announcements. There are no logins: picking a name only labels
+// this phone's signatures and reports.
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { TrailerArt } from '../components/Graphics';
-import { OFFICE, PEOPLE, RULES, UNITS, isAdmin, personById, unitById, type Person, type Unit } from './data';
+import { OFFICE, PEOPLE, RULES, UNITS, personById, unitById, type Unit } from './data';
 import { GUIDES, guideBySlug } from './guides';
-import { REPORT_KINDS, actions, toSign, unseenPosts, usePortal, when, type ReportKind } from './store';
+import { REPORT_KINDS, actions, isListed, toSign, unseenPosts, usePortal, when, type ReportKind } from './store';
 import { CallDavid, Icon, Page, Sample, Tbd } from './ui';
 
-/* ---------- Sign in (simulated one-time code) ---------- */
+/* ---------- Who's using this phone (not a login) ---------- */
 
-export function SignIn() {
-  const [step, setStep] = useState<'phone' | 'code'>('phone');
-  const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
-  const [err, setErr] = useState('');
-  const sendCode = (e: FormEvent) => {
-    e.preventDefault();
-    if (phone.replace(/\D/g, '').length < 10) return setErr('Enter your 10-digit phone number.');
-    setErr('');
-    setStep('code');
-  };
-  const check = (e: FormEvent) => {
-    e.preventDefault();
-    if (!/^\d{6}$/.test(code)) return setErr('Enter the 6 numbers from the text.');
-    actions.signIn('d1');
-  };
+export function WhoAmI() {
+  const s = usePortal();
+  const nav = useNavigate();
   return (
-    <Page title="Sign in" kicker="FX4 team portal">
-      {step === 'phone' ? (
-        <form className="pt-card pt-form" onSubmit={sendCode} noValidate>
-          <p>We’ll text you a one-time code. This phone then stays signed in.</p>
-          <label htmlFor="pt-phone">Your phone number</label>
-          <input id="pt-phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} aria-describedby={err ? 'pt-err' : undefined} />
-          {err && (
-            <p className="pt-err" id="pt-err" role="alert">
-              {err}
-            </p>
-          )}
-          <button className="pt-btn red" type="submit">
-            Text me a code
-          </button>
-          <p className="pt-fine">Demo: any 10-digit number works, and no text is sent.</p>
-        </form>
-      ) : (
-        <form className="pt-card pt-form" onSubmit={check} noValidate>
-          <p>Enter the 6-digit code we texted to {phone}.</p>
-          <label htmlFor="pt-code">Code</label>
-          <input id="pt-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} aria-describedby={err ? 'pt-err' : undefined} />
-          {err && (
-            <p className="pt-err" id="pt-err" role="alert">
-              {err}
-            </p>
-          )}
-          <button className="pt-btn red" type="submit">
-            Sign in
-          </button>
-          <p className="pt-fine">Demo: type any 6 numbers. You’ll be signed in as Driver 1; switch people in the yellow bar.</p>
-        </form>
-      )}
+    <Page title="Who’s using this phone?" back={{ to: '/portal', label: 'Home' }}>
+      <p className="pt-lede">Pick your name once. It goes on the rules you sign and the problems you report from this phone.</p>
+      <ul className="pt-names">
+        {PEOPLE.map((p) => (
+          <li key={p.id}>
+            <button
+              type="button"
+              className={s.me === p.id ? 'pt-on' : undefined}
+              aria-pressed={s.me === p.id}
+              onClick={() => {
+                actions.setMe(p.id);
+                nav('/portal');
+              }}
+            >
+              <span>
+                <b>{p.name}</b> {p.sample && <Sample />}
+                <small>{p.title}</small>
+              </span>
+              {s.me === p.id && <Icon name="check" size={22} />}
+            </button>
+          </li>
+        ))}
+      </ul>
       <p className="pt-fine">
-        Not on the FX4 team? This page is only for FX4 drivers and staff. Call the office at <a href={OFFICE.tel}>{OFFICE.phone}</a>.
+        Not on the list? Call the office at <a href={OFFICE.tel}>{OFFICE.phone}</a>.
       </p>
     </Page>
   );
 }
 
-export function AccessOff() {
+// "Your name" for a signature or a report: remembers the choice on this phone.
+export function NamePicker({ id, value, onChange }: { id: string; value: string; onChange: (v: string) => void }) {
   return (
-    <Page title="Your access is off">
-      <div className="pt-card">
-        <p>Your FX4 portal access has been turned off. If you think that’s a mistake, call the office.</p>
-        <a className="pt-btn" href={OFFICE.tel}>
-          Call the office · {OFFICE.phone}
-        </a>
-      </div>
-      <p className="pt-fine">Demo: Daniel or David turned this person off on the Office screen. Switch people in the yellow bar.</p>
-    </Page>
+    <>
+      <label htmlFor={id}>Your name</label>
+      <select id={id} value={value} onChange={(e) => onChange(e.target.value)}>
+        <option value="">Pick your name</option>
+        {PEOPLE.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.name}
+            {p.sample ? ' (sample)' : ''}
+          </option>
+        ))}
+      </select>
+    </>
   );
 }
 
@@ -90,16 +73,27 @@ const BIG = [
   { to: '/portal/report', icon: 'camera', label: 'Report a problem', sub: 'With photos' },
 ] as const;
 
-export function Home({ me }: { me: Person }) {
+export function Home() {
   const s = usePortal();
-  const sign = toSign(s, me.id);
-  const news = unseenPosts(s, me.id);
+  const me = personById(s.me ?? '');
+  const sign = me ? toSign(s, me.id) : [];
+  const news = unseenPosts(s);
   const [q, setQ] = useState('');
   const hits = useMemo(() => search(q), [q]);
   return (
-    <Page title={`Hi, ${me.sample ? me.name : me.name.split(' ')[0]}`} kicker="FX4 team portal">
-      {(sign.length > 0 || news.length > 0) && (
+    <Page title={me ? `Hi, ${me.sample ? me.name : me.name.split(' ')[0]}` : 'FX4 Team'} kicker="FX4 team portal">
+      {(!me || sign.length > 0 || news.length > 0) && (
         <div className="pt-alerts">
+          {!me && (
+            <Link className="pt-alert" to="/portal/me">
+              <Icon name="users" />
+              <span>
+                <b>Pick your name</b>
+                <small>Once per phone, so your signatures and reports carry it</small>
+              </span>
+              <Icon name="chevron" size={20} />
+            </Link>
+          )}
           {sign.length > 0 && (
             <Link className="pt-alert red" to="/portal/rules">
               <Icon name="shield" />
@@ -318,8 +312,10 @@ export function UnitPage() {
 
 /* ---------- Report a problem ---------- */
 
-export function Report({ me }: { me: Person }) {
+export function Report() {
+  const s = usePortal();
   const location = useLocation();
+  const [by, setBy] = useState(s.me ?? '');
   const pre = (location.state ?? {}) as { unit?: string; kind?: ReportKind };
   const [unit, setUnit] = useState(pre.unit ?? '');
   const [kind, setKind] = useState<ReportKind>(pre.kind ?? 'Defect');
@@ -333,10 +329,11 @@ export function Report({ me }: { me: Person }) {
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
+    if (!by) return setErr('Pick your name.');
     if (!unit) return setErr('Pick the truck or trailer.');
     if (text.trim().length < 3) return setErr('Say what’s wrong in a few words.');
     setErr('');
-    actions.report({ unit, kind, text: text.trim(), urgent, by: me.id, photos: files.length });
+    actions.report({ unit, kind, text: text.trim(), urgent, by, photos: files.length });
     setSentAt(Date.now());
   };
 
@@ -375,6 +372,8 @@ export function Report({ me }: { me: Person }) {
   return (
     <Page title="Report a problem" back={{ to: '/portal', label: 'Home' }}>
       <form className="pt-card pt-form" onSubmit={submit} noValidate>
+        <NamePicker id="pt-by" value={by} onChange={setBy} />
+
         <label htmlFor="pt-unit">Truck or trailer</label>
         <select id="pt-unit" value={unit} onChange={(e) => setUnit(e.target.value)}>
           <option value="">Pick one</option>
@@ -421,7 +420,7 @@ export function Report({ me }: { me: Person }) {
         <button className="pt-btn red" type="submit">
           Send to Daniel and David
         </button>
-        <p className="pt-fine">Your name and the time are added for you.</p>
+        <p className="pt-fine">The time is added for you.</p>
       </form>
     </Page>
   );
@@ -430,7 +429,8 @@ export function Report({ me }: { me: Person }) {
 /* ---------- Team and business info ---------- */
 
 export function Team() {
-  const listed = PEOPLE.filter((p) => p.listed);
+  const s = usePortal();
+  const listed = PEOPLE.filter((p) => isListed(s, p.id));
   const hidden = PEOPLE.length - listed.length;
   return (
     <Page title="Team" kicker={OFFICE.name}>
@@ -483,7 +483,10 @@ export function Team() {
           </li>
         ))}
       </ul>
-      {hidden > 0 && <p className="pt-fine">{hidden === 1 ? '1 person has' : `${hidden} people have`} chosen not to list a number.</p>}
+      <p className="pt-fine">
+        Numbers show only for people who agreed to list them. Anyone with the portal link can see this page.
+        {hidden > 0 ? ` ${hidden === 1 ? '1 person isn’t' : `${hidden} people aren’t`} listed.` : ''}
+      </p>
       <Link className="pt-btn line block" to="/portal/news">
         Announcements
       </Link>
@@ -493,35 +496,14 @@ export function Team() {
 
 /* ---------- Announcements ---------- */
 
-export function News({ me }: { me: Person }) {
+export function News() {
   const s = usePortal();
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
   const ids = s.posts.map((p) => p.id).join(',');
   useEffect(() => {
-    actions.seen(me.id, ids ? ids.split(',') : []);
-  }, [me.id, ids]);
-  const post = (e: FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-    actions.post(me.id, title.trim(), body.trim());
-    setTitle('');
-    setBody('');
-  };
+    actions.seen(ids ? ids.split(',') : []);
+  }, [ids]);
   return (
     <Page title="Announcements" back={{ to: '/portal/team', label: 'Team' }}>
-      {isAdmin(me) && (
-        <form className="pt-card pt-form" onSubmit={post}>
-          <h2>Post to the team</h2>
-          <label htmlFor="pt-nt">Headline</label>
-          <input id="pt-nt" value={title} onChange={(e) => setTitle(e.target.value)} />
-          <label htmlFor="pt-nb">Details</label>
-          <textarea id="pt-nb" rows={3} value={body} onChange={(e) => setBody(e.target.value)} />
-          <button className="pt-btn red" type="submit">
-            Post
-          </button>
-        </form>
-      )}
       <ul className="pt-posts">
         {s.posts.map((p) => (
           <li key={p.id} className="pt-card">
@@ -530,7 +512,7 @@ export function News({ me }: { me: Person }) {
             </h2>
             {p.body && <p>{p.body}</p>}
             <small>
-              {personById(p.by)?.name} · {when(p.at)}
+              {personById(p.by)?.name ?? 'FX4 office'} · {when(p.at)}
             </small>
           </li>
         ))}

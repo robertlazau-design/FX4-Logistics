@@ -3,7 +3,7 @@
 import { useId, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { GUIDES, guideBySlug, minTiedowns, type Guide } from './guides';
-import { actions, usePortal } from './store';
+import { actions, usePortal, viewer } from './store';
 import { CallDavid, Icon, Page, PhotoSlot, Tbd } from './ui';
 
 const GROUPS: Guide['group'][] = ['Right now', 'Equipment', 'On the road', 'Paperwork'];
@@ -41,7 +41,7 @@ export function GuidePage() {
   const { slug } = useParams();
   const g = guideBySlug(slug);
   const s = usePortal();
-  const mine = g && s.me ? s.feedback.find((f) => f.guide === g.slug && f.by === s.me) : undefined;
+  const mine = g ? s.feedback.find((f) => f.guide === g.slug && f.by === viewer(s)) : undefined;
   if (!g)
     return (
       <Page title="Guide not found" back={{ to: '/portal/guides', label: 'Guides' }}>

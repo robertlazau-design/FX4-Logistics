@@ -1,5 +1,6 @@
-// Printable QR stickers, one per trailer and truck. Each code opens that unit's portal page,
-// which asks for sign-in first, so a stranger who scans a parked trailer learns nothing.
+// Printable QR stickers, one per trailer and truck. Each code opens that unit's portal page.
+// The portal has no logins, so the unit page shows nothing a stranger could misuse: no codes,
+// just "call David".
 // Loaded only on this screen, so the QR library never reaches the rest of the site.
 import qrcode from 'qrcode-generator';
 import { UNITS } from './data';
@@ -24,7 +25,7 @@ function Qr({ text, label }: { text: string; label: string }) {
 export default function Stickers() {
   const origin = typeof window === 'undefined' ? '' : window.location.origin;
   return (
-    <Page title="QR stickers" back={{ to: '/portal/admin', label: 'Office' }} wide>
+    <Page title="QR stickers" back={{ to: '/portal/office', label: 'Office' }} wide>
       <p className="pt-lede pt-noprint">
         One for every unit: the landing-gear post on trailers, inside the driver’s door on trucks. Print on outdoor label stock.
       </p>
