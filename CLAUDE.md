@@ -51,7 +51,30 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 | `src/pages/NotFound.tsx` | 404 page |
 | `src/components/` | Header, Footer, PhoneBar, CallAgenda, RouteMap, Ph, PageParts (page hero with breadcrumb, quote band), Graphics (scene, shield, roundel, trailer drawings, exit arrow, icons) |
 | `src/effects.tsx` | Motion effects (see below) |
+| `src/portal/` | The team portal demo under `/portal` (see Team portal below) |
 | `src/index.css` | Brand tokens and all styles |
+
+## Team portal (demo)
+
+A clickable demo of the team portal (Option C in Robert's pitch deck) for showing Daniel before he picks an option. It lives in this repo under `/portal`, but it is not part of the public site.
+
+- **Private by design.** Never linked from the public pages or the menu. `portal.html` (written by `scripts/prerender.mjs`) has `noindex, nofollow`; `vercel.json` sends every `/portal/...` address to it and adds `X-Robots-Tag: noindex, nofollow`; the live `robots.txt` disallows `/portal`.
+- **Loads only when opened.** `App.tsx` lazy-loads `src/portal/PortalApp.tsx` for `/portal` paths, so the public pages don't download it. Its styles are `src/portal/portal.css`, and `index.css` has `@source not "./portal"` so the site's Tailwind CSS is unchanged. The QR library (`qrcode-generator`) loads only on the stickers screen.
+- **Demo data.** Sign-in (one-time code) is simulated, and sign-offs, reports, announcements and switched-off people are saved in the browser only (`localStorage` key `fx4-portal-demo-v1`); the yellow bar switches people and resets the demo. Sample people, units, reports and handbook text are marked "Sample" on screen. Real facts (phone numbers, address, hours, USDOT/MC, dispatcher) come from `src/data/business.ts`.
+- **Never** put lock codes in the portal, sample or real: drivers get them from Daniel or David by phone. Never present sample people, units or rules as real, and never invent FX4 policy: unknowns show as "To fill in" or "From Daniel".
+- **Guides** (`src/portal/guides.ts`) name their source on screen (49 CFR, Oregon DMV CDL manual, ODOT, Schneider). Check a fact at its source before changing it; Daniel's own procedures replace or add to them. Each step has a photo slot to shoot on FX4's equipment; videos can go in the same slots later.
+- **The real version** swaps `src/portal/store.ts` for a database and a real one-time-code sign-in, adds the step photos, and needs FX4's lawyer to review the handbook and sign-off wording.
+- QR stickers (Office → QR stickers) point at the current web address; reprint them once FX4's domain is set.
+
+| File | What's in it |
+| --- | --- |
+| `src/portal/PortalApp.tsx` | Routes, header, tabs and the demo bar |
+| `src/portal/Driver.tsx` | Sign in, home, trailer and truck pages, report a problem, team, announcements |
+| `src/portal/GuideScreens.tsx` | Guide list, one guide, the tiedown calculator |
+| `src/portal/Rules.tsx` | Handbook with versioned sign-off |
+| `src/portal/Admin.tsx` | Office: overview, people and access (with the driver-leaving checklist), sign-off record, maintenance board |
+| `src/portal/Stickers.tsx` | Printable QR stickers |
+| `src/portal/data.ts`, `guides.ts`, `store.ts`, `ui.tsx`, `portal.css` | Content, guide steps, demo state, shared pieces, styles |
 
 ## Photos
 
