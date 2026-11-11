@@ -220,7 +220,7 @@ section{padding:96px 0}
 .also a{font-weight:600}
 
 /* Trailer cards */
-.fleet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-top:44px}
+.fleet{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:44px}
 .rig{position:relative;isolation:isolate;background:var(--white);border:1px solid var(--rule);border-radius:3px;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .rig .art{background:linear-gradient(180deg,#f9f6ef,#efe9dc);border-bottom:1px solid var(--rule);padding:22px 16px 10px;position:relative}
 .rig .art svg{display:block;width:100%;height:auto}
@@ -322,6 +322,7 @@ ul.checks a{font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .hiring dl div+div{border-left:1px solid rgba(255,255,255,.35)}
 .hiring dt{font:600 11px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#ffd9d4;margin-bottom:6px}
 .hiring dd{margin:0;font:600 17px/1.25 var(--slab)}
+.hiring dd small{display:block;margin-top:4px;font:500 13px/1.3 var(--sans);opacity:.85}
 .hiring .qn{background:#fff;color:var(--red)}
 
 /* Contact / quote form */
@@ -333,6 +334,7 @@ ul.checks a{font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .info dt,.info dd{padding:10px 0;border-top:1px solid rgba(255,255,255,.12);margin:0}
 .info dt{font:600 11.5px/1.9 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--steel);padding-right:18px}
 .info dd{color:#fff}
+.info dd a{color:#fff;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 .info .exitline{display:flex;align-items:center;gap:10px}
 .rfq{background:var(--paper);border:1.5px solid var(--navy);border-radius:3px;overflow:hidden}
 .rfq .hd{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--navy);color:#fff;padding:12px 20px;font:600 12px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase}
@@ -418,7 +420,8 @@ footer .legal{border-top:1px solid #23344f;margin-top:38px;padding-top:18px;disp
 
 @media (max-width:1100px){
   .hero .inner{grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:36px}
-  .fleet,.signs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .signs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fleet{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:980px){
   /* one column: darken the photo evenly so text reads across the full width */
