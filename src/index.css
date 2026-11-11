@@ -177,6 +177,20 @@ section{padding:96px 0}
   linear-gradient(180deg,#cdd5dc 0%,#aeb8c1 55%,#8a949c 56%,#6d7680 100%)}
 .photo.warm{background:radial-gradient(120% 80% at 30% 20%,rgba(255,255,255,.35),transparent 60%),linear-gradient(180deg,#ddd5c8 0%,#c6bcad 52%,#a2988a 53%,#837a6e 100%)}
 .photo .tag{position:absolute;left:12px;bottom:12px;margin-right:12px}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+
+/* FX4's own photos: behind a hero, and the "On the road" row on Trucking */
+.bgphoto{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;display:block}
+.hero.has-photo::before{background:
+  linear-gradient(90deg,rgba(15,26,43,.93) 0%,rgba(15,26,43,.76) 40%,rgba(15,26,43,.28) 72%,rgba(15,26,43,.1) 100%),
+  linear-gradient(0deg,rgba(15,26,43,.85) 0%,rgba(15,26,43,0) 45%)}
+.phero.has-photo::before{background:
+  linear-gradient(90deg,rgba(15,26,43,.93) 0%,rgba(15,26,43,.78) 42%,rgba(15,26,43,.32) 75%,rgba(15,26,43,.14) 100%),
+  linear-gradient(0deg,rgba(15,26,43,.85) 0%,rgba(15,26,43,0) 55%)}
+.onroad{padding-bottom:0}
+.road{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:28px}
+.road figure{margin:0;aspect-ratio:4/3;border-radius:3px;overflow:hidden;background:var(--navy-dark)}
+.road img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* About */
 .note{position:relative;background:var(--white)}
@@ -206,7 +220,7 @@ section{padding:96px 0}
 .also a{font-weight:600}
 
 /* Trailer cards */
-.fleet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-top:44px}
+.fleet{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:44px}
 .rig{position:relative;isolation:isolate;background:var(--white);border:1px solid var(--rule);border-radius:3px;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .rig .art{background:linear-gradient(180deg,#f9f6ef,#efe9dc);border-bottom:1px solid var(--rule);padding:22px 16px 10px;position:relative}
 .rig .art svg{display:block;width:100%;height:auto}
@@ -308,6 +322,7 @@ ul.checks a{font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .hiring dl div+div{border-left:1px solid rgba(255,255,255,.35)}
 .hiring dt{font:600 11px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#ffd9d4;margin-bottom:6px}
 .hiring dd{margin:0;font:600 17px/1.25 var(--slab)}
+.hiring dd small{display:block;margin-top:4px;font:500 13px/1.3 var(--sans);opacity:.85}
 .hiring .qn{background:#fff;color:var(--red)}
 
 /* Contact / quote form */
@@ -319,6 +334,7 @@ ul.checks a{font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .info dt,.info dd{padding:10px 0;border-top:1px solid rgba(255,255,255,.12);margin:0}
 .info dt{font:600 11.5px/1.9 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--steel);padding-right:18px}
 .info dd{color:#fff}
+.info dd a{color:#fff;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 .info .exitline{display:flex;align-items:center;gap:10px}
 .rfq{background:var(--paper);border:1.5px solid var(--navy);border-radius:3px;overflow:hidden}
 .rfq .hd{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--navy);color:#fff;padding:12px 20px;font:600 12px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase}
@@ -404,9 +420,12 @@ footer .legal{border-top:1px solid #23344f;margin-top:38px;padding-top:18px;disp
 
 @media (max-width:1100px){
   .hero .inner{grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:36px}
-  .fleet,.signs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .signs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fleet{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:980px){
+  /* one column: darken the photo evenly so text reads across the full width */
+  .hero.has-photo::before,.phero.has-photo::before{background:linear-gradient(0deg,rgba(15,26,43,.94) 0%,rgba(15,26,43,.8) 50%,rgba(15,26,43,.58) 100%)}
   .two,.why,.area,.contact{grid-template-columns:minmax(0,1fr);gap:40px}
   .hero .inner{grid-template-columns:minmax(0,1fr);min-height:0;padding-top:72px}
   .hero .bol{max-width:560px}
@@ -423,6 +442,7 @@ footer .legal{border-top:1px solid #23344f;margin-top:38px;padding-top:18px;disp
   .agenda-pill{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 }
 @media (max-width:640px){
+  .road{grid-template-columns:minmax(0,1fr)}
   body{font-size:16.5px}
   .draft{font-size:12.5px}
   .draft .why-txt{display:none}

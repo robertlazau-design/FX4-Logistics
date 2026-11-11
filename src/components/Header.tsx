@@ -27,7 +27,7 @@ export default function Header({ onAgenda, agendaOpen }: { onAgenda: (el: HTMLEl
             <span>
               <b>Draft preview</b> by Golden Boy Productions.{' '}
               <span className="why-txt">
-                <span className="ph">Yellow</span> = confirm with Daniel (numbers match the call agenda). Gray frames and drawings get swapped for the photo shoot.
+                <span className="ph">Yellow</span> = confirm with Daniel (numbers match the call agenda). Gray frames and drawings are stand-ins until there are photos for them.
               </span>
             </span>
             <button type="button" aria-controls="agenda" aria-expanded={agendaOpen} onClick={(e) => onAgenda(e.currentTarget)}>
@@ -43,7 +43,7 @@ export default function Header({ onAgenda, agendaOpen }: { onAgenda: (el: HTMLEl
             {BUSINESS.street} · {BUSINESS.city}, {BUSINESS.region} {BUSINESS.zip}
           </span>
           <span className="hide-sm">
-            Office: <Ph q="hours">office hours</Ph>
+            Office: <Ph q="days">Mon–Fri</Ph> {BUSINESS.hours}
           </span>
           <span className="mono">
             USDOT {BUSINESS.usdot} · MC {BUSINESS.mc}

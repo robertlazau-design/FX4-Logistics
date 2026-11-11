@@ -1,15 +1,15 @@
 # FX4 Logistics: notes for Claude
 
-The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, step deck, dry van, hopper) with a new warehouse, based at 23605 NE Halsey St, Ste C, Wood Village, Oregon, off I-84 exit 16. Robert Lazau (Golden Boy Productions) builds and runs it for the owner, Daniel. Read this before changing anything.
+The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, step deck, dry van; no hopper or farm loads) with a new 25,000 sq ft warehouse, based at 23605 NE Halsey St, Ste C, Wood Village, Oregon, off I-84 exit 16. Robert Lazau (Golden Boy Productions) builds and runs it for the owner, Daniel. Read this before changing anything.
 
 ## Status: draft preview
 
 `DRAFT = true` in `src/data/business.ts`. In draft mode the site shows a yellow draft banner, the yellow `<Ph>` placeholders (each numbered to match the call agenda) and Robert's call agenda panel, and it keeps search engines out: every page gets `noindex`, `robots.txt` blocks crawlers, and there's no canonical or sitemap.
 
 **Before launch:**
-1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`).
-2. Confirm the domain, set `SITE_URL` in `src/seo.ts`, add the domain to the `fx4-logistics` Vercel project and redirect `fx4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
-3. Swap the stand-in scene, photo frames and trailer drawings for the photo shoot (if he books it), and the FX4 roundel for his real logo.
+1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`). His answers from the Nov 11 call are already in `src/data/business.ts` (`BUSINESS`, `STATES`, `LANES`, `WAREHOUSE`, `DRIVERS`); the call agenda now holds only the follow-ups. Don't show an email address until FX4 owns its domain (fx4logistics.com belongs to someone else).
+2. Confirm the domain, set `SITE_URL` in `src/seo.ts`, add the domain to the `fx-4-logistics` Vercel project and redirect `fx-4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
+3. Real FX4 truck photos are in (see Photos below). Still stand-ins: the Warehousing hero and warehouse photo, the About crew photo, the Driver Jobs and Contact heroes, the trailer drawings and the FX4 roundel (swap for his real logo).
 4. Connect the quote form to Robert's Web3Forms account (never the client's), and never submit it as a test.
 5. Re-check the FMCSA/CarrierSource safety numbers in `SAFETY`.
 6. Set `DRAFT = false`. The build stops if any `<Ph>` is left. Draft mode off turns on the canonical, sitemap, robots `Allow` and LocalBusiness JSON-LD.
@@ -25,7 +25,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 ## Stack
 
 - Vite, React 19, React Router 7 and Tailwind CSS 4.
-- Vercel project `fx4-logistics` (robertlazau-design's projects), linked to this repo; it's the only one. Production branch is `main` and every pushed branch gets a preview build. Standard Protection is on: preview and per-build links need a Vercel login, but the production address `fx4-logistics.vercel.app` is open to anyone with the link (draft mode keeps search engines out).
+- Vercel project `fx-4-logistics` (robertlazau-design's projects), linked to this repo; it's the only one (the old `fx4-logistics` project was deleted). Production branch is `main` and every pushed branch gets a preview build. Standard Protection is on: preview and per-build links need a Vercel login, but the production address `fx-4-logistics.vercel.app` is open to anyone with the link (draft mode keeps search engines out).
 - Seven pages, each its own route and prerendered file: `/` (Home), `/trucking`, `/warehousing`, `/about`, `/service-area`, `/driver-jobs`, `/contact`. To add one: a page in `src/pages/`, a `<Route>` in `src/App.tsx`, a title and description in `PAGE_META` (`src/seo.ts`) and, for the menu, an entry in `src/data/pages.ts`.
 - Links between pages use React Router `<Link>`, so moving between pages doesn't reload; `App.tsx` scrolls to the top, updates the tab title and moves focus to the new page.
 - The quote form lives on `/contact` only. Buttons elsewhere link there with some fields filled in through router state (`quoteFor()` in `src/data/quote.ts`), never through the address bar.
@@ -38,6 +38,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 | `src/data/business.ts` | `DRAFT` switch, contact and carrier details (USDOT, MC, phone, address), safety numbers, states, hauls, form choices |
 | `src/data/agenda.ts` | The call agenda questions; ids match the `<Ph q>` placeholders, and `path` is the page each "show" link opens |
 | `src/data/pages.ts` | The menu: page paths and labels in order |
+| `src/data/photos.ts` | FX4's own truck photos: file, alt text and crop for each; `srcSet()` for the full and half-size copies |
 | `src/data/quote.ts` | Quote form fields and `quoteFor()`, which other pages use to prefill the Contact form |
 | `src/seo.ts` | Titles and descriptions for every page, `SITE_URL`, JSON-LD (live mode only: LocalBusiness on Home, breadcrumbs elsewhere) |
 | `src/pages/Home.tsx` | Short overview: hero with the quick quote, safety strip, one highway sign per page, call-to-delivery steps, quote band |
@@ -51,6 +52,13 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 | `src/components/` | Header, Footer, PhoneBar, CallAgenda, RouteMap, Ph, PageParts (page hero with breadcrumb, quote band), Graphics (scene, shield, roundel, trailer drawings, exit arrow, icons) |
 | `src/effects.tsx` | Motion effects (see below) |
 | `src/index.css` | Brand tokens and all styles |
+
+## Photos
+
+- FX4's own truck photos (from Daniel, Nov 2026) live in `public/photos/`, each at full size and half size (`-sm`), with GPS and camera data stripped. `src/data/photos.ts` lists them with alt text and crop.
+- Where they are: the Home hero (night Peterbilt), the Trucking hero (loaded flatbed) and its "On the road" row, the About and Service Area heroes, and the Driver Jobs frame (Peterbilt in snow).
+- `PageHero` takes `photo={PHOTOS.x}` in place of `slot`; the hero then shows the photo under a darker gradient (`.has-photo`) instead of the drawn scene. Hero photos load first (`fetchPriority="high"`); everything else lazy-loads.
+- Never caption a photo with a place, load or trailer type Daniel hasn't confirmed.
 
 ## Brand
 

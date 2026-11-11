@@ -1,7 +1,7 @@
 // Titles, descriptions and structured data for every page. scripts/prerender.mjs bakes them into
 // each page's HTML at build time. In draft mode the pages get noindex and no canonical, because
 // the web address isn't confirmed yet (agenda #22).
-import { BUSINESS, DRAFT } from './data/business';
+import { BUSINESS, DRAFT, STATES } from './data/business';
 import { NAV } from './data/pages';
 
 // TODO before launch: confirm the domain with Daniel.
@@ -90,7 +90,7 @@ export const pageJsonLd = (path: string) => {
         postalCode: BUSINESS.zip,
         addressCountry: 'US',
       },
-      areaServed: ['Oregon', 'Washington', 'California', 'Idaho', 'Montana', 'Utah', 'Wyoming'],
+      areaServed: STATES.map((s) => s.name),
       identifier: [
         { '@type': 'PropertyValue', name: 'USDOT', value: BUSINESS.usdot },
         { '@type': 'PropertyValue', name: 'MC', value: BUSINESS.mc },

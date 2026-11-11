@@ -2,15 +2,14 @@
 import { Link } from 'react-router-dom';
 import { BUSINESS, HAULS, SAFETY } from '../data/business';
 import { quoteFor, type Trailer } from '../data/quote';
-import { Ph } from '../components/Ph';
 import { TrailerArt } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
+import { PHOTOS, srcSet } from '../data/photos';
 
-const RIGS: { kind: 'flatbed' | 'stepdeck' | 'dryvan' | 'hopper'; title: string; text: string; fits: string[]; equip: Trailer; cta: string; confirm?: string }[] = [
+const RIGS: { kind: 'flatbed' | 'stepdeck' | 'dryvan' | 'hopper'; title: string; text: string; fits: string[]; equip: Trailer; cta: string }[] = [
   { kind: 'flatbed', title: 'Flatbed', text: 'Lumber, steel and building materials, strapped and tarped by experienced drivers.', fits: ['Lumber', 'Steel', 'Building materials'], equip: 'Flatbed', cta: 'Get a flatbed quote' },
   { kind: 'stepdeck', title: 'Step Deck', text: 'Machinery and taller loads that need the lower deck to stay under height limits.', fits: ['Machinery', 'Tall loads', 'Equipment'], equip: 'Step deck', cta: 'Get a step deck quote' },
   { kind: 'dryvan', title: 'Dry Van', text: 'Palletized and general freight that needs to stay covered from pickup to delivery.', fits: ['Pallets', 'General freight', 'Boxed goods'], equip: 'Dry van', cta: 'Get a dry van quote' },
-  { kind: 'hopper', title: 'Hopper & Farm Loads', text: 'Grain, feed and farm supplies for growers and suppliers around the region.', fits: ['Grain', 'Feed', 'Farm supplies'], equip: 'Hopper', cta: 'Get a hopper quote', confirm: 'hopper' },
 ];
 
 export default function Trucking() {
@@ -19,8 +18,8 @@ export default function Trucking() {
       <PageHero
         crumb="Trucking"
         title="Flatbed, step deck & dry van trucking."
-        lede="Full truckload service on our own trucks with our own drivers. Lumber, steel, machinery, building materials and farm loads."
-        slot="Photo slot: a loaded FX4 flatbed, strapped and tarped"
+        lede="Full truckload service on our own trucks with our own drivers. Lumber, steel, machinery and building materials."
+        photo={PHOTOS.trucking}
       >
         <Link className="btn btn-red magnetic" to="/contact" state={quoteFor('Trucking (one load)')}>
           Get a trucking quote <span aria-hidden="true">›</span>
@@ -48,7 +47,7 @@ export default function Trucking() {
                 <div className="body">
                   <h3>{r.title}</h3>
                   <p>
-                    {r.text} {r.confirm && <Ph q={r.confirm}>confirm</Ph>}
+                    {r.text}
                   </p>
                   <ul className="fits">
                     {r.fits.map((f) => (
@@ -71,6 +70,21 @@ export default function Trucking() {
         </div>
       </section>
 
+      {/* ON THE ROAD: FX4's own trucks */}
+      <section className="onroad">
+        <div className="wrap">
+          <p className="eyebrow">On the road</p>
+          <h2>Our trucks, our drivers, all year.</h2>
+          <div className="road">
+            {PHOTOS.road.map((ph) => (
+              <figure key={ph.src}>
+                <img src={ph.src} srcSet={srcSet(ph)} sizes="(max-width: 640px) 100vw, 33vw" alt={ph.alt} loading="lazy" decoding="async" />
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* WHY + CARRIER PACKET */}
       <section>
         <div className="wrap why">
@@ -82,7 +96,7 @@ export default function Trucking() {
                 <b>Our trucks, our drivers.</b> Your load isn't handed off to a carrier you've never heard of.
               </li>
               <li>
-                <b>A real person answers.</b> Call <Ph q="answers">Daniel / dispatch</Ph> directly for pickup times and updates.
+                <b>A real person answers.</b> Call {BUSINESS.dispatcher} in dispatch at <a className="nw" href={BUSINESS.dispatchHref}>{BUSINESS.dispatchDisplay}</a> for pickup times and updates.
               </li>
               <li>
                 <b>Clean driver record.</b> No driver out-of-service orders in {SAFETY.inspections} roadside inspections and no reported crashes in the last two years.*
@@ -114,11 +128,11 @@ export default function Trucking() {
                 <dd>{BUSINESS.liability}</dd>
                 <dt>Cargo</dt>
                 <dd>
-                  <Ph q="cargo">$______</Ph>
+                  {BUSINESS.cargo}
                 </dd>
                 <dt>Equipment</dt>
                 <dd>
-                  <Ph q="fleet">__ tractors, __ trailers</Ph>
+                  {BUSINESS.fleetText}
                 </dd>
               </dl>
               <div className="actions">

@@ -1,11 +1,11 @@
 // Schematic route map (not to scale): the interstates out of Wood Village.
 // I-5 north to Washington and south to California, I-84 east to Idaho and on to Utah,
-// I-15 up to Montana and I-80 across to Wyoming. The lines draw in the first time the map
+// I-15 up to Montana, I-80 across to Wyoming and west to Nevada and the Bay Area, and I-25
+// down to Colorado. The lines draw in the first time the map
 // scrolls into view (usePlayOnScroll); without JavaScript or with reduced motion they're
 // simply drawn.
 import { useRef, type CSSProperties } from 'react';
 import { usePlayOnScroll } from '../effects';
-import { Ph } from './Ph';
 
 const ROUTES: { d: string; color: string; delay: number }[] = [
   { d: 'M118 192C112 150 104 112 96 70', color: '#c9d4e2', delay: 0.1 },
@@ -14,6 +14,9 @@ const ROUTES: { d: string; color: string; delay: number }[] = [
   { d: 'M300 246C330 290 352 330 372 378', color: '#e8c58e', delay: 0.7 },
   { d: 'M300 246C336 196 380 150 420 104', color: '#9fb0c6', delay: 0.9 },
   { d: 'M372 378C410 350 448 330 486 316', color: '#9fb0c6', delay: 1.05 },
+  { d: 'M372 378C320 368 274 366 228 368', color: '#c9d4e2', delay: 1.1 },
+  { d: 'M228 368C180 392 130 412 86 430', color: '#c9d4e2', delay: 1.25 },
+  { d: 'M486 316C498 350 506 386 508 420', color: '#9fb0c6', delay: 1.3 },
 ];
 const SHIELDS = [
   { x: 88, y: 112, n: '5' },
@@ -22,6 +25,8 @@ const SHIELDS = [
   { x: 330, y: 296, n: '84' },
   { x: 362, y: 150, n: '15' },
   { x: 424, y: 326, n: '80' },
+  { x: 286, y: 336, n: '80' },
+  { x: 504, y: 352, n: '25' },
 ];
 const NODES = [
   { cx: 96, cy: 70, label: 'WA', tx: 112, ty: 74, color: '#c9d4e2', delay: 0.4 },
@@ -30,6 +35,8 @@ const NODES = [
   { cx: 372, cy: 378, label: 'UT', tx: 386, ty: 398, color: '#e8c58e', delay: 0.95 },
   { cx: 420, cy: 104, label: 'MT', tx: 436, ty: 108, color: '#9fb0c6', delay: 1.1 },
   { cx: 486, cy: 316, label: 'WY', tx: 470, ty: 296, color: '#9fb0c6', delay: 1.25 },
+  { cx: 228, cy: 368, label: 'NV', tx: 206, ty: 394, color: '#c9d4e2', delay: 1.35 },
+  { cx: 508, cy: 420, label: 'CO', tx: 476, ty: 446, color: '#9fb0c6', delay: 1.5 },
 ];
 
 const css = (vars: Record<string, string>) => vars as CSSProperties;
@@ -50,7 +57,7 @@ export default function RouteMap() {
     <div className="map" ref={ref}>
       <svg viewBox="0 0 560 470" role="img" aria-labelledby="mapT mapD">
         <title id="mapT">Route map</title>
-        <desc id="mapD">From Wood Village, Oregon: I-5 north to Washington and south to California, I-84 east to Idaho and Utah, I-15 to Montana and I-80 to Wyoming.</desc>
+        <desc id="mapD">From Wood Village, Oregon: I-5 north to Washington and south to California, I-84 east to Idaho and Utah, I-15 to Montana, I-80 to Wyoming and west to Nevada and San Francisco, and I-25 to Colorado.</desc>
         <path d="M0 78H560M0 156H560M0 234H560M0 312H560M0 390H560M80 0V470M190 0V470M300 0V470M410 0V470M520 0V470" stroke="#2a3b57" strokeWidth="1" opacity=".6" />
         <g fill="none" strokeLinecap="round" strokeLinejoin="round">
           {ROUTES.map((r) => (
@@ -89,7 +96,7 @@ export default function RouteMap() {
         </g>
       </svg>
       <p className="legend">
-        Schematic, not to scale · <Ph q="lanes">real lanes after the call</Ph>
+        Schematic, not to scale
       </p>
     </div>
   );

@@ -1,11 +1,10 @@
 // Driver Jobs: why drive for FX4, pay and home time (placeholders until the call), and the
 // apply button, which opens the contact form set to "Driver job".
 import { Link } from 'react-router-dom';
-import { BUSINESS, SAFETY } from '../data/business';
+import { BUSINESS, DRIVERS, SAFETY } from '../data/business';
 import { quoteFor } from '../data/quote';
-import { Ph } from '../components/Ph';
-import { PhotoTag } from '../components/Graphics';
 import { PageHero } from '../components/PageParts';
+import { PHOTOS, srcSet } from '../data/photos';
 
 export default function DriverJobs() {
   const apply = quoteFor('Driver job');
@@ -35,7 +34,7 @@ export default function DriverJobs() {
                 <b>Our own trucks and trailers.</b> Flatbed, step deck and dry van, owned and run by FX4.
               </li>
               <li>
-                <b>Kept up by our own shop.</b> Our sister company, {BUSINESS.sister}, repairs heavy trucks and trailers at the same address. <Ph q="bridgetown">confirm</Ph>
+                <b>Kept up by our own shop.</b> Our sister company, {BUSINESS.sister}, repairs heavy trucks and trailers at the same address.
               </li>
               <li>
                 <b>A clean safety record.</b> No driver out-of-service orders in {SAFETY.inspections} roadside inspections and no reported crashes in the last two years.*
@@ -47,7 +46,7 @@ export default function DriverJobs() {
             <p className="foot">*{SAFETY.source}</p>
           </div>
           <div className="photo">
-            <PhotoTag>Photo slot: a driver doing a walk-around before a run</PhotoTag>
+            <img src={PHOTOS.driver.src} srcSet={srcSet(PHOTOS.driver)} sizes="(max-width: 980px) 100vw, 50vw" alt={PHOTOS.driver.alt} loading="lazy" decoding="async" />
           </div>
         </div>
       </section>
@@ -62,11 +61,14 @@ export default function DriverJobs() {
           <dl>
             <div>
               <dt>Pay</dt>
-              <dd><Ph q="pay">$___</Ph></dd>
+              <dd>
+                {DRIVERS.payMile}
+                <small>{DRIVERS.payWeek}</small>
+              </dd>
             </div>
             <div>
               <dt>Home time</dt>
-              <dd><Ph q="home">______</Ph></dd>
+              <dd>{DRIVERS.home}</dd>
             </div>
             <div>
               <dt>Equipment</dt>

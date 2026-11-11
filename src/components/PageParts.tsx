@@ -5,12 +5,29 @@ import { Link } from 'react-router-dom';
 import { BUSINESS } from '../data/business';
 import type { QuoteNav } from '../data/quote';
 import { PhotoTag, Scene, Shield } from './Graphics';
+import { srcSet, type Photo } from '../data/photos';
 
-export function PageHero({ crumb, title, lede, slot, children }: { crumb: string; title: ReactNode; lede?: ReactNode; slot?: string; children?: ReactNode }) {
+// A real photo behind a hero (the Home hero and the inner-page heroes). Loads first: it's the LCP.
+export function HeroPhoto({ photo }: { photo: Photo }) {
   return (
-    <div className="phero">
-      <Scene id="ph" />
-      {slot && (
+    <img
+      className="bgphoto"
+      src={photo.src}
+      srcSet={srcSet(photo)}
+      sizes="100vw"
+      alt={photo.alt}
+      fetchPriority="high"
+      decoding="async"
+      style={photo.pos ? { objectPosition: photo.pos } : undefined}
+    />
+  );
+}
+
+export function PageHero({ crumb, title, lede, slot, photo, children }: { crumb: string; title: ReactNode; lede?: ReactNode; slot?: string; photo?: Photo; children?: ReactNode }) {
+  return (
+    <div className={photo ? 'phero has-photo' : 'phero'}>
+      {photo ? <HeroPhoto photo={photo} /> : <Scene id="ph" />}
+      {slot && !photo && (
         <div className="slot">
           <PhotoTag>{slot}</PhotoTag>
         </div>

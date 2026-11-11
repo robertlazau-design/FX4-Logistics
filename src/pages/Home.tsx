@@ -5,9 +5,9 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BUSINESS, SAFETY, TRAILERS } from '../data/business';
 import { quoteFor, type QuoteNav, type Trailer } from '../data/quote';
-import { Ph } from '../components/Ph';
-import { ExitArrow, PhotoTag, Scene, Shield } from '../components/Graphics';
-import { QuoteBand } from '../components/PageParts';
+import { ExitArrow, Shield } from '../components/Graphics';
+import { HeroPhoto, QuoteBand } from '../components/PageParts';
+import { PHOTOS } from '../data/photos';
 
 const SIGNS = [
   { exit: 1, to: '/trucking', title: 'Trucking', text: 'Flatbed, step deck and dry van, on our own trucks with our own drivers.', go: 'See our trailers' },
@@ -18,7 +18,7 @@ const SIGNS = [
 
 const STEPS = [
   { title: 'Call or send the load', text: 'Pickup, delivery, what it is and when. We get back to you with a price.' },
-  { title: 'We match the trailer', text: 'Flatbed, step deck, dry van or hopper, based on the load.' },
+  { title: 'We match the trailer', text: 'Flatbed, step deck or dry van, based on the load.' },
   { title: 'Our driver hauls it', text: 'Your freight stays on FX4 equipment the whole way. No hand-offs.' },
   { title: 'Delivered, or stored', text: "Straight to the site, or into our warehouse until you're ready." },
 ];
@@ -35,13 +35,10 @@ export default function Home() {
   return (
     <>
       {/* HERO */}
-      <div className="hero">
-        <Scene id="hero" />
+      <div className="hero has-photo">
+        <HeroPhoto photo={PHOTOS.home} />
         <div className="sweep" aria-hidden="true">
           <span />
-        </div>
-        <div className="slot">
-          <PhotoTag>Photo/video slot: an FX4 flatbed rolling down I-84 in the Gorge</PhotoTag>
         </div>
 
         <div className="wrap inner">
@@ -131,9 +128,9 @@ export default function Home() {
             <span className="what">our own interstate authority since</span>
           </li>
           <li>
-            <span className="big">{SAFETY.trucksOnRecord}</span>
+            <span className="big">{BUSINESS.fleet}</span>
             <span className="what">
-              trucks on our FMCSA record* <Ph q="fleet">confirm</Ph>
+              trucks and trailers in our fleet
             </span>
           </li>
           <li className="src">*{SAFETY.source}</li>

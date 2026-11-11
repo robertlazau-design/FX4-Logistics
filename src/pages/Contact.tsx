@@ -58,7 +58,7 @@ export default function Contact() {
             <p className="eyebrow">Get a quote</p>
             <h2>Tell us about the load.</h2>
             <p>
-              Send us the details and we'll get back to you <Ph q="reply">the same business day</Ph>. If it's urgent, just call.
+              Send us the details and we'll get back to you {BUSINESS.reply}. If it's urgent, just call.
             </p>
             <div className="info">
               <h3>{BUSINESS.name}</h3>
@@ -67,7 +67,11 @@ export default function Contact() {
               </a>
               <dl>
                 <dt>Email</dt>
-                <dd><Ph q="email">dispatch@fx4logistics.com</Ph></dd>
+                <dd><Ph q="email">email to come</Ph></dd>
+                <dt>Dispatch</dt>
+                <dd>
+                  {BUSINESS.dispatcher} · <a href={BUSINESS.dispatchHref}>{BUSINESS.dispatchDisplay}</a>
+                </dd>
                 <dt>Address</dt>
                 <dd>
                   {BUSINESS.street}
@@ -75,7 +79,7 @@ export default function Contact() {
                   {BUSINESS.city}, {BUSINESS.region} {BUSINESS.zip}
                 </dd>
                 <dt>Office</dt>
-                <dd><Ph q="hours">office hours</Ph></dd>
+                <dd><Ph q="days">Mon–Fri</Ph> {BUSINESS.hours}</dd>
                 <dt>Directions</dt>
                 <dd className="exitline">
                   <Shield num="84" size={26} />
