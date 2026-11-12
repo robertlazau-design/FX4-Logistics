@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { BUSINESS, SERVICE_OPTIONS, TRAILERS } from '../data/business';
 import { QUOTE_DEFAULT, type QuoteNav, type QuoteState, type Service, type Trailer } from '../data/quote';
-import { Ph } from '../components/Ph';
 import { Shield } from '../components/Graphics';
 import { PageHero } from '../components/PageParts';
 import { reducedMotion } from '../effects';
@@ -68,7 +67,7 @@ export default function Contact() {
               </a>
               <dl>
                 <dt>Email</dt>
-                <dd><Ph q="email">email to come</Ph></dd>
+                <dd><a href={BUSINESS.emailHref}>{BUSINESS.email}</a></dd>
                 <dt>Dispatch</dt>
                 <dd>
                   {BUSINESS.dispatcher} · <a href={BUSINESS.dispatchHref}>{BUSINESS.dispatchDisplay}</a>
@@ -80,7 +79,7 @@ export default function Contact() {
                   {BUSINESS.city}, {BUSINESS.region} {BUSINESS.zip}
                 </dd>
                 <dt>Office</dt>
-                <dd><Ph q="days">Mon–Fri</Ph> {BUSINESS.hours}</dd>
+                <dd>{BUSINESS.days} {BUSINESS.hours}</dd>
                 <dt>Directions</dt>
                 <dd className="exitline">
                   <Shield num="84" size={26} />
