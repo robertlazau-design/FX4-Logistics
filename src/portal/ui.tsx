@@ -32,6 +32,12 @@ const PATHS = {
   back: <path d="m15 6-6 6 6 6" />,
   power: <><path d="M12 3v8" /><path d="M6.3 6.8a8 8 0 1 0 11.4 0" /></>,
   out: <><path d="M15 4h4v16h-4" /><path d="m10 8-4 4 4 4M6 12h10" /></>,
+  checklist: <><path d="m4 6 1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17" /><path d="M11 6h9M11 12h9M11 18h9" /></>,
+  fuel: <><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M3 21h12M7 8h4" /><path d="M14 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8.5l-3-3" /></>,
+  receipt: <><path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21Z" /><path d="M9 8h6M9 12h6M9 16h3" /></>,
+  dock: <><path d="M3 9l9-5 9 5v11H3Z" /><path d="M7 20v-7h10v7M7 16.5h10" /></>,
+  flag: <><path d="M5 21V4" /><path d="M5 4h12l-2.5 4L17 12H5" /></>,
+  question: <><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01" /></>,
 };
 
 export type IconName = keyof typeof PATHS;

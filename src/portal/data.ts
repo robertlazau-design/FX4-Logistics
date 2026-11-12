@@ -48,12 +48,12 @@ export const UNITS: Unit[] = [
   {
     id: '101', label: 'Truck 101', kind: 'truck', kindLabel: 'Tractor', sample: true,
     lock: { what: 'Truck keys', how: 'Ask David where the keys are.' },
-    guides: ['hook-up', 'drop', 'inspection', 'breakdown', 'chains'], specs: TRUCK_SPECS,
+    guides: ['pre-trip', 'hook-up', 'drop', 'fuel', 'inspection', 'breakdown', 'chains'], specs: TRUCK_SPECS,
   },
   {
     id: '102', label: 'Truck 102', kind: 'truck', kindLabel: 'Tractor', sample: true,
     lock: { what: 'Truck keys', how: 'Ask David where the keys are.' },
-    guides: ['hook-up', 'drop', 'inspection', 'breakdown', 'chains'], specs: TRUCK_SPECS,
+    guides: ['pre-trip', 'hook-up', 'drop', 'fuel', 'inspection', 'breakdown', 'chains'], specs: TRUCK_SPECS,
   },
   {
     id: '201', label: 'Flatbed 201', kind: 'flatbed', kindLabel: 'Flatbed', sample: true,

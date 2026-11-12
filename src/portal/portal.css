@@ -205,6 +205,20 @@
 .pt-links a{font-weight:700}
 .pt-fx4{font-size:15.5px}
 .pt-source{font-size:14px;color:var(--muted);font-style:italic}
+.pt-step-fx4{margin:8px 0 0}
+
+/* New here? Start here */
+.pt-start{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:10px}
+.pt-start>li{display:flex;gap:14px;align-items:flex-start;padding:16px;border:1px solid var(--rule);border-radius:6px;background:var(--paper)}
+.pt-start-n{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;font:700 15px/1 var(--mono)}
+.pt-start>li.pt-done-step .pt-start-n{background:#2e7d4a}
+.pt-start-b{flex:1;min-width:0}
+.pt-start-b h2{font:700 19px/1.2 var(--slab);color:var(--navy);margin:4px 0 6px}
+.pt-start-b p{margin:0 0 8px}
+.pt-start-b .pt-btn{margin:4px 0 0}
+.pt-start-b .pt-call.block{margin:8px 0 0}
+.pt-list-tight{margin:8px 0 0}
+.pt-list-tight a{min-height:52px;padding:8px 12px}
 .pt-stuck{margin-top:18px}
 .pt-helped{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
 .pt-helped button,.pt-filter button{min-height:44px;padding:0 16px;border:2px solid var(--navy);border-radius:999px;background:#fff;color:var(--navy);font:700 15px/1 var(--sans);cursor:pointer}

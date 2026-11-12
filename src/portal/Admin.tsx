@@ -1,10 +1,12 @@
 // The office side, for Daniel and David, at /portal/office (an address only they are given;
 // there are no logins): what needs attention, announcements, the team list (with the
-// checklist for when a driver leaves), the sign-off record and the maintenance board.
+// checklist for when a driver leaves), the sign-off record, the maintenance board and the
+// list of questions only Daniel can answer.
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { PEOPLE, RULES, UNITS, personById, unitById, type Unit } from './data';
-import { guideBySlug } from './guides';
+import { GUIDES, guideBySlug } from './guides';
+import { START_STEPS } from './Start';
 import {
   REPORT_STATUSES,
   actions,
@@ -93,6 +95,11 @@ export function AdminHome() {
           <b>QR stickers</b>
           <small>Print one for every trailer and truck</small>
         </Link>
+        <Link className="pt-tile" to="/portal/office/questions">
+          <Icon name="question" size={28} />
+          <b>Questions for Daniel · {questionCount()}</b>
+          <small>Every “From Daniel” blank in the portal, in one list</small>
+        </Link>
       </div>
 
       <div className="pt-grid2">
@@ -120,6 +127,95 @@ export function AdminHome() {
             <p className="pt-fine">These are the questions still reaching your phone. Fix the guide and the calls drop.</p>
           </section>
         )}
+      </div>
+    </Page>
+  );
+}
+
+/* ---------- Questions for Daniel ---------- */
+
+// Things only FX4 can answer that aren't tied to one guide step. The guide and first-week
+// blanks are collected from guides.ts and Start.tsx, so this list stays in step with the screens.
+const PORTAL_QUESTIONS: { group: string; items: string[] }[] = [
+  {
+    group: 'Trucks and trailers',
+    items: [
+      'The real unit list: each truck and trailer number and type.',
+      'Which lock is on each trailer (kingpin, gladhand or door padlock).',
+      'Which trailers have sliding tandems.',
+      'Specs for each unit: length, axles, empty weight and plate for trailers; make and year, plate, ELD and fuel card for trucks.',
+    ],
+  },
+  {
+    group: 'Office and rules',
+    items: [
+      'Which days the office and the warehouse are open.',
+      'FX4’s drug and alcohol testing policy, for the rules.',
+      'The handbook and the sign-off wording, reviewed by FX4’s lawyer.',
+      'Does FX4 file IFTA fuel tax reports? It changes which fuel records drivers keep.',
+      'The 10 things drivers call about most. They become the next guides.',
+    ],
+  },
+];
+
+function guideQuestions() {
+  return GUIDES.map((g) => ({
+    guide: g,
+    items: [...g.steps.filter((st) => st.daniel).map((st) => `${st.title}: ${st.daniel}`), ...(g.fx4 ? [g.fx4] : [])],
+  })).filter((x) => x.items.length > 0);
+}
+
+function questionCount() {
+  return (
+    START_STEPS.filter((st) => st.daniel).length +
+    guideQuestions().reduce((n, x) => n + x.items.length, 0) +
+    PORTAL_QUESTIONS.reduce((n, x) => n + x.items.length, 0)
+  );
+}
+
+export function Questions() {
+  return (
+    <Page title="Questions for Daniel" back={{ to: '/portal/office', label: 'Office' }} kicker={`${questionCount()} to answer`} wide>
+      <p className="pt-lede">Every blank marked “From Daniel” in the portal. Each answer fills a spot drivers would otherwise call about.</p>
+      <div className="pt-grid2">
+        <section className="pt-card">
+          <h2>A new driver’s first week</h2>
+          <ul className="pt-plain">
+            {START_STEPS.filter((st) => st.daniel).map((st) => (
+              <li key={st.id}>
+                <b>{st.title}:</b> {st.daniel}
+              </li>
+            ))}
+          </ul>
+          <p className="pt-fine">
+            Shows on <Link to="/portal/start">New here? Start here</Link>.
+          </p>
+        </section>
+        {PORTAL_QUESTIONS.map((q) => (
+          <section className="pt-card" key={q.group}>
+            <h2>{q.group}</h2>
+            <ul className="pt-plain">
+              {q.items.map((it) => (
+                <li key={it}>{it}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+      <h2 className="pt-h2">Guides</h2>
+      <div className="pt-grid2">
+        {guideQuestions().map(({ guide, items }) => (
+          <section className="pt-card" key={guide.slug}>
+            <h3>
+              <Link to={`/portal/guides/${guide.slug}`}>{guide.title}</Link>
+            </h3>
+            <ul className="pt-plain">
+              {items.map((it) => (
+                <li key={it}>{it}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
       </div>
     </Page>
   );

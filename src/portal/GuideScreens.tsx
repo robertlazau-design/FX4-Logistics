@@ -6,7 +6,7 @@ import { GUIDES, guideBySlug, minTiedowns, type Guide } from './guides';
 import { actions, usePortal, viewer } from './store';
 import { CallDavid, Icon, Page, PhotoSlot, Tbd } from './ui';
 
-const GROUPS: Guide['group'][] = ['Right now', 'Equipment', 'On the road', 'Paperwork'];
+const GROUPS: Guide['group'][] = ['Right now', 'Every day', 'Equipment', 'On the road', 'Paperwork'];
 
 export function GuideList() {
   return (
@@ -70,6 +70,11 @@ export function GuidePage() {
                   <b>{st.note.label}:</b> {st.note.text}
                 </p>
               )}
+              {st.daniel && (
+                <p className="pt-fx4 pt-step-fx4">
+                  <Tbd>From Daniel</Tbd> {st.daniel}
+                </p>
+              )}
             </div>
           </li>
         ))}
@@ -108,7 +113,7 @@ export function GuidePage() {
               </button>
             </>
           ) : (
-            <span>{mine.helped ? 'Thanks. Good to know.' : 'Thanks. Daniel and David will see that this one needs work.'}</span>
+            <span>{mine.helped ? 'Thanks. Good to know.' : 'Thanks. This shows on the office side so the guide gets fixed.'}</span>
           )}
         </div>
       </div>

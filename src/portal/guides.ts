@@ -4,14 +4,16 @@
 // slots later. Keep every step short enough to read in a cab.
 import type { IconName } from './ui';
 
-export type Step = { title: string; text: string; photo: string; note?: { label: string; text: string } };
+// daniel: a part of this step only FX4 can answer (how, where, which). It shows as "From Daniel"
+// on the step and on the office's list of questions for Daniel.
+export type Step = { title: string; text: string; photo: string; note?: { label: string; text: string }; daniel?: string };
 
 export type Guide = {
   slug: string;
   title: string;
   summary: string;
   icon: IconName;
-  group: 'Right now' | 'Equipment' | 'On the road' | 'Paperwork';
+  group: 'Right now' | 'Every day' | 'Equipment' | 'On the road' | 'Paperwork';
   urgent?: boolean;
   intro?: string;
   steps: Step[];
@@ -20,6 +22,7 @@ export type Guide = {
   links?: { label: string; href: string }[];
   source: string;
   fx4?: string; // what Daniel still needs to add
+  keywords?: string; // words drivers search with that aren't in the text (DVIR, lumper, BOL)
 };
 
 export const GUIDES: Guide[] = [
@@ -91,6 +94,173 @@ export const GUIDES: Guide[] = [
     ],
     source: 'ELD packet: 49 CFR 395.22(h).',
     fx4: 'Daniel adds FX4’s list of papers each truck carries.',
+  },
+  {
+    slug: 'pre-trip',
+    keywords: 'dvir walkaround walk-around post-trip inspection report',
+    title: 'Pre-trip and daily report',
+    summary: 'Read the last report, walk the rig, write up anything wrong.',
+    icon: 'checklist',
+    group: 'Every day',
+    steps: [
+      {
+        title: 'Read the last report',
+        text: 'Before you drive, read the last inspection report for this truck and trailer. If it lists a problem, check that it’s marked fixed, then sign it.',
+        photo: 'Inspection report with the repair signed off',
+        note: { label: 'Not marked fixed?', text: 'Don’t drive it. Call David.' },
+        daniel: 'Where FX4 keeps the reports: a paper book in the truck or the ELD app.',
+      },
+      {
+        title: 'Walk around the rig',
+        text: 'Before you roll, check that these work: service brakes and trailer brake connections, parking brake, steering, lights and reflectors, tires, wheels and rims, horn, wipers, mirrors and the coupling.',
+        photo: 'Walking the rig with a flashlight',
+      },
+      { title: 'Check the emergency gear', text: 'Fire extinguisher charged and mounted, and your triangles in the cab.', photo: 'Extinguisher gauge in the green' },
+      { title: 'Loaded? Check the load too', text: 'Cargo and every tiedown, before you leave.', photo: 'Walking the load', note: { label: 'Flatbed or step deck', text: 'Use the Secure the load guide.' } },
+      {
+        title: 'Something wrong? Don’t roll',
+        text: 'Report it here with photos and call David. FX4 has to fix anything that affects safety before the truck runs again.',
+        photo: 'The Report a problem screen',
+      },
+      {
+        title: 'End of the day: write it up',
+        text: 'Found a problem, or someone told you about one? Write a report for each truck and trailer you drove that day, list the problem and sign it.',
+        photo: 'Signing the daily report',
+        note: { label: 'Nothing wrong?', text: 'Federal rules don’t require a report then. FX4 may still want one.' },
+        daniel: 'Whether FX4 wants a report every day, and on paper or in the ELD app.',
+      },
+    ],
+    source: 'What to check: 49 CFR 392.7 and 393.95. Daily report: 49 CFR 396.11 and 396.13.',
+  },
+  {
+    slug: 'paperwork',
+    keywords: 'bol pod proof of delivery os&d detention seal',
+    title: 'Bills of lading and delivery papers',
+    summary: 'Check it, write down problems before you sign, send it in the same day.',
+    icon: 'file',
+    group: 'Every day',
+    steps: [
+      {
+        title: 'Check the bill of lading at pickup',
+        text: 'Shipper and receiver, pickup and delivery points, number of pieces, what the freight is and its weight. It should match what goes on the trailer.',
+        photo: 'Bill of lading next to the freight',
+      },
+      {
+        title: 'Count it if you can',
+        text: 'Can’t see or count the freight, like in a sealed van? Ask the shipper to write “shipper load and count” on the bill, and write down the seal number.',
+        photo: 'Seal number written on the bill of lading',
+      },
+      {
+        title: 'Write your in and out times',
+        text: 'At pickup and at delivery: when you got there and when you left.',
+        photo: 'In and out times on the paperwork',
+        note: { label: 'Why it matters', text: 'Long waits may be billable, and your paperwork backs up your logs.' },
+      },
+      {
+        title: 'Problem at delivery? Write it down first',
+        text: 'Short, extra or damaged freight goes on the delivery receipt before anyone signs. Take photos and call David before you leave.',
+        photo: 'Damage written on the receipt',
+      },
+      { title: 'Get the signature', text: 'Receiver’s signature, printed name, date and time.', photo: 'Signed delivery receipt' },
+      {
+        title: 'Send it in the same day',
+        text: 'A clear photo of every page.',
+        photo: 'Photographing the paperwork flat',
+        note: { label: 'Federal deadline', text: 'Bills of lading, dispatch papers and expense receipts reach FX4 within 13 days at the latest.' },
+        daniel: 'How drivers send paperwork (the portal, an app or email), and where the originals go.',
+      },
+    ],
+    source: 'What a bill of lading shows: 49 CFR 373.101. 13-day deadline: 49 CFR 395.11(b). Counts, seals and times: common carrier practice.',
+  },
+  {
+    slug: 'fuel',
+    keywords: 'diesel def ifta fuel card pin',
+    title: 'Fuel up',
+    summary: 'The FX4 card, the right fuel, and a full receipt every time.',
+    icon: 'fuel',
+    group: 'Every day',
+    steps: [
+      {
+        title: 'Use the FX4 fuel card',
+        text: 'Only for FX4 trucks.',
+        photo: 'Fuel card at the pump',
+        daniel: 'Which card and stations, what else it can buy, and how drivers get the PIN (we suggest by phone, like lock codes).',
+      },
+      { title: 'Answer the pump’s questions', text: 'Enter the truck number and odometer if the pump asks.', photo: 'Pump screen asking for the odometer' },
+      {
+        title: 'Diesel only, never dyed',
+        text: 'Red dyed diesel is for off-road use. Never put it in a truck that runs on the road.',
+        photo: 'Clear diesel at the nozzle',
+        note: { label: 'Why it matters', text: 'The federal penalty is $1,000 or $10 a gallon, whichever is more.' },
+      },
+      { title: 'DEF goes in the blue cap', text: 'If the truck takes DEF, never mix up its tank with the diesel tank.', photo: 'Blue DEF cap next to the fuel cap' },
+      {
+        title: 'Get a full receipt every time',
+        text: 'Date, the station’s name and address, how much fuel, the fuel type, the price, the truck number and FX4’s name.',
+        photo: 'A complete fuel receipt',
+        note: { label: 'Why it matters', text: 'Fuel tax reports need every receipt. A card statement without those details doesn’t count.' },
+      },
+      { title: 'Send a photo the same day', text: 'Then keep the paper copy with your trip papers.', photo: 'Photographing the receipt', daniel: 'How drivers send fuel receipts.' },
+    ],
+    after: 'Carriers with an IFTA fuel tax license keep fuel and mileage records for 4 years.',
+    source: 'Receipt details and 4 years: IFTA record-keeping rules, as published by Iowa DOT. Dyed fuel penalty: 26 U.S.C. 6715.',
+  },
+  {
+    slug: 'receipts',
+    keywords: 'lumper scale ticket toll parking reimbursement expense',
+    title: 'Receipts and getting paid back',
+    summary: 'Scales, unloading fees, tolls and parking: what to keep and when to send it.',
+    icon: 'receipt',
+    group: 'Every day',
+    steps: [
+      {
+        title: 'Get a receipt for anything you pay',
+        text: 'Scale tickets, unloading fees, tolls, parking, washouts.',
+        photo: 'A scale ticket',
+        daniel: 'Which costs FX4 pays back, and which need David’s OK first.',
+      },
+      {
+        title: 'Asked to pay for unloading? Call David first',
+        text: 'Before you pay anyone to unload.',
+        photo: 'Calling dispatch at the dock',
+        note: { label: 'Good to know', text: 'Federal law says a shipper or receiver that requires unloading help has to provide it or pay for it.' },
+        daniel: 'How FX4 pays unloading fees (fuel card, a check code or cash).',
+      },
+      {
+        title: 'Check the receipt',
+        text: 'Date and time, place, amount, and the truck number or your name. Write the load number on it if it isn’t there.',
+        photo: 'Receipt with the load number written on',
+      },
+      {
+        title: 'Send it in',
+        text: 'A clear photo the same day, and no later than 13 days.',
+        photo: 'Photographing the receipt',
+        daniel: 'How and when drivers get paid back.',
+      },
+    ],
+    source: 'Receipts and the 13-day deadline: 49 CFR 395.11. Unloading help: 49 U.S.C. 14103.',
+  },
+  {
+    slug: 'shipper',
+    keywords: 'pickup delivery dock appointment detention scale weight lumper',
+    title: 'At the shipper or receiver',
+    summary: 'Check in, watch the weight, secure it, and don’t leave with a problem.',
+    icon: 'dock',
+    group: 'Every day',
+    steps: [
+      { title: 'Know the load before you go', text: 'Load number, address and appointment time.', photo: 'Load details on the phone', daniel: 'How David sends load details (text, an app or a call).' },
+      { title: 'Check in on time', text: 'Write your in time on the paperwork. Follow the site’s rules: vest, boots, where to wait.', photo: 'Check-in window' },
+      {
+        title: 'Watch the weight',
+        text: 'On the interstate: 20,000 lb on a single axle, 34,000 lb on a tandem, 80,000 lb gross. Other roads and permits can differ.',
+        photo: 'Truck on a scale',
+        note: { label: 'Close to the limit?', text: 'Scale it before the highway and keep the ticket. One axle group heavy? Slide the tandems.' },
+      },
+      { title: 'Secure it before you move', text: 'The load has to be spread out and tied down before you drive.', photo: 'Straps going over the load', note: { label: 'Flatbed or step deck', text: 'Use the Secure the load guide and its calculator.' } },
+      { title: 'Check the paperwork before you sign', text: 'Count, description, seal number and your out time.', photo: 'Checking the bill of lading', note: { label: 'Step by step', text: 'See Bills of lading and delivery papers.' } },
+      { title: 'Problem? Call David before you leave', text: 'Refused load, damaged freight, a long wait, or a load that doesn’t match the paperwork.', photo: 'Calling dispatch from the cab' },
+    ],
+    source: 'Interstate weight limits: 23 U.S.C. 127. Securing the load: 49 CFR 392.9. Paperwork: common carrier practice.',
   },
   {
     slug: 'open-trailer',

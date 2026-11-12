@@ -12,7 +12,8 @@ import { Icon, Page } from './ui';
 import { Home, News, Report, Team, UnitPage, Units, WhoAmI } from './Driver';
 import { GuideList, GuidePage } from './GuideScreens';
 import { Rules } from './Rules';
-import { AdminHome, Maintenance, People, Signoffs } from './Admin';
+import { AdminHome, Maintenance, People, Questions, Signoffs } from './Admin';
+import StartHere from './Start';
 import './portal.css';
 
 const Stickers = lazy(() => import('./Stickers'));
@@ -64,6 +65,7 @@ export default function PortalApp() {
         <Routes>
           <Route path="/portal" element={<Home />} />
           <Route path="/portal/me" element={<WhoAmI />} />
+          <Route path="/portal/start" element={<StartHere />} />
           <Route path="/portal/units" element={<Units />} />
           <Route path="/portal/unit/:id" element={<UnitPage />} />
           <Route path="/portal/guides" element={<GuideList />} />
@@ -76,6 +78,7 @@ export default function PortalApp() {
           <Route path="/portal/office/team" element={<People />} />
           <Route path="/portal/office/sign-offs" element={<Signoffs />} />
           <Route path="/portal/office/maintenance" element={<Maintenance />} />
+          <Route path="/portal/office/questions" element={<Questions />} />
           <Route
             path="/portal/office/stickers"
             element={

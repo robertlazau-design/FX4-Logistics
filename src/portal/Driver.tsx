@@ -7,6 +7,7 @@ import { TrailerArt } from '../components/Graphics';
 import { OFFICE, PEOPLE, RULES, UNITS, personById, unitById, type Unit } from './data';
 import { GUIDES, guideBySlug } from './guides';
 import { REPORT_KINDS, actions, isListed, toSign, unseenPosts, usePortal, when, type ReportKind } from './store';
+import { START_STEPS } from './Start';
 import { CallDavid, Icon, Page, Sample, Tbd } from './ui';
 
 /* ---------- Who's using this phone (not a login) ---------- */
@@ -85,11 +86,11 @@ export function Home() {
       {(!me || sign.length > 0 || news.length > 0) && (
         <div className="pt-alerts">
           {!me && (
-            <Link className="pt-alert" to="/portal/me">
-              <Icon name="users" />
+            <Link className="pt-alert" to="/portal/start">
+              <Icon name="flag" />
               <span>
-                <b>Pick your name</b>
-                <small>Once per phone, so your signatures and reports carry it</small>
+                <b>New here? Start here</b>
+                <small>Pick your name, sign the rules, meet your truck</small>
               </span>
               <Icon name="chevron" size={20} />
             </Link>
@@ -169,6 +170,9 @@ export function Home() {
           Announcements
         </Link>
       </div>
+      <Link className="pt-btn line block" to="/portal/start">
+        <Icon name="flag" /> New here? Start here
+      </Link>
     </Page>
   );
 }
@@ -176,9 +180,11 @@ export function Home() {
 function search(q: string) {
   const t = q.trim().toLowerCase();
   if (!t) return [];
-  const has = (...xs: string[]) => xs.some((x) => x.toLowerCase().includes(t));
+  const has = (...xs: (string | undefined)[]) => xs.some((x) => x?.toLowerCase().includes(t));
+  const start = START_STEPS.some((st) => has(st.title, st.text, st.daniel)) || has('new here start first week');
   return [
-    ...GUIDES.filter((g) => has(g.title, g.summary, ...g.steps.map((s) => s.title))).map((g) => ({ to: `/portal/guides/${g.slug}`, title: g.title, kind: 'Guide' })),
+    ...GUIDES.filter((g) => has(g.title, g.summary, g.keywords, ...g.steps.flatMap((s) => [s.title, s.text]))).map((g) => ({ to: `/portal/guides/${g.slug}`, title: g.title, kind: 'Guide' })),
+    ...(start ? [{ to: '/portal/start', title: 'New here? Start here', kind: 'First week' }] : []),
     ...UNITS.filter((u) => has(u.label, u.kindLabel, u.id)).map((u) => ({ to: `/portal/unit/${u.id}`, title: u.label, kind: `${u.kindLabel} · sample` })),
     ...RULES.filter((r) => has(r.title, ...r.points)).map((r) => ({ to: '/portal/rules', title: r.title, kind: 'Rule' })),
   ].slice(0, 8);
@@ -339,12 +345,12 @@ export function Report() {
 
   if (sentAt)
     return (
-      <Page title="Report sent">
+      <Page title="Report saved">
         <div className="pt-card pt-done">
           <Icon name="check" size={32} />
           <p>
-            <b>{unitById(unit)?.label}</b>: {kind.toLowerCase()} report sent to Daniel and David at {when(sentAt)}
-            {urgent ? ', marked urgent' : ''}.
+            <b>{unitById(unit)?.label}</b>: {kind.toLowerCase()} report saved at {when(sentAt)}
+            {urgent ? ', marked urgent' : ''}. It’s on the office maintenance board.
           </p>
         </div>
         {urgent && <CallDavid label="Urgent? Call David too" block />}
@@ -365,7 +371,7 @@ export function Report() {
             Home
           </Link>
         </div>
-        <p className="pt-fine">Demo: the report is saved in this browser and shows on the Office maintenance board.</p>
+        <p className="pt-fine">Demo: nothing was sent. The report is saved in this browser only, and the office side on this same browser shows it. In the real portal, Daniel and David get it right away.</p>
       </Page>
     );
 
@@ -418,9 +424,9 @@ export function Report() {
           </p>
         )}
         <button className="pt-btn red" type="submit">
-          Send to Daniel and David
+          Send report
         </button>
-        <p className="pt-fine">The time is added for you.</p>
+        <p className="pt-fine">The time is added for you. Demo: it’s saved in this browser only.</p>
       </form>
     </Page>
   );
