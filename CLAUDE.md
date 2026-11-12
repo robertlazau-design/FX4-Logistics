@@ -9,7 +9,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 **Before launch:**
 1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`). His answers from the Nov 11 call are already in `src/data/business.ts` (`BUSINESS`, `STATES`, `LANES`, `WAREHOUSE`, `DRIVERS`); the call agenda now holds only the follow-ups. Don't show an email address until FX4 owns its domain (fx4logistics.com belongs to someone else).
 2. Confirm the domain, set `SITE_URL` in `src/seo.ts`, add the domain to the `fx-4-logistics` Vercel project and redirect `fx-4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
-3. Real FX4 truck photos are in (see Photos below). Still stand-ins: the Warehousing hero and warehouse photo, the About crew photo, the Driver Jobs and Contact heroes, the trailer drawings and the FX4 roundel (swap for his real logo).
+3. Real FX4 truck photos are in (see Photos below). Still stand-ins: the Warehousing hero and warehouse photo, the About crew photo, the Driver Jobs and Contact heroes, and the trailer drawings. FX4's real logo is in (see Brand below).
 4. Connect the quote form to Robert's Web3Forms account (never the client's), and never submit it as a test.
 5. Re-check the FMCSA/CarrierSource safety numbers in `SAFETY`.
 6. Set `DRAFT = false`. The build stops if any `<Ph>` is left. Draft mode off turns on the canonical, sitemap, robots `Allow` and LocalBusiness JSON-LD.
@@ -49,7 +49,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 | `src/pages/DriverJobs.tsx` | Why drive for FX4, pay and home time, apply button |
 | `src/pages/Contact.tsx` | Contact box and the request-for-quote form |
 | `src/pages/NotFound.tsx` | 404 page |
-| `src/components/` | Header, Footer, PhoneBar, CallAgenda, RouteMap, Ph, PageParts (page hero with breadcrumb, quote band), Graphics (scene, shield, roundel, trailer drawings, exit arrow, icons) |
+| `src/components/` | Header, Footer, PhoneBar, CallAgenda, RouteMap, Ph, PageParts (page hero with breadcrumb, quote band), Graphics (scene, shield, trailer drawings, exit arrow, icons), Logo (FX4's logo) |
 | `src/effects.tsx` | Motion effects (see below) |
 | `src/index.css` | Brand tokens and all styles |
 
@@ -62,6 +62,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 
 ## Brand
 
+- Logo: Daniel's FX4 logo (sent Nov 11, 2026), redrawn as a vector from his image files in `src/components/Logo.tsx`. `FX4Logo` is the full lockup with LOGISTICS (footer); `FX4Mark` is the letters alone for small spaces (header, favicon), where LOGISTICS would be too small to read, so the header sets "Logistics" as text beside it. Both take their colour from `currentColor`: ink on white, white on navy or ink. Don't stretch it or redraw its shapes; if Daniel sends the original vector file, swap in its paths. The favicon (`public/favicon.svg`, `favicon.ico`) and `apple-touch-icon.png` are the white mark on navy.
 - Colors (CSS variables in `src/index.css`): ink `#0f1a2b`, navy `#1d3150`, navy-dark `#15243b`, Interstate red `#a8332a`, cream `#f6f3ec`, paper `#fffdf8`.
 - Type: Zilla Slab for headings, Source Sans 3 for reading, IBM Plex Mono for the numbers a shipper checks (USDOT, MC, safety data, specs, labels).
 - Trucking details are part of the look: the I-84 shield, USDOT/MC set like cab-door lettering, the bill-of-lading quick quote, the carrier packet, the facility and company data sheets, the highway guide signs on Home ("Exit 1–4") and the interstate route map. Keep new sections in that vernacular.
