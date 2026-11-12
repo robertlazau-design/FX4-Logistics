@@ -25,7 +25,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 ## Stack
 
 - Vite, React 19, React Router 7 and Tailwind CSS 4.
-- Vercel project `fx-4-logistics` (robertlazau-design's projects), linked to this repo; it's the only one (the old `fx4-logistics` project was deleted). Production branch is `main` and every pushed branch gets a preview build. Standard Protection is on: preview and per-build links need a Vercel login, but the production address `fx-4-logistics.vercel.app` is open to anyone with the link (draft mode keeps search engines out).
+- Vercel project `fx-4-logistics` (robertlazau-design's projects), linked to this repo; it's the only one that builds on every push (the old `fx4-logistics` project was deleted). A second project, `fx4-portal-demo`, isn't linked to the repo: it serves the portal demo at `fx4-portal-demo.vercel.app/portal` for testing without a Vercel login, and is redeployed by hand from the `portal-demo` branch after changes. Production branch is `main` and every pushed branch gets a preview build. Standard Protection is on: preview and per-build links need a Vercel login, but the production address `fx-4-logistics.vercel.app` is open to anyone with the link (draft mode keeps search engines out).
 - Seven pages, each its own route and prerendered file: `/` (Home), `/trucking`, `/warehousing`, `/about`, `/service-area`, `/driver-jobs`, `/contact`. To add one: a page in `src/pages/`, a `<Route>` in `src/App.tsx`, a title and description in `PAGE_META` (`src/seo.ts`) and, for the menu, an entry in `src/data/pages.ts`.
 - Links between pages use React Router `<Link>`, so moving between pages doesn't reload; `App.tsx` scrolls to the top, updates the tab title and moves focus to the new page.
 - The quote form lives on `/contact` only. Buttons elsewhere link there with some fields filled in through router state (`quoteFor()` in `src/data/quote.ts`), never through the address bar.
@@ -64,7 +64,8 @@ A clickable demo of the team portal (Option C in Robert's pitch deck) for showin
 - **Loads only when opened.** `App.tsx` lazy-loads `src/portal/PortalApp.tsx` for `/portal` paths, so the public pages don't download it. Its styles are `src/portal/portal.css`, and `index.css` has `@source not "./portal"` so the site's Tailwind CSS is unchanged. The QR library (`qrcode-generator`) loads only on the stickers screen.
 - **Demo data.** Sign-offs, reports, announcements, the team list and the leaving checklists are saved in the browser only (`localStorage` key `fx4-portal-demo-v2`); the yellow bar links to the office side and resets the demo. Sample people, units, reports and handbook text are marked "Sample" on screen. Real facts (phone numbers, address, hours, USDOT/MC, dispatcher) come from `src/data/business.ts`.
 - **Never** put lock codes in the portal, sample or real: drivers get them from Daniel or David by phone. Never present sample people, units or rules as real, and never invent FX4 policy: unknowns show as "To fill in" or "From Daniel".
-- **Guides** (`src/portal/guides.ts`) name their source on screen (49 CFR, Oregon DMV CDL manual, ODOT, Schneider). Check a fact at its source before changing it; Daniel's own procedures replace or add to them. Each step has a photo slot to shoot on FX4's equipment; videos can go in the same slots later.
+- **Guides** (`src/portal/guides.ts`) name their source on screen (49 CFR, U.S. Code, Oregon DMV CDL manual, ODOT, IFTA, Schneider). Check a fact at its source before changing it; Daniel's own procedures replace or add to them. Where only FX4 can answer (how, where, which), a step carries a `daniel` line that shows as "From Daniel". Each step has a photo slot to shoot on FX4's equipment; videos can go in the same slots later. `keywords` holds the words drivers search with (DVIR, lumper, BOL).
+- **New here? Start here** (`/portal/start`) walks a new driver's first week. **Questions for Daniel** (`/portal/office/questions`) collects every "From Daniel" blank from the guides and the first-week page, plus the unit and office questions, so the list stays in step with the screens.
 - **The real version** swaps `src/portal/store.ts` for a shared database, adds the step photos, and needs FX4's lawyer to review the handbook and sign-off wording. Drivers stay login-free. Open question for Robert before the real build: the office side can change records, so does it get a login of its own?
 - QR stickers (`/portal/office/stickers`) point at the current web address; reprint them once FX4's domain is set. The Team page shows a number only for people who agreed, and anyone with the link can see it.
 
@@ -72,9 +73,10 @@ A clickable demo of the team portal (Option C in Robert's pitch deck) for showin
 | --- | --- |
 | `src/portal/PortalApp.tsx` | Routes, header, tabs and the demo bar |
 | `src/portal/Driver.tsx` | Home, pick your name, trailer and truck pages, report a problem, team, announcements |
+| `src/portal/Start.tsx` | New here? Start here: a new driver's first week |
 | `src/portal/GuideScreens.tsx` | Guide list, one guide, the tiedown calculator |
 | `src/portal/Rules.tsx` | Handbook with versioned sign-off |
-| `src/portal/Admin.tsx` | Office: overview and announcements, team list (whose numbers show, driver-leaving checklist), sign-off record, maintenance board |
+| `src/portal/Admin.tsx` | Office: overview and announcements, team list (whose numbers show, driver-leaving checklist), sign-off record, maintenance board, questions for Daniel |
 | `src/portal/Stickers.tsx` | Printable QR stickers |
 | `src/portal/data.ts`, `guides.ts`, `store.ts`, `ui.tsx`, `portal.css` | Content, guide steps, demo state, shared pieces, styles |
 
