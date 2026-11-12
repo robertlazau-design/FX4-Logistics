@@ -82,6 +82,8 @@ export const pageJsonLd = (path: string) => {
       name: BUSINESS.name,
       url: `${SITE_URL}/`,
       telephone: '+1-971-380-0602',
+      email: BUSINESS.email,
+      openingHours: 'Mo-Fr 08:00-17:00',
       address: {
         '@type': 'PostalAddress',
         streetAddress: BUSINESS.street,

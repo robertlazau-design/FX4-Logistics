@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { DRAFT, BUSINESS } from '../data/business';
 import { NAV } from '../data/pages';
-import { Ph } from './Ph';
 import { PhoneIcon } from './Graphics';
 import { FX4Mark } from './Logo';
 
@@ -44,7 +43,7 @@ export default function Header({ onAgenda, agendaOpen }: { onAgenda: (el: HTMLEl
             {BUSINESS.street} · {BUSINESS.city}, {BUSINESS.region} {BUSINESS.zip}
           </span>
           <span className="hide-sm">
-            Office: <Ph q="days">Mon–Fri</Ph> {BUSINESS.hours}
+            Office: {BUSINESS.days} {BUSINESS.hours}
           </span>
           <span className="mono">
             USDOT {BUSINESS.usdot} · MC {BUSINESS.mc}

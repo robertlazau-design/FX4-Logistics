@@ -5,7 +5,6 @@ import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { BUSINESS, WAREHOUSE } from '../data/business';
 import { quoteFor } from '../data/quote';
-import { Ph } from '../components/Ph';
 import { PhotoTag } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
 import { usePlayOnScroll } from '../effects';
@@ -71,7 +70,7 @@ export default function Warehousing() {
                 <dd>{WAREHOUSE.security}</dd>
                 <dt>Hours</dt>
                 <dd>
-                  <Ph q="days">Daily?</Ph> {WAREHOUSE.hours}
+                  {WAREHOUSE.days} {WAREHOUSE.hours}
                 </dd>
               </dl>
             </div>

@@ -7,12 +7,13 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 `DRAFT = true` in `src/data/business.ts`. In draft mode the site shows a yellow draft banner, the yellow `<Ph>` placeholders (each numbered to match the call agenda) and Robert's call agenda panel, and it keeps search engines out: every page gets `noindex`, `robots.txt` blocks crawlers, and there's no canonical or sitemap.
 
 **Before launch:**
-1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`). His answers from the Nov 11 call are already in `src/data/business.ts` (`BUSINESS`, `STATES`, `LANES`, `WAREHOUSE`, `DRIVERS`); the call agenda now holds only the follow-ups. Don't show an email address until FX4 owns its domain (fx4logistics.com belongs to someone else).
-2. Confirm the domain, set `SITE_URL` in `src/seo.ts`, add the domain to the `fx-4-logistics` Vercel project and redirect `fx-4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
-3. Real FX4 truck photos are in (see Photos below). Still stand-ins: the Warehousing hero and warehouse photo, the About crew photo, the Driver Jobs and Contact heroes, and the trailer drawings. FX4's real logo is in (see Brand below).
-4. Connect the quote form to Robert's Web3Forms account (never the client's), and never submit it as a test.
-5. Re-check the FMCSA/CarrierSource safety numbers in `SAFETY`.
-6. Set `DRAFT = false`. The build stops if any `<Ph>` is left. Draft mode off turns on the canonical, sitemap, robots `Allow` and LocalBusiness JSON-LD.
+1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`). His answers from the Nov 11 call are already in `src/data/business.ts` (`BUSINESS`, `STATES`, `LANES`, `WAREHOUSE`, `DRIVERS`); the call agenda now holds only the follow-ups. Quote requests go to dispatch@fx4logistics.com (Daniel's answer). FX4 owns fx4logistics.com (WHOIS: FX4 Logistics, Oregon, at Squarespace Domains), but send a test email there before launch to make sure the mailbox works.
+2. The domain is fx4logistics.com (Daniel confirmed it's his; `SITE_URL` in `src/seo.ts` is already set). Add it to the `fx-4-logistics` Vercel project; Daniel signs in to Squarespace Domains and adds the records Vercel shows, leaving the email (MX) records alone. Then redirect `fx-4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
+3. Google Business Profile: Daniel said yes. Set it up for 23605 NE Halsey St under his Google account, with Robert as a manager.
+4. Real FX4 truck photos are in (see Photos below). Still stand-ins: the Warehousing hero and warehouse photo, the About crew photo, the Driver Jobs and Contact heroes, and the trailer drawings. FX4's real logo is in (see Brand below).
+5. Connect the quote form to Robert's Web3Forms account (never the client's), delivering to dispatch@fx4logistics.com, and never submit it as a test.
+6. Re-check the FMCSA/CarrierSource safety numbers in `SAFETY`.
+7. Set `DRAFT = false`. The build stops if any `<Ph>` is left. Draft mode off turns on the canonical, sitemap, robots `Allow` and LocalBusiness JSON-LD.
 
 ## How Robert works
 

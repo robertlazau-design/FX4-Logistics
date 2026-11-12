@@ -1,6 +1,6 @@
 // FX4 Logistics contact and carrier details. Change them here and every page picks them up.
 // Sources: FMCSA (USDOT, MC, phone, authority, liability) and CarrierSource (safety numbers),
-// checked Sept–Nov 2026; everything else is Daniel's answers on the Nov 11, 2026 call.
+// checked Sept–Nov 2026; everything else is Daniel's answers on the Nov 11, 2026 call and its follow-ups.
 // Re-check the safety numbers before launch.
 
 // Draft mode: shows the draft banner, the yellow placeholders and Robert's call agenda,
@@ -25,7 +25,10 @@ export const BUSINESS = {
   sister: 'Bridgetown Industries',
   owner: 'Daniel Korotkikh',
   ownerTitle: 'President',
+  days: 'Mon–Fri',
   hours: '8 am – 5 pm',
+  email: 'dispatch@fx4logistics.com',
+  emailHref: 'mailto:dispatch@fx4logistics.com',
   dispatcher: 'David',
   dispatchDisplay: '(503) 320-4703',
   dispatchHref: 'tel:+15033204703',
@@ -55,7 +58,7 @@ export const STATES: { name: string; code: string; home?: boolean; confirm?: str
   { name: 'Utah', code: 'UT' },
   { name: 'Wyoming', code: 'WY' },
   { name: 'Colorado', code: 'CO' },
-  { name: 'Nevada', code: 'NV', confirm: 'nv' },
+  { name: 'Nevada', code: 'NV' },
 ];
 
 // Daniel's top regular lanes (Nov 11 call).
@@ -70,7 +73,8 @@ export const WAREHOUSE = {
   storage: 'Racked and floor pallet space',
   services: 'Pallet storage, short and long-term, local delivery and cross-docking',
   security: 'Cameras, a fenced yard and an alarm',
-  hours: '6 am – 10 pm, after hours on request',
+  days: 'Mon–Fri',
+  hours: '6 am – 10 pm, weekends and after hours on request',
 };
 
 // Driver pay and home time (Nov 11 call).
