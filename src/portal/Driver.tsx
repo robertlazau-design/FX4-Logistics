@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { TrailerArt } from '../components/Graphics';
 import { OFFICE, PEOPLE, RULES, UNITS, personById, unitById, type Unit } from './data';
 import { GUIDES, guideBySlug } from './guides';
-import { REPORT_KINDS, actions, isListed, toSign, unseenPosts, usePortal, when, type ReportKind } from './store';
+import { INSPECTION_RESULTS, REPORT_KINDS, actions, isListed, toSign, unseenPosts, usePortal, when, type InspectionResult, type ReportKind, type Towed } from './store';
 import { START_STEPS } from './Start';
 import { CallDavid, Icon, Page, Sample, Tbd } from './ui';
 
@@ -330,6 +330,18 @@ export function Report() {
   const [files, setFiles] = useState<File[]>([]);
   const [err, setErr] = useState('');
   const [sentAt, setSentAt] = useState<number | null>(null);
+  // Crash and roadside inspection details (the accident register and the 15-day sign-off)
+  const [place, setPlace] = useState('');
+  const [usState, setUsState] = useState('');
+  const [hurt, setHurt] = useState('0');
+  const [deaths, setDeaths] = useState('0');
+  const [towed, setTowed] = useState<Towed | ''>('');
+  const [hazmat, setHazmat] = useState(false);
+  const [police, setPolice] = useState('');
+  const [result, setResult] = useState<InspectionResult | ''>('');
+  const crash = kind === 'Crash';
+  const roadside = kind === 'Roadside inspection';
+  const count = (v: string) => Math.max(0, Math.floor(Number(v)) || 0);
   const previews = useMemo(() => files.map((f) => URL.createObjectURL(f)), [files]);
   useEffect(() => () => previews.forEach((u) => URL.revokeObjectURL(u)), [previews]);
 
@@ -337,9 +349,21 @@ export function Report() {
     e.preventDefault();
     if (!by) return setErr('Pick your name.');
     if (!unit) return setErr('Pick the truck or trailer.');
+    if ((crash || roadside) && (!place.trim() || !usState.trim())) return setErr('Say the town and state where it happened.');
+    if (crash && !towed) return setErr('Say whether any vehicle was towed away.');
+    if (roadside && !result) return setErr('Pick the inspection result.');
     if (text.trim().length < 3) return setErr('Say what’s wrong in a few words.');
     setErr('');
-    actions.report({ unit, kind, text: text.trim(), urgent, by, photos: files.length });
+    actions.report({
+      unit,
+      kind,
+      text: text.trim(),
+      urgent,
+      by,
+      photos: files.length,
+      crash: crash && towed ? { place: place.trim(), state: usState.trim().toUpperCase(), hurt: count(hurt), deaths: count(deaths), towed, hazmat, police: police.trim() } : undefined,
+      roadside: roadside && result ? { place: place.trim(), state: usState.trim().toUpperCase(), result } : undefined,
+    });
     setSentAt(Date.now());
   };
 
@@ -350,7 +374,7 @@ export function Report() {
           <Icon name="check" size={32} />
           <p>
             <b>{unitById(unit)?.label}</b>: {kind.toLowerCase()} report saved at {when(sentAt)}
-            {urgent ? ', marked urgent' : ''}. It’s on the office maintenance board.
+            {urgent ? ', marked urgent' : ''}. It’s on the office {crash ? 'maintenance board and the accident record' : roadside ? 'inspection record, with its 15-day deadline' : 'maintenance board'}.
           </p>
         </div>
         {urgent && <CallDavid label="Urgent? Call David too" block />}
@@ -400,8 +424,70 @@ export function Report() {
           ))}
         </fieldset>
 
-        <label htmlFor="pt-text">What’s wrong?</label>
-        <textarea id="pt-text" rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder="Example: right rear marker light is out" />
+        {(crash || roadside) && (
+          <fieldset className="pt-sub">
+            <legend>{crash ? 'For FX4’s accident record' : 'For FX4’s inspection record'}</legend>
+            <div className="pt-two">
+              <div>
+                <label htmlFor="pt-place">{roadside ? 'Where (town or port of entry)' : 'Town or city'}</label>
+                <input id="pt-place" value={place} onChange={(e) => setPlace(e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="pt-state">State</label>
+                <input id="pt-state" value={usState} maxLength={2} autoCapitalize="characters" placeholder="OR" onChange={(e) => setUsState(e.target.value)} />
+              </div>
+            </div>
+            {crash && (
+              <>
+                <div className="pt-two">
+                  <div>
+                    <label htmlFor="pt-hurt">People hurt and taken for treatment</label>
+                    <input id="pt-hurt" inputMode="numeric" value={hurt} onChange={(e) => setHurt(e.target.value)} />
+                  </div>
+                  <div>
+                    <label htmlFor="pt-deaths">Deaths</label>
+                    <input id="pt-deaths" inputMode="numeric" value={deaths} onChange={(e) => setDeaths(e.target.value)} />
+                  </div>
+                </div>
+                <fieldset className="pt-chips">
+                  <legend>Was any vehicle towed away?</legend>
+                  {(['Yes', 'No', 'Not sure'] as Towed[]).map((t) => (
+                    <label key={t} className={t === towed ? 'pt-on' : undefined}>
+                      <input type="radio" name="towed" value={t} checked={t === towed} onChange={() => setTowed(t)} />
+                      {t}
+                    </label>
+                  ))}
+                </fieldset>
+                <label className="pt-check">
+                  <input type="checkbox" checked={hazmat} onChange={(e) => setHazmat(e.target.checked)} />
+                  Hazardous materials spilled (not counting fuel)
+                </label>
+                <label htmlFor="pt-police">Police report number, if you have it</label>
+                <input id="pt-police" value={police} onChange={(e) => setPolice(e.target.value)} />
+                <p className="pt-fine">
+                  <Tbd>From Daniel</Tbd> His insurer’s wording for what to say and write about a crash.
+                </p>
+              </>
+            )}
+            {roadside && (
+              <>
+                <fieldset className="pt-chips">
+                  <legend>Result</legend>
+                  {INSPECTION_RESULTS.map((r) => (
+                    <label key={r} className={r === result ? 'pt-on' : undefined}>
+                      <input type="radio" name="result" value={r} checked={r === result} onChange={() => setResult(r)} />
+                      {r}
+                    </label>
+                  ))}
+                </fieldset>
+                <p className="pt-fine">Add a photo of the inspection report below. FX4 has to sign off any repairs within 15 days.</p>
+              </>
+            )}
+          </fieldset>
+        )}
+
+        <label htmlFor="pt-text">{crash ? 'What happened?' : roadside ? 'What did they find?' : 'What’s wrong?'}</label>
+        <textarea id="pt-text" rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder={crash ? 'What happened, in order' : roadside ? 'Example: one violation, clearance light out' : 'Example: right rear marker light is out'} />
 
         <label htmlFor="pt-photos">Photos</label>
         <input id="pt-photos" type="file" accept="image/*" multiple onChange={(e) => setFiles([...(e.target.files ?? [])].slice(0, 6))} />

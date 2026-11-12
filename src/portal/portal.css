@@ -42,6 +42,8 @@
 }
 
 /* Page frame */
+.pt-safe{max-width:640px;margin:0 auto;padding:10px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--red-dark)}
+.pt-safe svg{flex:none}
 .pt-main{padding-bottom:96px}
 @media (min-width:900px){.pt-main{padding-bottom:48px}}
 .pt-page{max-width:640px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
@@ -163,6 +165,12 @@
 .pt-form input:focus,.pt-form select:focus,.pt-form textarea:focus,.pt-calc input:focus{border-color:var(--navy)}
 .pt-form input[type=file]{font:inherit;font-size:15px;max-width:100%}
 .pt-form .pt-btn{width:100%;margin-top:18px}
+.pt-sub{margin:16px 0 0;padding:4px 14px 14px;border:1px solid var(--rule);border-radius:6px;background:var(--cream)}
+.pt-sub>legend{padding:0 6px;font:700 15px/1.3 var(--sans);color:var(--navy)}
+.pt-two{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.pt-two>div{min-width:0;display:flex;flex-direction:column;justify-content:flex-end}
+.pt .pt-check-sm{margin:0;font-weight:400;font-size:14px;align-items:center}
+.pt .pt-check-sm input{margin:0}
 .pt-err{margin:8px 0 0;color:var(--red-dark);font-weight:700}
 .pt-chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0;padding:0;border:0}
 .pt-chips legend{float:left;width:100%;margin:0 0 6px;padding:0;font-weight:700}

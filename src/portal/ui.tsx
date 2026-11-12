@@ -37,6 +37,7 @@ const PATHS = {
   receipt: <><path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21Z" /><path d="M9 8h6M9 12h6M9 16h3" /></>,
   dock: <><path d="M3 9l9-5 9 5v11H3Z" /><path d="M7 20v-7h10v7M7 16.5h10" /></>,
   flag: <><path d="M5 21V4" /><path d="M5 4h12l-2.5 4L17 12H5" /></>,
+  clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
   question: <><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01" /></>,
 };
 

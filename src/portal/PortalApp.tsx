@@ -4,7 +4,7 @@
 // The office side is at /portal/office, an address only Daniel and David are given.
 // Sample data and saving are simulated in this browser; see store.ts.
 import { lazy, Suspense } from 'react';
-import { Link, NavLink, Route, Routes } from 'react-router-dom';
+import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { Roundel, Sprites } from '../components/Graphics';
 import { personById } from './data';
 import { actions, toSign, unseenPosts, usePortal } from './store';
@@ -12,7 +12,7 @@ import { Icon, Page } from './ui';
 import { Home, News, Report, Team, UnitPage, Units, WhoAmI } from './Driver';
 import { GuideList, GuidePage } from './GuideScreens';
 import { Rules } from './Rules';
-import { AdminHome, Maintenance, People, Questions, Signoffs } from './Admin';
+import { AdminHome, Maintenance, People, Questions, Records, Signoffs } from './Admin';
 import StartHere from './Start';
 import './portal.css';
 
@@ -23,6 +23,7 @@ export default function PortalApp() {
   const me = personById(s.me ?? '');
   const sign = me ? toSign(s, me.id).length : 0;
   const news = unseenPosts(s).length;
+  const office = useLocation().pathname.startsWith('/portal/office');
 
   return (
     <div className="pt">
@@ -62,6 +63,7 @@ export default function PortalApp() {
         </nav>
       </header>
       <main id="pt-main" className="pt-main">
+        {!office && <PullOver />}
         <Routes>
           <Route path="/portal" element={<Home />} />
           <Route path="/portal/me" element={<WhoAmI />} />
@@ -79,6 +81,7 @@ export default function PortalApp() {
           <Route path="/portal/office/sign-offs" element={<Signoffs />} />
           <Route path="/portal/office/maintenance" element={<Maintenance />} />
           <Route path="/portal/office/questions" element={<Questions />} />
+          <Route path="/portal/office/records" element={<Records />} />
           <Route
             path="/portal/office/stickers"
             element={
@@ -106,6 +109,16 @@ function Tab({ to, icon, label, badge = 0, badgeLabel = 'to sign', end }: { to: 
         </b>
       )}
     </NavLink>
+  );
+}
+
+// On every driver screen: federal rules bar hand-held phone use and texting while driving,
+// even stopped in traffic (49 CFR 392.80, 392.82), and FX4 may not allow it.
+function PullOver() {
+  return (
+    <p className="pt-safe">
+      <Icon name="phone" size={16} /> Driving? Pull over before you use the portal.
+    </p>
   );
 }
 

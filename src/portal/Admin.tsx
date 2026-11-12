@@ -8,9 +8,11 @@ import { PEOPLE, RULES, UNITS, personById, unitById, type Unit } from './data';
 import { GUIDES, guideBySlug } from './guides';
 import { START_STEPS } from './Start';
 import {
+  DAY_MS,
   REPORT_STATUSES,
   actions,
   currentVersion,
+  dotAccident,
   isListed,
   lastSignoff,
   toSign,
@@ -95,6 +97,11 @@ export function AdminHome() {
           <b>QR stickers</b>
           <small>Print one for every trailer and truck</small>
         </Link>
+        <Link className="pt-tile" to="/portal/office/records">
+          <Icon name="clipboard" size={28} />
+          <b>Crashes and inspections{dueSignoffs(s) ? ` · ${dueSignoffs(s)} to sign off` : ''}</b>
+          <small>The accident register and the 15-day sign-off for roadside inspections</small>
+        </Link>
         <Link className="pt-tile" to="/portal/office/questions">
           <Icon name="question" size={28} />
           <b>Questions for Daniel · {questionCount()}</b>
@@ -128,6 +135,146 @@ export function AdminHome() {
           </section>
         )}
       </div>
+    </Page>
+  );
+}
+
+/* ---------- Crashes and roadside inspections ---------- */
+
+const keepUntil = (t: number, months: number) => {
+  const d = new Date(t);
+  d.setMonth(d.getMonth() + months);
+  return d.getTime();
+};
+const dueSignoffs = (s: State) => s.reports.filter((r) => r.roadside && r.roadside.result !== 'No violations' && !r.roadside.certified).length;
+
+export function Records() {
+  const s = usePortal();
+  const crashes = s.reports.filter((r) => r.crash);
+  const inspections = s.reports.filter((r) => r.roadside);
+  const now = Date.now();
+  return (
+    <Page title="Crashes and inspections" back={{ to: '/portal/office', label: 'Office' }} kicker="Records FX4 must keep" wide>
+      <p className="pt-lede">Filled in from drivers’ crash and roadside inspection reports.</p>
+
+      <h2 className="pt-h2">Accident register</h2>
+      <p className="pt-fine">
+        Only DOT accidents go on the register: a death, someone treated away from the scene, or a vehicle towed away (49 CFR 390.5). Keep it 3 years, with copies of the police and insurer
+        reports (49 CFR 390.15).
+      </p>
+      {crashes.length === 0 ? (
+        <p>No crashes reported.</p>
+      ) : (
+        <div className="pt-tablewrap" tabIndex={0} role="region" aria-label="Accident register">
+          <table className="pt-table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Where</th>
+                <th scope="col">Driver</th>
+                <th scope="col">Treated away from scene</th>
+                <th scope="col">Deaths</th>
+                <th scope="col">Towed</th>
+                <th scope="col">Hazmat spilled</th>
+                <th scope="col">DOT accident?</th>
+                <th scope="col">Police report</th>
+                <th scope="col">Copies filed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {crashes.map((r) => {
+                const c = r.crash!;
+                const dot = dotAccident(c);
+                return (
+                  <tr key={r.id}>
+                    <td>
+                      {whenDay(r.at)}
+                      {r.sample && <small>Sample</small>}
+                    </td>
+                    <td>
+                      {c.place}, {c.state}
+                      <small>{unitById(r.unit)?.label}</small>
+                    </td>
+                    <td>{personById(r.by)?.name}</td>
+                    <td>{c.hurt}</td>
+                    <td>{c.deaths}</td>
+                    <td>{c.towed}</td>
+                    <td>{c.hazmat ? 'Yes' : 'No'}</td>
+                    <td className={dot === 'Yes' ? 'pt-need' : undefined}>{dot === 'Check' ? 'Check the tow' : dot}</td>
+                    <td>{c.police || <span className="pt-fine">Not given</span>}</td>
+                    <td>
+                      <label className="pt-check pt-check-sm">
+                        <input type="checkbox" checked={!!c.copies} onChange={() => actions.copiesFiled(r.id)} />
+                        <span>{c.copies ? `Filed ${whenDay(c.copies)}` : 'Not yet'}</span>
+                      </label>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <h2 className="pt-h2">Roadside inspections</h2>
+      <p className="pt-fine">
+        Sign off the repairs within 15 days of the inspection, send the form back if the state asks, and keep a copy for 12 months (49 CFR 396.9(d)).
+      </p>
+      {inspections.length === 0 ? (
+        <p>No roadside inspections reported.</p>
+      ) : (
+        <div className="pt-tablewrap" tabIndex={0} role="region" aria-label="Roadside inspections">
+          <table className="pt-table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Unit and place</th>
+                <th scope="col">Driver</th>
+                <th scope="col">Result</th>
+                <th scope="col">Sign off by</th>
+                <th scope="col">Repairs signed off</th>
+                <th scope="col">Keep until</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inspections.map((r) => {
+                const x = r.roadside!;
+                const due = r.at + 15 * DAY_MS;
+                const clean = x.result === 'No violations';
+                const late = !clean && !x.certified && now > due;
+                return (
+                  <tr key={r.id}>
+                    <td>
+                      {whenDay(r.at)}
+                      {r.sample && <small>Sample</small>}
+                    </td>
+                    <td>
+                      {unitById(r.unit)?.label}
+                      <small>
+                        {x.place}, {x.state}
+                      </small>
+                    </td>
+                    <td>{personById(r.by)?.name}</td>
+                    <td>{x.result}</td>
+                    <td className={late ? 'pt-need' : undefined}>{clean ? 'Nothing to fix' : `${whenDay(due)}${late ? ', late' : ''}`}</td>
+                    <td>
+                      {clean ? (
+                        <span className="pt-fine">Not needed</span>
+                      ) : (
+                        <label className="pt-check pt-check-sm">
+                          <input type="checkbox" checked={!!x.certified} onChange={() => actions.certify(r.id)} />
+                          <span>{x.certified ? `Signed ${whenDay(x.certified)}` : 'Not yet'}</span>
+                        </label>
+                      )}
+                    </td>
+                    <td>{whenDay(keepUntil(r.at, 12))}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </Page>
   );
 }

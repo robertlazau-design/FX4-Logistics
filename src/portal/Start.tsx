@@ -67,13 +67,13 @@ export const START_STEPS: StartStep[] = [
     id: 'everyday',
     title: 'Read the everyday guides',
     text: 'What you’ll do on every load.',
-    guides: ['pre-trip', 'paperwork', 'fuel', 'receipts', 'shipper'],
+    guides: ['pre-trip', 'hours', 'paperwork', 'fuel', 'receipts', 'shipper'],
   },
   {
     id: 'wrong',
     title: 'Know what to do when it goes wrong',
     text: 'Read these once now, so the first time isn’t on the shoulder.',
-    guides: ['accident', 'breakdown', 'inspection'],
+    guides: ['accident', 'breakdown', 'inspection', 'eld'],
   },
   {
     id: 'pay',

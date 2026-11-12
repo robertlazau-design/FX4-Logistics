@@ -2,6 +2,7 @@
 // where it helps, one line of context. Steps come from the published sources named on each
 // guide; Daniel's own procedure replaces or adds to them. Videos can drop into the photo
 // slots later. Keep every step short enough to read in a cab.
+import type { ReportKind } from './store';
 import type { IconName } from './ui';
 
 // daniel: a part of this step only FX4 can answer (how, where, which). It shows as "From Daniel"
@@ -23,6 +24,7 @@ export type Guide = {
   source: string;
   fx4?: string; // what Daniel still needs to add
   keywords?: string; // words drivers search with that aren't in the text (DVIR, lumper, BOL)
+  report?: ReportKind; // shows a button that opens Report a problem with this kind picked
 };
 
 export const GUIDES: Guide[] = [
@@ -50,10 +52,15 @@ export const GUIDES: Guide[] = [
       },
       { title: 'Take photos', text: 'Every vehicle, the damage, plates, the whole scene and the road.', photo: 'Wide shot of the scene' },
       { title: 'Get the details', text: 'Names, phone numbers, insurance, plate numbers and the police report number.', photo: 'Notes on a phone' },
-      { title: 'Report it here', text: 'Send a report from the portal with your photos the same day.', photo: 'The Report a problem screen' },
+      {
+        title: 'Report it here',
+        text: 'Send a crash report with your photos the same day. It asks for what FX4’s accident record needs: where, anyone hurt, anything towed.',
+        photo: 'The crash report screen',
+      },
     ],
-    source: 'Triangles: 49 CFR 392.22. Testing time limits: 49 CFR 382.303.',
-    fx4: 'Daniel adds FX4’s own rules: what to say at the scene and who else to call.',
+    report: 'Crash',
+    source: 'Triangles: 49 CFR 392.22. Testing time limits: 49 CFR 382.303. Accident record: 49 CFR 390.15.',
+    fx4: 'Daniel adds his insurer’s wording for what to say at the scene, and who else to call.',
   },
   {
     slug: 'breakdown',
@@ -73,6 +80,7 @@ export const GUIDES: Guide[] = [
       { title: 'Call David', text: 'Tell him where you are, what happened and what’s loaded.', photo: 'Dispatch number on the phone screen' },
       { title: 'Report it here', text: 'Pick the unit, say what broke and add photos.', photo: 'The Report a problem screen' },
     ],
+    report: 'Breakdown',
     source: 'Flashers and triangles: 49 CFR 392.22.',
     fx4: 'Daniel adds FX4’s approved repair shops and tow companies, and where to wait safely.',
   },
@@ -90,10 +98,85 @@ export const GUIDES: Guide[] = [
       },
       { title: 'Send your logs when asked', text: 'Follow the data-transfer sheet in the packet.', photo: 'ELD screen on the transfer step' },
       { title: 'Hand over what the officer asks for', text: 'Stay calm and answer what’s asked.', photo: 'Paperwork on the dash' },
-      { title: 'Send the report to David', text: 'Photo of the inspection report, sent from the portal the same day.', photo: 'An inspection report, photographed' },
+      {
+        title: 'Report it here the same day',
+        text: 'Send it as a roadside inspection, with a photo of the officer’s report.',
+        photo: 'An inspection report, photographed',
+        note: { label: 'Why it matters', text: 'FX4 has to sign off any repairs within 15 days and keep the report for 12 months.' },
+      },
     ],
-    source: 'ELD packet: 49 CFR 395.22(h).',
+    report: 'Roadside inspection',
+    keywords: 'roadside inspection dot officer scale port of entry weigh station',
+    source: 'ELD packet: 49 CFR 395.22(h). Inspection reports: 49 CFR 396.9(d).',
     fx4: 'Daniel adds FX4’s list of papers each truck carries.',
+  },
+  {
+    slug: 'eld',
+    title: 'ELD stopped working',
+    summary: 'Tell FX4 in writing within 24 hours, then switch to paper logs.',
+    icon: 'power',
+    group: 'Right now',
+    keywords: 'eld malfunction broken logbook electronic logging device paper logs',
+    steps: [
+      { title: 'Write down what happened', text: 'When it stopped, and what the screen shows.', photo: 'ELD screen showing the error' },
+      {
+        title: 'Tell FX4 in writing within 24 hours',
+        text: 'Text or email David. A phone call alone isn’t written notice.',
+        photo: 'Text to David about the ELD',
+        note: { label: 'Data error, not a breakdown?', text: 'Follow FX4’s and the ELD maker’s steps to fix it.' },
+        daniel: 'Which ELD FX4 uses, and the maker’s help line.',
+      },
+      {
+        title: 'Rebuild your logs on paper',
+        text: 'Today and the 7 days before, on the blank paper logs in your ELD packet. Skip any days the ELD can still show.',
+        photo: 'Paper log sheets from the ELD packet',
+      },
+      { title: 'Keep logging on paper', text: 'Every day until the ELD is fixed.', photo: 'A filled-in paper log' },
+      { title: 'Inspected? Hand over the paper logs', text: 'Give the officer your paper logs.', photo: 'Paper logs handed over' },
+      { title: 'FX4 fixes it within 8 days', text: 'FX4 repairs or replaces the ELD within 8 days, or asks FMCSA for more time.', photo: 'ELD back on' },
+    ],
+    source: 'ELD malfunctions: 49 CFR 395.34. Paper logs in the packet: 49 CFR 395.22(h).',
+  },
+  {
+    slug: 'hours',
+    title: 'Hours of service',
+    summary: '10 off, 14 on the clock, 11 driving, a 30-minute break, and your weekly limit.',
+    icon: 'clock',
+    group: 'Every day',
+    keywords: 'hos hours of service 11 hour 14 hour 30 minute break 70 hour 60 hour 34 hour restart sleeper split logs',
+    steps: [
+      { title: 'Start with 10 hours off', text: 'You can’t drive until you’ve had 10 hours in a row off duty.', photo: 'ELD showing 10 hours off' },
+      {
+        title: 'The 14-hour clock',
+        text: 'Once you come on duty, you can drive until hour 14. Breaks don’t stop that clock.',
+        photo: 'ELD duty clock',
+        note: { label: 'Sleeper split', text: 'If you split your 10 hours (at least 7 in the sleeper, plus at least 2 more), those rest periods don’t count against the 14.' },
+      },
+      { title: '11 hours of driving', text: 'Inside that 14-hour window, at most 11 hours behind the wheel.', photo: 'ELD drive time left' },
+      {
+        title: 'A 30-minute break after 8 hours of driving',
+        text: 'Any 30 minutes in a row that you’re not driving counts: off duty, in the sleeper or working.',
+        photo: 'Truck parked at a rest area',
+      },
+      {
+        title: 'Your weekly limit',
+        text: '60 hours on duty in 7 days, or 70 in 8 days if FX4 runs trucks every day. 34 hours off in a row starts it over.',
+        photo: 'ELD weekly hours',
+        daniel: 'Which one FX4 uses: 60 in 7, or 70 in 8.',
+      },
+      {
+        title: 'Weather you couldn’t see coming',
+        text: 'Snow, fog or a closure you didn’t know about when you started: up to 2 extra hours to finish the run or reach a safe place.',
+        photo: 'Snow on the road ahead',
+      },
+      {
+        title: 'Personal conveyance and yard moves',
+        text: 'Driving the truck off duty for personal reasons, or moving it around a yard, has its own rules.',
+        photo: 'Truck in the yard',
+        daniel: 'Whether FX4 allows personal conveyance and yard moves, and the limits.',
+      },
+    ],
+    source: 'Limits: 49 CFR 395.3. Bad weather and sleeper split: 49 CFR 395.1(b) and (g).',
   },
   {
     slug: 'pre-trip',

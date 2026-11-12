@@ -6,6 +6,12 @@ import { GUIDES, guideBySlug, minTiedowns, type Guide } from './guides';
 import { actions, usePortal, viewer } from './store';
 import { CallDavid, Icon, Page, PhotoSlot, Tbd } from './ui';
 
+const REPORT_LABEL: Partial<Record<NonNullable<Guide['report']>, string>> = {
+  Crash: 'Report the crash',
+  Breakdown: 'Report the breakdown',
+  'Roadside inspection': 'Report the inspection',
+};
+
 const GROUPS: Guide['group'][] = ['Right now', 'Every day', 'Equipment', 'On the road', 'Paperwork'];
 
 export function GuideList() {
@@ -79,6 +85,11 @@ export function GuidePage() {
           </li>
         ))}
       </ol>
+      {g.report && (
+        <Link className="pt-btn red block" to="/portal/report" state={{ kind: g.report }}>
+          <Icon name="camera" /> {REPORT_LABEL[g.report] ?? 'Report it'}
+        </Link>
+      )}
       {g.after && <p>{g.after}</p>}
       {g.links && (
         <ul className="pt-links">

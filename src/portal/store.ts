@@ -8,12 +8,34 @@
 import { useSyncExternalStore } from 'react';
 import { PEOPLE, RULES } from './data';
 
-export type ReportKind = 'Defect' | 'Damage' | 'Crash' | 'Breakdown' | 'Inspection' | 'Other';
-export const REPORT_KINDS: ReportKind[] = ['Defect', 'Damage', 'Crash', 'Breakdown', 'Inspection', 'Other'];
+export type ReportKind = 'Defect' | 'Damage' | 'Crash' | 'Breakdown' | 'Roadside inspection' | 'Other';
+export const REPORT_KINDS: ReportKind[] = ['Defect', 'Damage', 'Crash', 'Breakdown', 'Roadside inspection', 'Other'];
 export type ReportStatus = 'Open' | 'In the shop' | 'Fixed';
 export const REPORT_STATUSES: ReportStatus[] = ['Open', 'In the shop', 'Fixed'];
 
-export type Report = { id: string; unit: string; kind: ReportKind; text: string; urgent: boolean; by: string; at: number; status: ReportStatus; photos: number; sample?: boolean };
+// A crash report carries what FX4's accident register needs (49 CFR 390.15); `copies` = the
+// office has filed the police and insurer reports. A roadside inspection carries its result;
+// `certified` = the office signed off the repairs (due within 15 days, 49 CFR 396.9(d)).
+export type Towed = 'Yes' | 'No' | 'Not sure';
+export type CrashInfo = { place: string; state: string; hurt: number; deaths: number; towed: Towed; hazmat: boolean; police: string; copies?: number };
+export type InspectionResult = 'No violations' | 'Violations' | 'Out of service';
+export const INSPECTION_RESULTS: InspectionResult[] = ['No violations', 'Violations', 'Out of service'];
+export type RoadsideInfo = { place: string; state: string; result: InspectionResult; certified?: number };
+
+export type Report = {
+  id: string;
+  unit: string;
+  kind: ReportKind;
+  text: string;
+  urgent: boolean;
+  by: string;
+  at: number;
+  status: ReportStatus;
+  photos: number;
+  sample?: boolean;
+  crash?: CrashInfo;
+  roadside?: RoadsideInfo;
+};
 export type Signoff = { person: string; rule: string; version: number; at: number };
 export type RuleVersion = { rule: string; version: number; at: number; note: string };
 export type LeavingStep = 'codes' | 'keys' | 'fuel' | 'files';
@@ -21,7 +43,7 @@ export type Post = { id: string; title: string; body: string; at: number; by: st
 export type Feedback = { guide: string; helped: boolean; by: string; at: number };
 
 export type State = {
-  v: 2;
+  v: 3;
   me: string | null; // name picked on this phone (a person id), not a login
   listed: Record<string, boolean>; // office overrides: show this person's number on the Team page
   versions: RuleVersion[];
@@ -33,7 +55,7 @@ export type State = {
   feedback: Feedback[];
 };
 
-const KEY = 'fx4-portal-demo-v2';
+const KEY = 'fx4-portal-demo-v3';
 const DAY = 86_400_000;
 const T0 = Date.UTC(2026, 10, 10, 17, 0); // Nov 10, 2026, 9 am Pacific: the sample handbook's first version
 const PHONE = 'this-phone'; // who "seen" and feedback belong to before a name is picked
@@ -43,7 +65,7 @@ function seed(): State {
   const sign = (person: string, rules: string[], at: number) => rules.map((rule) => ({ person, rule, version: 1, at }));
   const all = RULES.map((r) => r.id);
   return {
-    v: 2,
+    v: 3,
     me: null,
     listed: {},
     versions,
@@ -51,6 +73,16 @@ function seed(): State {
     reports: [
       { id: 'r1', unit: '203', kind: 'Defect', text: 'Right rear marker light is out.', urgent: false, by: 'd2', at: T0 + DAY + 7_200_000, status: 'Open', photos: 1, sample: true },
       { id: 'r2', unit: '101', kind: 'Defect', text: 'Air leak at the glad hands, can hear it hiss.', urgent: true, by: 'd1', at: T0 + 3_000_000, status: 'In the shop', photos: 2, sample: true },
+      {
+        id: 'r3', unit: '102', kind: 'Crash', text: 'Rear-ended a car at low speed in stop-and-go traffic. Its driver was fine; the car was towed.',
+        urgent: true, by: 'd3', at: T0 + DAY + 10_800_000, status: 'Open', photos: 4, sample: true,
+        crash: { place: 'Portland', state: 'OR', hurt: 0, deaths: 0, towed: 'Yes', hazmat: false, police: '' },
+      },
+      {
+        id: 'r4', unit: '201', kind: 'Roadside inspection', text: 'Inspection at a port of entry. One violation: a clearance light out.',
+        urgent: false, by: 'd1', at: T0 + 21_600_000, status: 'Open', photos: 1, sample: true,
+        roadside: { place: 'I-84 port of entry', state: 'OR', result: 'Violations' },
+      },
     ],
     leaving: {},
     posts: [
@@ -73,7 +105,7 @@ function load(): State {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw) as State;
-      if (s && s.v === 2) return { ...seed(), ...s };
+      if (s && s.v === 3) return { ...seed(), ...s };
     }
   } catch {
     /* storage blocked: run in memory */
@@ -120,6 +152,14 @@ export const actions = {
   report: (r: Omit<Report, 'id' | 'at' | 'status'>) =>
     update((s) => ({ ...s, me: r.by, reports: [{ ...r, id: uid(), at: Date.now(), status: 'Open' }, ...s.reports] })),
   setStatus: (id: string, status: ReportStatus) => update((s) => ({ ...s, reports: s.reports.map((r) => (r.id === id ? { ...r, status } : r)) })),
+  // Office: police and insurer report copies filed (crash), repairs certified (roadside). Tap again to undo.
+  copiesFiled: (id: string) =>
+    update((s) => ({ ...s, reports: s.reports.map((r) => (r.id === id && r.crash ? { ...r, crash: { ...r.crash, copies: r.crash.copies ? undefined : Date.now() } } : r)) })),
+  certify: (id: string) =>
+    update((s) => ({
+      ...s,
+      reports: s.reports.map((r) => (r.id === id && r.roadside ? { ...r, roadside: { ...r.roadside, certified: r.roadside.certified ? undefined : Date.now() } } : r)),
+    })),
   setListed: (person: string, listed: boolean) => update((s) => ({ ...s, listed: { ...s.listed, [person]: listed } })),
   tick: (person: string, step: LeavingStep) =>
     update((s) => {
@@ -154,6 +194,12 @@ export const lastSignoff = (s: State, person: string, rule: string) =>
 
 export const toSign = (s: State, person: string) =>
   RULES.filter((r) => (lastSignoff(s, person, r.id)?.version ?? 0) < currentVersion(s, r.id).version);
+
+// 49 CFR 390.5: an accident is a death, an injury treated away from the scene, or a vehicle
+// towed away. Only those go on the register; "Not sure" about a tow means the office checks.
+export const dotAccident = (c: CrashInfo): 'Yes' | 'No' | 'Check' =>
+  c.deaths > 0 || c.hurt > 0 || c.towed === 'Yes' ? 'Yes' : c.towed === 'Not sure' ? 'Check' : 'No';
+export const DAY_MS = DAY;
 
 export const unseenPosts = (s: State) => s.posts.filter((p) => !(s.seen[viewer(s)] ?? []).includes(p.id));
 
