@@ -5,7 +5,8 @@
 // Sample data and saving are simulated in this browser; see store.ts.
 import { lazy, Suspense } from 'react';
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
-import { Roundel, Sprites } from '../components/Graphics';
+import { Sprites } from '../components/Graphics';
+import { FX4Mark } from '../components/Logo';
 import { personById } from './data';
 import { actions, toSign, unseenPosts, usePortal } from './store';
 import { Icon, Page } from './ui';
@@ -35,9 +36,9 @@ export default function PortalApp() {
       <header className="pt-head">
         <div className="pt-bar">
           <Link className="pt-brand" to="/portal" aria-label="FX4 team portal home">
-            <Roundel />
+            <FX4Mark className="pt-brand-mark" />
             <span>
-              <b>FX4 Team</b>
+              <b>Team portal</b>
               <small>Logistics · Wood Village</small>
             </span>
           </Link>

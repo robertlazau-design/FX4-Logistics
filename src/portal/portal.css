@@ -25,7 +25,7 @@
 .pt-head{background:var(--navy-dark);color:#fff;position:sticky;top:0;z-index:20}
 .pt-bar{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
 .pt-brand{display:flex;gap:10px;align-items:center;color:#fff;text-decoration:none;min-height:44px}
-.pt-brand .roundel{width:40px;height:40px}
+.pt-brand-mark{flex:none;display:block;height:30px;width:auto;aspect-ratio:904.37/386.4;color:#fff}
 .pt-brand b{display:block;font:700 19px/1.1 var(--slab)}
 .pt-brand small{display:block;font:500 11px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--steel-2)}
 .pt-me{display:block;min-height:44px;padding:4px 0;text-align:right;color:#fff;font-weight:700;font-size:15px;line-height:1.25;text-decoration:none}
@@ -299,7 +299,7 @@
 .pt-sticker{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;padding:14px;border:2px solid var(--navy);border-radius:10px;background:#fff;break-inside:avoid}
 .pt-qr{display:block;width:120px;height:120px}
 .pt-sticker p{margin:0}
-.pt-sticker .pt-st-brand{font:700 12.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:6px}
+.pt-sticker .pt-st-logo{display:block;width:96px;height:auto;color:var(--ink);margin-bottom:8px}
 .pt-sticker .pt-st-unit{font:700 24px/1.1 var(--slab);color:var(--navy)}
 .pt-sticker .pt-st-kind{margin:2px 0 6px;color:var(--muted)}
 .pt-sticker .pt-st-scan{font-size:13.5px;line-height:1.35}

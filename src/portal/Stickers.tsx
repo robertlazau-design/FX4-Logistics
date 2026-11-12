@@ -5,6 +5,7 @@
 import qrcode from 'qrcode-generator';
 import { UNITS } from './data';
 import { Icon, Page, Sample } from './ui';
+import { FX4Logo } from '../components/Logo';
 
 function Qr({ text, label }: { text: string; label: string }) {
   const qr = qrcode(0, 'M');
@@ -44,7 +45,7 @@ export default function Stickers() {
             <li key={u.id} className="pt-sticker">
               <Qr text={url} label={`QR code for ${u.label}`} />
               <div>
-                <p className="pt-st-brand">FX4 Logistics</p>
+                <FX4Logo className="pt-st-logo" title="FX4 Logistics" />
                 <p className="pt-st-unit">{u.label}</p>
                 <p className="pt-st-kind">{u.kindLabel}</p>
                 <p className="pt-st-scan">Scan for this unit’s lock, guides and problem report</p>
