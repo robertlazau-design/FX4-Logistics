@@ -12,7 +12,6 @@ export const AGENDA: AgendaItem[] = [
   { topic: 'Trucking', id: 'nv', path: '/service-area', q: 'Reno is one of your main lanes: add Nevada to the states you run?' },
   { topic: 'Proof', id: 'quote', path: '/about', q: 'A shipper or broker who would give a one-line quote, with permission?' },
   { topic: 'Site setup', id: 'domain', q: 'Which web address do you want? fx4logistics.com is taken; fx4logistics.net, fx4logisticsinc.com and fx4trucking.com were open on Nov 11.', page: false },
-  { topic: 'Site setup', id: 'logo', q: 'Please send the logo file (SVG, PDF or a large PNG).', page: false },
   { topic: 'Site setup', id: 'gbp', q: 'No Google Business Profile yet: set one up for 23605 NE Halsey St under your Google account, with robertlazau@gmail.com as a manager?', page: false },
 ];
 

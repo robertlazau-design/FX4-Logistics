@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
 import { BUSINESS } from '../data/business';
+import { FX4Logo } from './Logo';
 
 export default function Footer() {
   return (
     <footer>
       <div className="wrap">
-        <div className="word" aria-hidden="true" />
+        <div className="word" aria-hidden="true">
+          <FX4Logo />
+        </div>
         <div className="cols">
           <div>
             <h2>{BUSINESS.name}</h2>

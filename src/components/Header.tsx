@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { DRAFT, BUSINESS } from '../data/business';
 import { NAV } from '../data/pages';
 import { Ph } from './Ph';
-import { PhoneIcon, Roundel } from './Graphics';
+import { PhoneIcon } from './Graphics';
+import { FX4Mark } from './Logo';
 
 export default function Header({ onAgenda, agendaOpen }: { onAgenda: (el: HTMLElement) => void; agendaOpen: boolean }) {
   const { pathname } = useLocation();
@@ -54,9 +55,9 @@ export default function Header({ onAgenda, agendaOpen }: { onAgenda: (el: HTMLEl
       <div className="head">
         <div className="wrap">
           <Link className="brand" to="/" aria-label="FX4 Logistics home">
-            <Roundel />
+            <FX4Mark className="brand-mark" />
             <span>
-              <span className="name">{BUSINESS.name}</span>
+              <span className="name">Logistics</span>
               <span className="sub">
                 Trucking &amp; Warehousing<span className="sub-x"> · {BUSINESS.city}, {BUSINESS.region}</span>
               </span>
