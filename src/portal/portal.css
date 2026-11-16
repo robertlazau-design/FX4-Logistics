@@ -62,6 +62,8 @@
 .pt-sample,.pt-tbd{display:inline-block;font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;border-radius:3px;padding:3px 6px;vertical-align:2px;white-space:nowrap}
 .pt-sample{background:#fff3b0;color:#4a3d00;border:1px solid #e3cf6a}
 .pt-tbd{background:#fff;color:#6b4a00;border:1px dashed #b99a1c}
+.pt-std-a{display:block;margin:4px 0 8px;color:var(--ink)}
+.pt-std{display:inline-block;font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;border-radius:3px;padding:3px 6px;vertical-align:2px;white-space:nowrap;background:#fff;color:var(--navy);border:1px dashed var(--navy)}
 .pt-plain{list-style:disc;padding-left:20px;margin:0 0 8px}
 
 /* Buttons */

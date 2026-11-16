@@ -100,3 +100,5 @@ export function PhotoSlot({ caption }: { caption: string }) {
 
 export const Sample = ({ children = 'Sample' }: { children?: ReactNode }) => <span className="pt-sample">{children}</span>;
 export const Tbd = ({ children = 'To fill in' }: { children?: ReactNode }) => <span className="pt-tbd">{children}</span>;
+// An industry-standard answer standing in until Daniel confirms or changes it.
+export const Std = () => <span className="pt-std">Standard, to confirm</span>;

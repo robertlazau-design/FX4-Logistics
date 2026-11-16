@@ -23,7 +23,7 @@ import {
   type ReportStatus,
   type State,
 } from './store';
-import { Icon, Page, Sample } from './ui';
+import { Icon, Page, Sample, Std, Tbd } from './ui';
 
 const drivers = PEOPLE.filter((p) => p.role === 'driver');
 
@@ -104,8 +104,8 @@ export function AdminHome() {
         </Link>
         <Link className="pt-tile" to="/portal/office/questions">
           <Icon name="question" size={28} />
-          <b>Questions for Daniel · {questionCount()}</b>
-          <small>Every “From Daniel” blank in the portal, in one list</small>
+          <b>Questions for Daniel · {questionSummary()}</b>
+          <small>Standard answers to confirm, and what only FX4 can answer</small>
         </Link>
       </div>
 
@@ -282,58 +282,104 @@ export function Records() {
 /* ---------- Questions for Daniel ---------- */
 
 // Things only FX4 can answer that aren't tied to one guide step. The guide and first-week
-// blanks are collected from guides.ts and Start.tsx, so this list stays in step with the screens.
-const PORTAL_QUESTIONS: { group: string; items: string[] }[] = [
+// questions are collected from guides.ts and Start.tsx, so this list stays in step with the screens.
+// std: the industry-standard answer the portal shows until Daniel confirms or changes it
+// (Robert, Nov 16, 2026). No std means there's no standard answer: only FX4 can fill it in.
+type Question = { q: string; std?: string };
+
+const PORTAL_QUESTIONS: { group: string; items: Question[] }[] = [
   {
     group: 'Trucks and trailers',
     items: [
-      'The real unit list: each truck and trailer number and type.',
-      'Which lock is on each trailer (kingpin, gladhand or door padlock).',
-      'Which trailers have sliding tandems.',
-      'Specs for each unit: length, axles, empty weight and plate for trailers; make and year, plate, ELD and fuel card for trucks.',
+      { q: 'The real unit list: each truck and trailer number and type.' },
+      {
+        q: 'Which lock is on each trailer (kingpin, gladhand or door padlock).',
+        std: 'A kingpin lock on every parked trailer, plus a padlock or seal on van doors.',
+      },
+      {
+        q: 'Which trailers have sliding tandems.',
+        std: 'Most dry vans have sliding tandems; most flatbeds and step decks have fixed or spread axles.',
+      },
+      { q: 'Specs for each unit: length, axles, empty weight and plate for trailers; make and year, plate, ELD and fuel card for trucks.' },
     ],
   },
   {
     group: 'Office and rules',
     items: [
-      'Which days the office and the warehouse are open.',
-      'FX4’s drug and alcohol testing policy, for the rules.',
-      'The handbook and the sign-off wording, reviewed by FX4’s lawyer.',
-      'Does FX4 file IFTA fuel tax reports? It changes which fuel records drivers keep.',
-      'The 10 things drivers call about most. They become the next guides.',
+      {
+        q: 'FX4’s drug and alcohol testing policy, for the rules.',
+        std: 'The federal rules as written (49 CFR part 382): tests before hire, at random, after certain crashes, on reasonable suspicion, and before and after a return to duty, plus a Clearinghouse check before hire and every year.',
+      },
+      { q: 'The handbook and the sign-off wording, reviewed by FX4’s lawyer.' },
+      {
+        q: 'Does FX4 file IFTA fuel tax reports? It changes which fuel records drivers keep.',
+        std: 'Yes. An interstate truck over 26,000 lb, or with 3 or more axles, needs an IFTA license. Drivers keep every fuel receipt; the ELD tracks miles by state.',
+      },
+      {
+        q: 'The 10 things drivers call about most. They become the next guides.',
+        std: 'Load details and appointment changes, waits at the dock, unloading fees, breakdowns, pay, fuel card problems, ELD problems, where to park, paperwork and home time.',
+      },
     ],
   },
 ];
 
+function startQuestions(): Question[] {
+  return START_STEPS.filter((st) => st.daniel).map((st) => ({ q: `${st.title}: ${st.daniel}`, std: st.std }));
+}
+
 function guideQuestions() {
   return GUIDES.map((g) => ({
     guide: g,
-    items: [...g.steps.filter((st) => st.daniel).map((st) => `${st.title}: ${st.daniel}`), ...(g.fx4 ? [g.fx4] : [])],
+    items: [
+      ...g.steps.filter((st) => st.daniel).map((st): Question => ({ q: `${st.title}: ${st.daniel}`, std: st.std })),
+      ...(g.fx4 ? [{ q: g.fx4, std: g.fx4Std }] : []),
+    ],
   })).filter((x) => x.items.length > 0);
 }
 
-function questionCount() {
+function questionCounts() {
+  const all = [...startQuestions(), ...guideQuestions().flatMap((x) => x.items), ...PORTAL_QUESTIONS.flatMap((x) => x.items)];
+  const confirm = all.filter((x) => x.std).length;
+  return { confirm, open: all.length - confirm };
+}
+
+function questionSummary() {
+  const { confirm, open } = questionCounts();
+  return `${confirm} to confirm · ${open} open`;
+}
+
+function QuestionList({ items }: { items: Question[] }) {
   return (
-    START_STEPS.filter((st) => st.daniel).length +
-    guideQuestions().reduce((n, x) => n + x.items.length, 0) +
-    PORTAL_QUESTIONS.reduce((n, x) => n + x.items.length, 0)
+    <ul className="pt-plain">
+      {items.map((it) => (
+        <li key={it.q}>
+          {it.q}
+          {it.std ? (
+            <span className="pt-std-a">
+              <Std /> {it.std}
+            </span>
+          ) : (
+            <>
+              {' '}
+              <Tbd>Open</Tbd>
+            </>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
 
 export function Questions() {
   return (
-    <Page title="Questions for Daniel" back={{ to: '/portal/office', label: 'Office' }} kicker={`${questionCount()} to answer`} wide>
-      <p className="pt-lede">Every blank marked “From Daniel” in the portal. Each answer fills a spot drivers would otherwise call about.</p>
+    <Page title="Questions for Daniel" back={{ to: '/portal/office', label: 'Office' }} kicker={questionSummary()} wide>
+      <p className="pt-lede">
+        Every spot in the portal only FX4 can answer. Most now show the industry-standard answer, marked “Standard, to confirm”: keep it or change it. The ones marked “Open” have no standard answer.
+      </p>
       <div className="pt-grid2">
         <section className="pt-card">
           <h2>A new driver’s first week</h2>
-          <ul className="pt-plain">
-            {START_STEPS.filter((st) => st.daniel).map((st) => (
-              <li key={st.id}>
-                <b>{st.title}:</b> {st.daniel}
-              </li>
-            ))}
-          </ul>
+          <QuestionList items={startQuestions()} />
           <p className="pt-fine">
             Shows on <Link to="/portal/start">New here? Start here</Link>.
           </p>
@@ -341,11 +387,7 @@ export function Questions() {
         {PORTAL_QUESTIONS.map((q) => (
           <section className="pt-card" key={q.group}>
             <h2>{q.group}</h2>
-            <ul className="pt-plain">
-              {q.items.map((it) => (
-                <li key={it}>{it}</li>
-              ))}
-            </ul>
+            <QuestionList items={q.items} />
           </section>
         ))}
       </div>
@@ -356,11 +398,7 @@ export function Questions() {
             <h3>
               <Link to={`/portal/guides/${guide.slug}`}>{guide.title}</Link>
             </h3>
-            <ul className="pt-plain">
-              {items.map((it) => (
-                <li key={it}>{it}</li>
-              ))}
-            </ul>
+            <QuestionList items={items} />
           </section>
         ))}
       </div>

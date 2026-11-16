@@ -105,7 +105,7 @@ export const RULES: Rule[] = [
   {
     id: 'testing',
     title: 'Drug and alcohol testing',
-    points: ['FX4 follows the federal DOT testing rules (49 CFR part 382).', '[FX4’s own testing policy goes here.]'],
+    points: ['FX4 follows the federal DOT testing rules (49 CFR part 382).', 'Tests before hire, at random, after certain crashes, on reasonable suspicion, and before and after a return to duty. (Standard answer, Daniel to confirm.)'],
   },
   {
     id: 'equipment',
@@ -119,8 +119,8 @@ export const OFFICE = {
   phone: BUSINESS.phoneDisplay,
   tel: BUSINESS.phoneHref,
   address: `${BUSINESS.street}, ${BUSINESS.city}, ${BUSINESS.region} ${BUSINESS.zip}`,
-  officeHours: BUSINESS.hours,
-  warehouseHours: WAREHOUSE.hours,
+  officeHours: `${BUSINESS.days} ${BUSINESS.hours}`,
+  warehouseHours: `${WAREHOUSE.days} ${WAREHOUSE.hours}`,
   usdot: BUSINESS.usdot,
   mc: BUSINESS.mc,
   dispatcher: BUSINESS.dispatcher,

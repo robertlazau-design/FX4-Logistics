@@ -539,13 +539,13 @@ export function Team() {
           <div>
             <dt>Office</dt>
             <dd>
-              <Tbd>Days?</Tbd> {OFFICE.officeHours}
+              {OFFICE.officeHours}
             </dd>
           </div>
           <div>
             <dt>Warehouse</dt>
             <dd>
-              <Tbd>Days?</Tbd> {OFFICE.warehouseHours}
+              {OFFICE.warehouseHours}
             </dd>
           </div>
           <div>

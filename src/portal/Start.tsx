@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { OFFICE } from './data';
 import { guideBySlug } from './guides';
 import { toSign, usePortal, type State } from './store';
-import { CallDavid, Icon, Page, Tbd } from './ui';
+import { CallDavid, Icon, Page, Std, Tbd } from './ui';
 
 export type StartStep = {
   id: string;
@@ -15,6 +15,7 @@ export type StartStep = {
   guides?: string[];
   call?: boolean;
   daniel?: string;
+  std?: string; // industry-standard answer until Daniel confirms
   done?: (s: State) => boolean;
 };
 
@@ -44,18 +45,21 @@ export const START_STEPS: StartStep[] = [
     text: 'Dispatch, for lock codes, loads and problems. Save it in your phone now.',
     call: true,
     daniel: 'Who to call when David doesn’t answer, and after hours.',
+    std: 'Call Daniel. A crash with someone hurt, a fire or a blocked road: 911 first.',
   },
   {
     id: 'first-load',
     title: 'Before your first load',
     text: 'You can’t drive for FX4 until the office has your negative pre-employment drug test result.',
     daniel: 'What to bring on day one, and who sets up your ELD login and fuel card.',
+    std: 'Your CDL, DOT medical card and papers for your I-9 (like a passport, or your license plus Social Security card), and a voided check for direct deposit. David sets up your ELD login and gives you the fuel card.',
   },
   {
     id: 'yard',
     title: 'Find the yard',
     text: `${OFFICE.address}.`,
     daniel: 'Where trucks and trailers park, the gate, and getting in after hours.',
+    std: 'In FX4’s fenced yard at the warehouse. The gate code comes from David by phone, like lock codes, and is never written down.',
   },
   {
     id: 'units',
@@ -80,6 +84,7 @@ export const START_STEPS: StartStep[] = [
     title: 'Pay and home time',
     text: 'How you get paid, and how to ask for time off.',
     daniel: 'When payday is, how pay is worked out, and how to ask for time off.',
+    std: 'Weekly, by direct deposit, for the week before. Pay is by the mile. Ask David for time off at least two weeks ahead.',
   },
 ];
 
@@ -104,7 +109,7 @@ export default function StartHere() {
                 <p>{st.text}</p>
                 {st.daniel && (
                   <p className="pt-fx4">
-                    <Tbd>From Daniel</Tbd> {st.daniel}
+                    {st.std ? <Std /> : <Tbd>From Daniel</Tbd>} {st.std ?? st.daniel}
                   </p>
                 )}
                 {st.call && <CallDavid block />}
