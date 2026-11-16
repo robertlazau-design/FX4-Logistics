@@ -7,7 +7,8 @@ import type { IconName } from './ui';
 
 // daniel: a part of this step only FX4 can answer (how, where, which). It shows as "From Daniel"
 // on the step and on the office's list of questions for Daniel.
-export type Step = { title: string; text: string; photo: string; note?: { label: string; text: string }; daniel?: string };
+// std: the industry-standard answer shown until Daniel confirms or changes it (Robert, Nov 16, 2026).
+export type Step = { title: string; text: string; photo: string; note?: { label: string; text: string }; daniel?: string; std?: string };
 
 export type Guide = {
   slug: string;
@@ -23,6 +24,7 @@ export type Guide = {
   links?: { label: string; href: string }[];
   source: string;
   fx4?: string; // what Daniel still needs to add
+  fx4Std?: string; // the industry-standard answer to fx4, until Daniel confirms
   keywords?: string; // words drivers search with that aren't in the text (DVIR, lumper, BOL)
   report?: ReportKind; // shows a button that opens Report a problem with this kind picked
 };
@@ -61,6 +63,7 @@ export const GUIDES: Guide[] = [
     report: 'Crash',
     source: 'Triangles: 49 CFR 392.22. Testing time limits: 49 CFR 382.303. Accident record: 49 CFR 390.15.',
     fx4: 'Daniel adds his insurer’s wording for what to say at the scene, and who else to call.',
+    fx4Std: 'Don’t say whose fault it was, and don’t sign anything but a police report or ticket. Give your name, FX4’s name and USDOT number, and the insurance card from the cab. After David, call Daniel.',
   },
   {
     slug: 'breakdown',
@@ -83,6 +86,7 @@ export const GUIDES: Guide[] = [
     report: 'Breakdown',
     source: 'Flashers and triangles: 49 CFR 392.22.',
     fx4: 'Daniel adds FX4’s approved repair shops and tow companies, and where to wait safely.',
+    fx4Std: 'Call David before you OK any repair or tow: FX4 picks the shop and the tow company. Wait somewhere safe, away from traffic and behind a guardrail if there is one.',
   },
   {
     slug: 'inspection',
@@ -109,6 +113,7 @@ export const GUIDES: Guide[] = [
     keywords: 'roadside inspection dot officer scale port of entry weigh station',
     source: 'ELD packet: 49 CFR 395.22(h). Inspection reports: 49 CFR 396.9(d).',
     fx4: 'Daniel adds FX4’s list of papers each truck carries.',
+    fx4Std: 'In every cab: CDL and medical card, registration (cab card), proof of insurance, the IFTA license, the latest annual inspection, the ELD packet, the bill of lading and any permits for the trip.',
   },
   {
     slug: 'eld',
@@ -124,7 +129,7 @@ export const GUIDES: Guide[] = [
         text: 'Text or email David. A phone call alone isn’t written notice.',
         photo: 'Text to David about the ELD',
         note: { label: 'Data error, not a breakdown?', text: 'Follow FX4’s and the ELD maker’s steps to fix it.' },
-        daniel: 'Which ELD FX4 uses, and the maker’s help line.',
+        daniel: 'Which ELD FX4 uses, and the maker’s help line.', std: 'The help line is in the ELD maker’s user manual in your ELD packet. Not there? Ask David.',
       },
       {
         title: 'Rebuild your logs on paper',
@@ -162,7 +167,7 @@ export const GUIDES: Guide[] = [
         title: 'Your weekly limit',
         text: '60 hours on duty in 7 days, or 70 in 8 days if FX4 runs trucks every day. 34 hours off in a row starts it over.',
         photo: 'ELD weekly hours',
-        daniel: 'Which one FX4 uses: 60 in 7, or 70 in 8.',
+        daniel: 'Which one FX4 uses: 60 in 7, or 70 in 8.', std: '60 hours in 7 days. That’s the federal limit for carriers that don’t run trucks every day of the week, which fits Mon–Fri with drivers home on weekends.',
       },
       {
         title: 'Weather you couldn’t see coming',
@@ -173,7 +178,7 @@ export const GUIDES: Guide[] = [
         title: 'Personal conveyance and yard moves',
         text: 'Driving the truck off duty for personal reasons, or moving it around a yard, has its own rules.',
         photo: 'Truck in the yard',
-        daniel: 'Whether FX4 allows personal conveyance and yard moves, and the limits.',
+        daniel: 'Whether FX4 allows personal conveyance and yard moves, and the limits.', std: 'Allowed the way FMCSA’s guidance describes. Personal conveyance is off duty and for you, like from a shipper to the nearest safe place to rest, never to move a load closer to delivery. Yard moves stay inside a yard. Log each one in the ELD as PC or YM.',
       },
     ],
     source: 'Limits: 49 CFR 395.3. Bad weather and sleeper split: 49 CFR 395.1(b) and (g).',
@@ -191,7 +196,7 @@ export const GUIDES: Guide[] = [
         text: 'Before you drive, read the last inspection report for this truck and trailer. If it lists a problem, check that it’s marked fixed, then sign it.',
         photo: 'Inspection report with the repair signed off',
         note: { label: 'Not marked fixed?', text: 'Don’t drive it. Call David.' },
-        daniel: 'Where FX4 keeps the reports: a paper book in the truck or the ELD app.',
+        daniel: 'Where FX4 keeps the reports: a paper book in the truck or the ELD app.', std: 'In the ELD app, like most fleets: the last report for the truck and trailer shows there.',
       },
       {
         title: 'Walk around the rig',
@@ -210,7 +215,7 @@ export const GUIDES: Guide[] = [
         text: 'Found a problem, or someone told you about one? Write a report for each truck and trailer you drove that day, list the problem and sign it.',
         photo: 'Signing the daily report',
         note: { label: 'Nothing wrong?', text: 'Federal rules don’t require a report then. FX4 may still want one.' },
-        daniel: 'Whether FX4 wants a report every day, and on paper or in the ELD app.',
+        daniel: 'Whether FX4 wants a report every day, and on paper or in the ELD app.', std: 'One every day in the ELD app, for each truck and trailer you drove, even when nothing’s wrong.',
       },
     ],
     source: 'What to check: 49 CFR 392.7 and 393.95. Daily report: 49 CFR 396.11 and 396.13.',
@@ -250,7 +255,7 @@ export const GUIDES: Guide[] = [
         text: 'A clear photo of every page.',
         photo: 'Photographing the paperwork flat',
         note: { label: 'Federal deadline', text: 'Bills of lading, dispatch papers and expense receipts reach FX4 within 13 days at the latest.' },
-        daniel: 'How drivers send paperwork (the portal, an app or email), and where the originals go.',
+        daniel: 'How drivers send paperwork (the portal, an app or email), and where the originals go.', std: 'Text a photo of every page to David, or email it to dispatch@fx4logistics.com. Keep the originals in a folder in the truck and turn them in at the yard each week.',
       },
     ],
     source: 'What a bill of lading shows: 49 CFR 373.101. 13-day deadline: 49 CFR 395.11(b). Counts, seals and times: common carrier practice.',
@@ -267,7 +272,7 @@ export const GUIDES: Guide[] = [
         title: 'Use the FX4 fuel card',
         text: 'Only for FX4 trucks.',
         photo: 'Fuel card at the pump',
-        daniel: 'Which card and stations, what else it can buy, and how drivers get the PIN (we suggest by phone, like lock codes).',
+        daniel: 'Which card and stations, what else it can buy, and how drivers get the PIN (we suggest by phone, like lock codes).', std: 'A fleet fuel card, good at the big truck stop chains, for diesel and DEF only. The PIN comes from David by phone, like lock codes.',
       },
       { title: 'Answer the pump’s questions', text: 'Enter the truck number and odometer if the pump asks.', photo: 'Pump screen asking for the odometer' },
       {
@@ -283,7 +288,7 @@ export const GUIDES: Guide[] = [
         photo: 'A complete fuel receipt',
         note: { label: 'Why it matters', text: 'Fuel tax reports need every receipt. A card statement without those details doesn’t count.' },
       },
-      { title: 'Send a photo the same day', text: 'Then keep the paper copy with your trip papers.', photo: 'Photographing the receipt', daniel: 'How drivers send fuel receipts.' },
+      { title: 'Send a photo the same day', text: 'Then keep the paper copy with your trip papers.', photo: 'Photographing the receipt', daniel: 'How drivers send fuel receipts.', std: 'A clear photo to David or dispatch@fx4logistics.com the same day.' },
     ],
     after: 'Carriers with an IFTA fuel tax license keep fuel and mileage records for 4 years.',
     source: 'Receipt details and 4 years: IFTA record-keeping rules, as published by Iowa DOT. Dyed fuel penalty: 26 U.S.C. 6715.',
@@ -300,14 +305,14 @@ export const GUIDES: Guide[] = [
         title: 'Get a receipt for anything you pay',
         text: 'Scale tickets, unloading fees, tolls, parking, washouts.',
         photo: 'A scale ticket',
-        daniel: 'Which costs FX4 pays back, and which need David’s OK first.',
+        daniel: 'Which costs FX4 pays back, and which need David’s OK first.', std: 'FX4 pays back scale tickets, tolls, parking, washouts and unloading fees with a receipt. Repairs, tows, hotels and anything else need David’s OK first.',
       },
       {
         title: 'Asked to pay for unloading? Call David first',
         text: 'Before you pay anyone to unload.',
         photo: 'Calling dispatch at the dock',
         note: { label: 'Good to know', text: 'Federal law says a shipper or receiver that requires unloading help has to provide it or pay for it.' },
-        daniel: 'How FX4 pays unloading fees (fuel card, a check code or cash).',
+        daniel: 'How FX4 pays unloading fees (fuel card, a check code or cash).', std: 'David sends a check code (like a Comchek or EFS check) you write at the dock. Cash only if David says so, with a receipt.',
       },
       {
         title: 'Check the receipt',
@@ -318,7 +323,7 @@ export const GUIDES: Guide[] = [
         title: 'Send it in',
         text: 'A clear photo the same day, and no later than 13 days.',
         photo: 'Photographing the receipt',
-        daniel: 'How and when drivers get paid back.',
+        daniel: 'How and when drivers get paid back.', std: 'On the next weekly paycheck after FX4 gets the receipt.',
       },
     ],
     source: 'Receipts and the 13-day deadline: 49 CFR 395.11. Unloading help: 49 U.S.C. 14103.',
@@ -331,7 +336,7 @@ export const GUIDES: Guide[] = [
     icon: 'dock',
     group: 'Every day',
     steps: [
-      { title: 'Know the load before you go', text: 'Load number, address and appointment time.', photo: 'Load details on the phone', daniel: 'How David sends load details (text, an app or a call).' },
+      { title: 'Know the load before you go', text: 'Load number, address and appointment time.', photo: 'Load details on the phone', daniel: 'How David sends load details (text, an app or a call).', std: 'A text from David with the load number, pickup and delivery addresses, appointment times and any PO or reference numbers. Changes come by phone, then a text to confirm.' },
       { title: 'Check in on time', text: 'Write your in time on the paperwork. Follow the site’s rules: vest, boots, where to wait.', photo: 'Check-in window' },
       {
         title: 'Watch the weight',
@@ -365,6 +370,7 @@ export const GUIDES: Guide[] = [
     ],
     source: 'FX4 rule: lock codes by phone only. Sealed loads: 49 CFR 392.9(b)(4).',
     fx4: 'Daniel confirms which lock each trailer has.',
+    fx4Std: 'A kingpin lock on every parked trailer, plus a padlock or seal on van doors. David tells you which when he gives you the code.',
   },
   {
     slug: 'hook-up',
@@ -436,6 +442,7 @@ export const GUIDES: Guide[] = [
     ],
     source: 'Condensed from Schneider’s published 16-step tandem guide.',
     fx4: 'Daniel adds FX4’s axle settings for its usual lanes.',
+    fx4Std: 'Keep each tandem at 34,000 lb or less and the rig at 80,000 lb. In California, keep the kingpin-to-rear-axle distance at 40 feet or less on a 53-foot trailer.',
   },
   {
     slug: 'secure',
@@ -452,6 +459,7 @@ export const GUIDES: Guide[] = [
     ],
     source: 'Tiedown minimums: 49 CFR 393.110. Working load limit: 393.106(d). Re-checks: 392.9.',
     fx4: 'Logs, metal coils and heavy machinery have their own federal rules (49 CFR part 393, subpart I); Daniel adds FX4’s.',
+    fx4Std: 'Follow the federal rules for the load as written: logs 49 CFR 393.116, metal coils 393.120, heavy machinery 393.130. New kind of load? Ask David first.',
   },
   {
     slug: 'chains',
@@ -476,6 +484,7 @@ export const GUIDES: Guide[] = [
     ],
     source: 'ODOT and TripCheck.',
     fx4: 'Daniel adds a page for each state on FX4’s lanes.',
+    fx4Std: 'Before a pass in another state, check its road report: WSDOT, Caltrans QuickMap, Idaho 511, Montana 511, UDOT Traffic, Wyoming 511, COtrip or NVRoads. Colorado requires trucks on I-70 to carry chains from September 1 to May 31.',
   },
   {
     slug: 'california',

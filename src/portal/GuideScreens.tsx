@@ -4,7 +4,7 @@ import { useId, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { GUIDES, guideBySlug, minTiedowns, type Guide } from './guides';
 import { actions, usePortal, viewer } from './store';
-import { CallDavid, Icon, Page, PhotoSlot, Tbd } from './ui';
+import { CallDavid, Icon, Page, PhotoSlot, Std, Tbd } from './ui';
 
 const REPORT_LABEL: Partial<Record<NonNullable<Guide['report']>, string>> = {
   Crash: 'Report the crash',
@@ -78,7 +78,7 @@ export function GuidePage() {
               )}
               {st.daniel && (
                 <p className="pt-fx4 pt-step-fx4">
-                  <Tbd>From Daniel</Tbd> {st.daniel}
+                  {st.std ? <Std /> : <Tbd>From Daniel</Tbd>} {st.std ?? st.daniel}
                 </p>
               )}
             </div>
@@ -104,7 +104,7 @@ export function GuidePage() {
       )}
       {g.fx4 && (
         <p className="pt-fx4">
-          <Tbd>From Daniel</Tbd> {g.fx4}
+          {g.fx4Std ? <Std /> : <Tbd>From Daniel</Tbd>} {g.fx4Std ?? g.fx4}
         </p>
       )}
       <p className="pt-source">Based on: {g.source}</p>
