@@ -413,6 +413,7 @@ const LEAVING: { step: LeavingStep; label: string }[] = [
   { step: 'keys', label: 'Keys back' },
   { step: 'fuel', label: 'Fuel card back' },
   { step: 'files', label: 'Driver file updated' },
+  { step: 'phone', label: 'Phone sign-in switched off' },
 ];
 
 export function People() {

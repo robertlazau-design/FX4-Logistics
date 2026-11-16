@@ -1,9 +1,9 @@
-// The handbook with sign-off. Every rule has versions; a driver picks their name and signs the
-// current one, and a change from the office means everyone signs again. The record keeps who
-// signed which version and when. There are no logins, so the name is whatever was picked on
-// that phone: a record of who said they read it, not proof of identity.
+// The handbook with sign-off. Every rule has versions; the driver signed in on this phone signs
+// the current one, and a change from the office means everyone signs again. The record keeps who
+// signed which version and when. Signing in is once per phone with a texted code (shown on
+// screen in the demo), so a signature comes from that driver's phone.
 import { RULES } from './data';
-import { NamePicker } from './Driver';
+import { SignedInAs } from './Driver';
 import { actions, currentVersion, lastSignoff, toSign, usePortal, when, whenDay } from './store';
 import { Icon, Page, Sample } from './ui';
 
@@ -14,8 +14,8 @@ export function Rules() {
   return (
     <Page title="Company rules" kicker={<Sample>Sample handbook</Sample>}>
       <div className="pt-card pt-form pt-signas">
-        <NamePicker id="pt-signer" value={me} onChange={(v) => actions.setMe(v || null)} />
-        <p className="pt-fine">{me ? (left === 0 ? 'You’ve signed every rule. Thanks.' : left === 1 ? '1 rule needs your signature.' : `${left} rules need your signature.`) : 'Pick your name to sign.'}</p>
+        <SignedInAs action="Signing" />
+        {me && <p className="pt-fine">{left === 0 ? 'You’ve signed every rule. Thanks.' : left === 1 ? '1 rule needs your signature.' : `${left} rules need your signature.`}</p>}
       </div>
       <ul className="pt-rules">
         {RULES.map((r) => {
@@ -46,7 +46,7 @@ export function Rules() {
                 </p>
               ) : (
                 <button className="pt-btn red block" type="button" disabled={!me} onClick={() => actions.sign(me, r.id)}>
-                  {me ? 'I’ve read this and I agree' : 'Pick your name above to sign'}
+                  {me ? 'I’ve read this and I agree' : 'Sign in above to sign'}
                 </button>
               )}
             </li>

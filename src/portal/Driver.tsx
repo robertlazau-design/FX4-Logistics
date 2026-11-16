@@ -12,29 +12,123 @@ import { CallDavid, Icon, Page, Sample, Tbd } from './ui';
 
 /* ---------- Who's using this phone (not a login) ---------- */
 
+// Sign in on this phone: pick your name, then type the code texted to the number the office
+// has for you. Once per phone, no password. This is the demo of the planned check: nothing is
+// texted, the code shows on screen. Daniel and David sign in on the office side instead.
+const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
+const masked = (phone: string) => `(•••) •••-${phone.replace(/\D/g, '').slice(-4)}`;
+
 export function WhoAmI() {
   const s = usePortal();
   const nav = useNavigate();
+  const [pick, setPick] = useState<string | null>(null);
+  const [code, setCode] = useState('');
+  const [entry, setEntry] = useState('');
+  const [err, setErr] = useState('');
+  const me = (s.me ? personById(s.me) : undefined);
+  const person = (pick ? personById(pick) : undefined);
+
+  const choose = (id: string) => {
+    setPick(id);
+    setEntry('');
+    setErr('');
+    setCode(newCode());
+  };
+
+  if (person?.role === 'owner' || (person && !person.phone))
+    return (
+      <Page title="Sign in" back={{ to: '/portal', label: 'Home' }}>
+        <div className="pt-card">
+          <p>
+            <b>{person.name}</b> {person.role === 'owner' ? 'signs in on the office side, with an office login.' : 'has no phone number on file yet, so the text code can’t be sent.'}
+          </p>
+          <p className="pt-fine">Not on the list, or your number changed? Call the office at <a href={OFFICE.tel}>{OFFICE.phone}</a>.</p>
+          <button className="pt-btn line block" type="button" onClick={() => setPick(null)}>
+            Pick a different name
+          </button>
+        </div>
+      </Page>
+    );
+
+  if (person?.phone) {
+    const submit = (e: FormEvent) => {
+      e.preventDefault();
+      if (entry.length < 6) return setErr('Type all 6 numbers.');
+      if (entry !== code) return setErr('That code doesn’t match. Check the text, or send a new code.');
+      actions.setMe(person.id);
+      nav('/portal');
+    };
+    return (
+      <Page title="Check it’s you" back={{ to: '/portal', label: 'Home' }}>
+        <p className="pt-lede">
+          We texted a 6-digit code to <b className="mono pt-nowrap">{masked(person.phone)}</b>, the number the office has for {person.name}. Type it here. You only do this once on this phone.
+        </p>
+        <p className="pt-demo-code" role="note">
+          <b>Demo:</b> no text is sent. The code is <span className="mono">{code}</span>.
+        </p>
+        <form className="pt-card pt-form" onSubmit={submit} noValidate>
+          <label htmlFor="pt-code">Code from the text</label>
+          <input
+            id="pt-code"
+            className="pt-code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            value={entry}
+            onChange={(e) => {
+              setEntry(e.target.value.replace(/\D/g, '').slice(0, 6));
+              setErr('');
+            }}
+            aria-invalid={!!err}
+            aria-describedby={err ? 'pt-code-err' : undefined}
+          />
+          {err && (
+            <p className="pt-err" id="pt-code-err" role="alert">
+              {err}
+            </p>
+          )}
+          <button className="pt-btn block" type="submit">
+            Sign in on this phone
+          </button>
+        </form>
+        <div className="pt-row2">
+          <button className="pt-btn line" type="button" onClick={() => choose(person.id)}>
+            Send a new code
+          </button>
+          <button className="pt-btn line" type="button" onClick={() => setPick(null)}>
+            Not {person.name}?
+          </button>
+        </div>
+        <p className="pt-fine">Wrong number? Call the office at <a href={OFFICE.tel}>{OFFICE.phone}</a>. They update it, then you try again.</p>
+      </Page>
+    );
+  }
+
   return (
-    <Page title="Who’s using this phone?" back={{ to: '/portal', label: 'Home' }}>
-      <p className="pt-lede">Pick your name once. It goes on the rules you sign and the problems you report from this phone.</p>
+    <Page title={me ? 'Signed in' : 'Sign in'} back={{ to: '/portal', label: 'Home' }}>
+      {me ? (
+        <div className="pt-card">
+          <p className="pt-signed">
+            <Icon name="check" size={20} /> {me.name} is signed in on this phone.
+          </p>
+          {s.meAt && <p className="pt-fine">Checked by text code {when(s.meAt)}. It goes on the rules you sign and the problems you report.</p>}
+          <button className="pt-btn line block" type="button" onClick={() => actions.setMe(null)}>
+            Sign out of this phone
+          </button>
+        </div>
+      ) : (
+        <p className="pt-lede">Pick your name, then type the code we text you. Once per phone, no password. It goes on the rules you sign and the problems you report.</p>
+      )}
+      {me && <h2 className="pt-h2">Someone else using this phone?</h2>}
       <ul className="pt-names">
-        {PEOPLE.map((p) => (
+        {PEOPLE.filter((p) => p.id !== me?.id).map((p) => (
           <li key={p.id}>
-            <button
-              type="button"
-              className={s.me === p.id ? 'pt-on' : undefined}
-              aria-pressed={s.me === p.id}
-              onClick={() => {
-                actions.setMe(p.id);
-                nav('/portal');
-              }}
-            >
+            <button type="button" onClick={() => choose(p.id)}>
               <span>
                 <b>{p.name}</b> {p.sample && <Sample />}
                 <small>{p.title}</small>
               </span>
-              {s.me === p.id && <Icon name="check" size={22} />}
+              <Icon name="chevron" size={20} />
             </button>
           </li>
         ))}
@@ -46,21 +140,21 @@ export function WhoAmI() {
   );
 }
 
-// "Your name" for a signature or a report: remembers the choice on this phone.
-export function NamePicker({ id, value, onChange }: { id: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <>
-      <label htmlFor={id}>Your name</label>
-      <select id={id} value={value} onChange={(e) => onChange(e.target.value)}>
-        <option value="">Pick your name</option>
-        {PEOPLE.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-            {p.sample ? ' (sample)' : ''}
-          </option>
-        ))}
-      </select>
-    </>
+// Who a signature or a report comes from: the person signed in on this phone, or a way to sign in.
+export function SignedInAs({ action }: { action: string }) {
+  const s = usePortal();
+  const me = (s.me ? personById(s.me) : undefined);
+  return me ? (
+    <p className="pt-signas-line">
+      <Icon name="check" size={18} />
+      <span>
+        {action} as <b>{me.name}</b>, checked by text on this phone. <Link to="/portal/me">Not you?</Link>
+      </span>
+    </p>
+  ) : (
+    <Link className="pt-btn line block" to="/portal/me">
+      Sign in first (once per phone)
+    </Link>
   );
 }
 
@@ -90,7 +184,7 @@ export function Home() {
               <Icon name="flag" />
               <span>
                 <b>New here? Start here</b>
-                <small>Pick your name, sign the rules, meet your truck</small>
+                <small>Sign in, sign the rules, meet your truck</small>
               </span>
               <Icon name="chevron" size={20} />
             </Link>
@@ -321,7 +415,7 @@ export function UnitPage() {
 export function Report() {
   const s = usePortal();
   const location = useLocation();
-  const [by, setBy] = useState(s.me ?? '');
+  const by = s.me ?? '';
   const pre = (location.state ?? {}) as { unit?: string; kind?: ReportKind };
   const [unit, setUnit] = useState(pre.unit ?? '');
   const [kind, setKind] = useState<ReportKind>(pre.kind ?? 'Defect');
@@ -347,7 +441,7 @@ export function Report() {
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (!by) return setErr('Pick your name.');
+    if (!by) return setErr('Sign in first: tap Sign in at the top.');
     if (!unit) return setErr('Pick the truck or trailer.');
     if ((crash || roadside) && (!place.trim() || !usState.trim())) return setErr('Say the town and state where it happened.');
     if (crash && !towed) return setErr('Say whether any vehicle was towed away.');
@@ -402,7 +496,7 @@ export function Report() {
   return (
     <Page title="Report a problem" back={{ to: '/portal', label: 'Home' }}>
       <form className="pt-card pt-form" onSubmit={submit} noValidate>
-        <NamePicker id="pt-by" value={by} onChange={setBy} />
+        <SignedInAs action="Reporting" />
 
         <label htmlFor="pt-unit">Truck or trailer</label>
         <select id="pt-unit" value={unit} onChange={(e) => setUnit(e.target.value)}>
