@@ -123,6 +123,13 @@
 .pt-names b{color:var(--ink)}
 .pt-names small{display:block;color:var(--muted);font-size:14.5px}
 .pt-signas p{margin:8px 0 0}
+.pt-signas-line{display:flex;align-items:flex-start;gap:8px;margin:0;color:var(--ink)}
+.pt-signas-line svg{flex:none;margin-top:4px;color:#1d5a2d}
+.pt-signas-line a{color:var(--navy);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.pt-nowrap{white-space:nowrap}
+.pt-demo-code{margin:0 0 14px;padding:10px 14px;border:1px dashed #c9b45a;border-radius:6px;background:#fff7d6;color:#4a3d00}
+.pt-demo-code .mono{font-size:18px;letter-spacing:.18em;font-weight:700}
+.pt-form input.pt-code{font:700 26px/1 var(--mono);letter-spacing:.4em;text-align:center}
 
 /* Units */
 .pt-units{list-style:none;margin:0;padding:0;display:grid;gap:10px}

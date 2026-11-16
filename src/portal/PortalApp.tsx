@@ -46,12 +46,12 @@ export default function PortalApp() {
             {me ? (
               <>
                 {me.name}
-                <small>Not you? Change</small>
+                <small>Signed in · Change</small>
               </>
             ) : (
               <>
-                Pick your name
-                <small>Tap here</small>
+                Sign in
+                <small>Once per phone</small>
               </>
             )}
           </Link>

@@ -1,10 +1,11 @@
 // Demo state for the team portal. Everything lives in this browser only (localStorage), so
 // Daniel can click through sign-offs, reports and the office side, then reset.
 //
-// The portal is one blanket portal for the whole team: no accounts, no logins. Anyone with
-// the link or a sticker scan gets in. `me` is just the name picked on this phone, so rule
-// signatures and reports carry a name; it isn't a login and isn't verified. The real
-// version keeps this in a shared database instead of the browser.
+// One portal for the whole team, no passwords. A driver signs in once per phone: picks their
+// name, then types a code texted to the number the office has for them (the demo shows the
+// code on screen and sends nothing). `me` is who signed in on this phone; rule signatures and
+// reports carry it. The real version keeps this in a shared database instead of the browser,
+// and the office can switch a phone off when someone leaves.
 import { useSyncExternalStore } from 'react';
 import { PEOPLE, RULES } from './data';
 
@@ -38,13 +39,14 @@ export type Report = {
 };
 export type Signoff = { person: string; rule: string; version: number; at: number };
 export type RuleVersion = { rule: string; version: number; at: number; note: string };
-export type LeavingStep = 'codes' | 'keys' | 'fuel' | 'files';
+export type LeavingStep = 'codes' | 'keys' | 'fuel' | 'files' | 'phone';
 export type Post = { id: string; title: string; body: string; at: number; by: string; sample?: boolean };
 export type Feedback = { guide: string; helped: boolean; by: string; at: number };
 
 export type State = {
   v: 3;
-  me: string | null; // name picked on this phone (a person id), not a login
+  me: string | null; // who signed in on this phone (a person id)
+  meAt?: number | null; // when this phone was checked by text code (demo: the code is shown on screen)
   listed: Record<string, boolean>; // office overrides: show this person's number on the Team page
   versions: RuleVersion[];
   signoffs: Signoff[];
@@ -144,7 +146,7 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 export const viewer = (s: State) => s.me ?? PHONE;
 
 export const actions = {
-  setMe: (person: string | null) => update((s) => ({ ...s, me: person })),
+  setMe: (person: string | null) => update((s) => ({ ...s, me: person, meAt: person ? Date.now() : null })),
   sign: (person: string, rule: string) =>
     update((s) => ({ ...s, me: person, signoffs: [...s.signoffs, { person, rule, version: currentVersion(s, rule).version, at: Date.now() }] })),
   publish: (rule: string, note: string) =>
@@ -181,7 +183,7 @@ export const actions = {
       const by = viewer(s);
       return { ...s, feedback: [...s.feedback.filter((f) => !(f.guide === guide && f.by === by)), { guide, helped, by, at: Date.now() }] };
     }),
-  reset: () => set({ ...seed(), me: get().me }),
+  reset: () => set({ ...seed(), me: get().me, meAt: get().meAt }),
 };
 
 export const isListed = (s: State, person: string) => s.listed[person] ?? PEOPLE.find((p) => p.id === person)?.listed ?? false;

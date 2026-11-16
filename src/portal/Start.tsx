@@ -22,9 +22,9 @@ export type StartStep = {
 export const START_STEPS: StartStep[] = [
   {
     id: 'name',
-    title: 'Pick your name',
-    text: 'Once per phone. It goes on the rules you sign and the problems you report.',
-    to: { href: '/portal/me', label: 'Pick your name' },
+    title: 'Sign in on your phone',
+    text: 'Pick your name and type the code we text you. Once per phone, no password. It goes on the rules you sign and the problems you report.',
+    to: { href: '/portal/me', label: 'Sign in' },
     done: (s) => !!s.me,
   },
   {
