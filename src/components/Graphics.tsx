@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 // Shared drawings: the Interstate shield, the tractor used by the trailer drawings, a wheel,
-// the FX4 roundel (stand-in until Daniel sends the real logo) and small icons.
+// and small icons. FX4's logo is in Logo.tsx.
 export function Sprites() {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true" focusable="false">
@@ -33,19 +33,6 @@ export function Shield({ num, size = 34 }: { num: string; size?: number }) {
       <text x="17" y="27" textAnchor="middle" fontFamily="IBM Plex Mono, monospace" fontWeight="600" fontSize="13" fill="#fff">
         {num}
       </text>
-    </svg>
-  );
-}
-
-export function Roundel() {
-  return (
-    <svg className="roundel" viewBox="0 0 64 64" aria-hidden="true">
-      <circle cx="32" cy="32" r="30" fill="#1d3150" />
-      <circle cx="32" cy="32" r="25.5" fill="none" stroke="#fff" strokeWidth="1.4" opacity=".55" />
-      <text x="32" y="37.5" textAnchor="middle" fontFamily="Zilla Slab, Georgia, serif" fontWeight="700" fontSize="19" fill="#fff" letterSpacing=".5">
-        FX4
-      </text>
-      <rect x="21" y="42" width="22" height="2.6" fill="#a8332a" />
     </svg>
   );
 }
