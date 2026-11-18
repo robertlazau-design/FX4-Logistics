@@ -4,10 +4,10 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 
 ## Status: draft preview
 
-`DRAFT = true` in `src/data/business.ts`. In draft mode the site shows a yellow draft banner, the yellow `<Ph>` placeholders (each numbered to match the call agenda) and Robert's call agenda panel, and it keeps search engines out: every page gets `noindex`, `robots.txt` blocks crawlers, and there's no canonical or sitemap.
+`DRAFT = true` in `src/data/business.ts`. In draft mode the site shows a yellow draft banner and any yellow `<Ph>` placeholders, and it keeps search engines out: every page gets `noindex`, `robots.txt` blocks crawlers, and there's no canonical or sitemap.
 
 **Before launch:**
-1. Replace every `<Ph q="...">` with Daniel's real answer (`grep -rn "<Ph" src`). His answers from the Nov 11 call are already in `src/data/business.ts` (`BUSINESS`, `STATES`, `LANES`, `WAREHOUSE`, `DRIVERS`); the call agenda now holds only the follow-ups. Quote requests go to dispatch@fx4logistics.com (Daniel's answer). FX4 owns fx4logistics.com (WHOIS: FX4 Logistics, Oregon, at Squarespace Domains), but send a test email there before launch to make sure the mailbox works.
+1. Every question for Daniel is answered and no `<Ph>` is left (`grep -rn "<Ph" src` to check). His answers are in `src/data/business.ts` (`BUSINESS`, `STATES`, `LANES`, `WAREHOUSE`, `DRIVERS`). The call agenda panel was taken out on Nov 18, 2026, once the last question (a shipper quote) was answered. Quote requests go to dispatch@fx4logistics.com (Daniel's answer). FX4 owns fx4logistics.com (WHOIS: FX4 Logistics, Oregon, at Squarespace Domains), but send a test email there before launch to make sure the mailbox works.
 2. The domain is fx4logistics.com (Daniel confirmed it's his; `SITE_URL` in `src/seo.ts` is already set). Add it to the `fx-4-logistics` Vercel project; Daniel signs in to Squarespace Domains and adds the records Vercel shows, leaving the email (MX) records alone. Then redirect `fx-4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
 3. Google Business Profile: Daniel said yes. Set it up for 23605 NE Halsey St under his Google account, with Robert as a manager.
 4. Real FX4 truck photos are in (see Photos below). Still stand-ins: the Warehousing hero and warehouse photo, the About crew photo, the Driver Jobs and Contact heroes, and the trailer drawings. FX4's real logo is in (see Brand below).
@@ -20,7 +20,7 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 - **Never commit to `main`.** Use a feature branch and open a pull request; Robert merges.
 - **Keep commits few.** Vercel caps builds per day, so bundle related changes into one PR.
 - **Show the change first.** For anything visual, send screenshots or a short video before opening the PR.
-- **Don't invent facts.** No made-up prices, equipment counts, lanes, transit times, customer names, quotes or certifications. If something is unknown, it stays a `<Ph>` and goes on the call agenda.
+- **Don't invent facts.** No made-up prices, equipment counts, lanes, transit times, customer names, quotes or certifications. If something is unknown, it stays a `<Ph>` until Daniel answers. A quote on the site must be a real shipper's or broker's words, used with their permission; Daniel's own words are FX4 speaking, never a testimonial.
 - **Never handle passwords, codes, keys or tokens.**
 
 ## Stack
@@ -37,7 +37,6 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 | File | What's in it |
 | --- | --- |
 | `src/data/business.ts` | `DRAFT` switch, contact and carrier details (USDOT, MC, phone, address), safety numbers, states, hauls, form choices |
-| `src/data/agenda.ts` | The call agenda questions; ids match the `<Ph q>` placeholders, and `path` is the page each "show" link opens |
 | `src/data/pages.ts` | The menu: page paths and labels in order |
 | `src/data/photos.ts` | FX4's own truck photos: file, alt text and crop for each; `srcSet()` for the full and half-size copies |
 | `src/data/quote.ts` | Quote form fields and `quoteFor()`, which other pages use to prefill the Contact form |
@@ -45,12 +44,12 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 | `src/pages/Home.tsx` | Short overview: hero with the quick quote, safety strip, one highway sign per page, call-to-delivery steps, quote band |
 | `src/pages/Trucking.tsx` | Trailer cards, what we haul, why shippers stay, carrier packet |
 | `src/pages/Warehousing.tsx` | Warehouse photo, facility data sheet, trucking + storage, imported freight (after customs only) |
-| `src/pages/About.tsx` | Owner's note, company data sheet, shipper quote |
+| `src/pages/About.tsx` | Owner's note, company data sheet, FX4's day-or-night line (Daniel's words in FX4's voice; no customer quote yet) |
 | `src/pages/ServiceArea.tsx` | States, local towns, main lanes, route map |
 | `src/pages/DriverJobs.tsx` | Why drive for FX4, pay and home time, apply button |
 | `src/pages/Contact.tsx` | Contact box and the request-for-quote form |
 | `src/pages/NotFound.tsx` | 404 page |
-| `src/components/` | Header, Footer, PhoneBar, CallAgenda, RouteMap, Ph, PageParts (page hero with breadcrumb, quote band), Graphics (scene, shield, trailer drawings, exit arrow, icons), Logo (FX4's logo) |
+| `src/components/` | Header, Footer, PhoneBar, RouteMap, Ph, PageParts (page hero with breadcrumb, quote band), Graphics (scene, shield, trailer drawings, exit arrow, icons), Logo (FX4's logo) |
 | `src/effects.tsx` | Motion effects (see below) |
 | `src/index.css` | Brand tokens and all styles |
 

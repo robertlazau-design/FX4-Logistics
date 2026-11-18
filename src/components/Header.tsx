@@ -5,7 +5,7 @@ import { NAV } from '../data/pages';
 import { PhoneIcon } from './Graphics';
 import { FX4Mark } from './Logo';
 
-export default function Header({ onAgenda, agendaOpen }: { onAgenda: (el: HTMLElement) => void; agendaOpen: boolean }) {
+export default function Header() {
   const { pathname } = useLocation();
   const listRef = useRef<HTMLUListElement>(null);
   // On phones the menu scrolls sideways: keep the current page's item in view.
@@ -26,13 +26,8 @@ export default function Header({ onAgenda, agendaOpen }: { onAgenda: (el: HTMLEl
           <div className="wrap">
             <span>
               <b>Draft preview</b> by Golden Boy Productions.{' '}
-              <span className="why-txt">
-                <span className="ph">Yellow</span> = confirm with Daniel (numbers match the call agenda). Gray frames and drawings are stand-ins until there are photos for them.
-              </span>
+              <span className="why-txt">Gray frames and drawings are stand-ins until there are photos for them.</span>
             </span>
-            <button type="button" aria-controls="agenda" aria-expanded={agendaOpen} onClick={(e) => onAgenda(e.currentTarget)}>
-              Call agenda ›
-            </button>
           </div>
         </div>
       )}

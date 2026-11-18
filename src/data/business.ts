@@ -3,7 +3,7 @@
 // checked Sept–Nov 2026; everything else is Daniel's answers on the Nov 11, 2026 call and its follow-ups.
 // Re-check the safety numbers before launch.
 
-// Draft mode: shows the draft banner, the yellow placeholders and Robert's call agenda,
+// Draft mode: shows the draft banner and any yellow placeholders,
 // and keeps search engines out (noindex + robots.txt). Set to false only when every
 // <Ph> is replaced with a real answer; the build stops if any are left.
 export const DRAFT = true;
