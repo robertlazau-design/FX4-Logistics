@@ -93,7 +93,7 @@ export default function About() {
           <div>
             <p className="eyebrow">How we work</p>
             <h2>If you need something done, we're the ones to call.</h2>
-            <p>Day or night, we figure it out.</p>
+            <p className="lede">Day or night, we figure it out.</p>
           </div>
         </div>
       </section>
