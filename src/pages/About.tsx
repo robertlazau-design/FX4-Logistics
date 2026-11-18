@@ -1,8 +1,7 @@
-// About Us: the owner's note, the company data sheet and (once there is one) a real quote
-// from a shipper or broker.
+// About Us: the owner's note, the company data sheet and FX4's day-or-night line (Daniel's
+// words, in FX4's own voice). A customer quote goes here only if a real shipper or broker gives one.
 import { BUSINESS } from '../data/business';
 import { quoteFor } from '../data/quote';
-import { Ph } from '../components/Ph';
 import { PhotoTag, Shield } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
 import { PHOTOS } from '../data/photos';
@@ -60,7 +59,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* COMPANY SHEET + PROOF */}
+      {/* COMPANY SHEET + DAY OR NIGHT */}
       <section className="cream">
         <div className="wrap two top">
           <div>
@@ -92,18 +91,9 @@ export default function About() {
             </div>
           </div>
           <div>
-            <p className="eyebrow">In their words</p>
-            <h2>What shippers say.</h2>
-            <figure className="quote">
-              <blockquote>
-                “<Ph q="quote">A real quote from a shipper or broker FX4 works with, used with their permission.</Ph>”
-              </blockquote>
-              <figcaption>
-                <cite>
-                  — <Ph q="quote">Name, Company, City</Ph>
-                </cite>
-              </figcaption>
-            </figure>
+            <p className="eyebrow">How we work</p>
+            <h2>If you need something done, we're the ones to call.</h2>
+            <p>Day or night, we figure it out.</p>
           </div>
         </div>
       </section>

@@ -1,12 +1,10 @@
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { DRAFT } from './data/business';
 import { NOT_FOUND_META, pageMeta } from './seo';
 import { Sprites } from './components/Graphics';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import PhoneBar from './components/PhoneBar';
-import CallAgenda from './components/CallAgenda';
 import Home from './pages/Home';
 import Trucking from './pages/Trucking';
 import Warehousing from './pages/Warehousing';
@@ -22,16 +20,6 @@ export default function App() {
   const { pathname } = useLocation();
   const mainRef = useRef<HTMLElement>(null);
   const firstPage = useRef(true);
-  const [agendaOpen, setAgendaOpen] = useState(false);
-  const opener = useRef<HTMLElement | null>(null);
-  const openAgenda = useCallback((el: HTMLElement) => {
-    opener.current = el;
-    setAgendaOpen(true);
-  }, []);
-  const closeAgenda = useCallback(() => {
-    setAgendaOpen(false);
-    opener.current?.focus();
-  }, []);
 
   // Moving between pages in the browser (no full reload): start at the top, update the tab
   // title and move focus to the new page so screen readers announce it. Runs before the
@@ -49,7 +37,7 @@ export default function App() {
   return (
     <>
       <Sprites />
-      <Header onAgenda={(el) => (agendaOpen ? closeAgenda() : openAgenda(el))} agendaOpen={agendaOpen} />
+      <Header />
       <main id="main" ref={mainRef} tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -64,7 +52,6 @@ export default function App() {
       </main>
       <Footer />
       <PhoneBar />
-      {DRAFT && <CallAgenda open={agendaOpen} onOpen={openAgenda} onClose={closeAgenda} />}
     </>
   );
 }

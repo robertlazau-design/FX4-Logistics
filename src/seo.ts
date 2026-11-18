@@ -1,6 +1,6 @@
 // Titles, descriptions and structured data for every page. scripts/prerender.mjs bakes them into
 // each page's HTML at build time. In draft mode the pages get noindex and no canonical, because
-// the web address isn't confirmed yet (agenda #22).
+// the site isn't live at its own address yet.
 import { BUSINESS, DRAFT, STATES } from './data/business';
 import { NAV } from './data/pages';
 
