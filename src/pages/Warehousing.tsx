@@ -3,7 +3,7 @@
 // warehouse or a foreign-trade zone, so never say it is.
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { BUSINESS, WAREHOUSE } from '../data/business';
+import { BUSINESS, DRAFT, WAREHOUSE } from '../data/business';
 import { quoteFor } from '../data/quote';
 import { PhotoTag } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
@@ -30,14 +30,17 @@ export default function Warehousing() {
 
       {/* FACILITY */}
       <section>
-        <div className="wrap two">
-          <div className="lb" ref={lbRef}>
-            <div className="photo warm">
-              <PhotoTag>Photo/video slot: racking and dock doors, a forklift moving pallets</PhotoTag>
+        {/* The warehouse photo frame shows only in draft until there's a real photo for it. */}
+        <div className={DRAFT ? 'wrap two' : 'wrap two solo'}>
+          {DRAFT && (
+            <div className="lb" ref={lbRef}>
+              <div className="photo warm">
+                <PhotoTag>Photo/video slot: racking and dock doors, a forklift moving pallets</PhotoTag>
+              </div>
+              <span className="lb-bar lb-top" aria-hidden="true" />
+              <span className="lb-bar lb-bot" aria-hidden="true" />
             </div>
-            <span className="lb-bar lb-top" aria-hidden="true" />
-            <span className="lb-bar lb-bot" aria-hidden="true" />
-          </div>
+          )}
           <div>
             <p className="eyebrow">The warehouse</p>
             <h2>Warehouse 1 at a glance.</h2>

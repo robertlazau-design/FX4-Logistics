@@ -1,6 +1,6 @@
 // About Us: the owner's note, the company data sheet and FX4's day-or-night line (Daniel's
 // words, in FX4's own voice). A customer quote goes here only if a real shipper or broker gives one.
-import { BUSINESS } from '../data/business';
+import { BUSINESS, DRAFT } from '../data/business';
 import { quoteFor } from '../data/quote';
 import { PhotoTag, Shield } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
@@ -48,9 +48,11 @@ export default function About() {
             </div>
           </div>
           <div className="stack">
-            <div className="photo warm">
-              <PhotoTag>Photo slot: Daniel and the crew in front of the trucks at the yard</PhotoTag>
-            </div>
+            {DRAFT && (
+              <div className="photo warm">
+                <PhotoTag>Photo slot: Daniel and the crew in front of the trucks at the yard</PhotoTag>
+              </div>
+            )}
             <div className="stamp">
               <b>Same address</b>
               <span>Trucks, shop and office at 23605 NE Halsey St.</span>

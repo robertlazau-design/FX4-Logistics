@@ -1,12 +1,12 @@
 // FX4 Logistics contact and carrier details. Change them here and every page picks them up.
 // Sources: FMCSA (USDOT, MC, phone, authority, liability) and CarrierSource (safety numbers),
 // checked Sept–Nov 2026; everything else is Daniel's answers on the Nov 11, 2026 call and its follow-ups.
-// Re-check the safety numbers before launch.
+// Safety numbers re-checked on FMCSA SAFER on Nov 23, 2026 (24 months to Nov 17, 2026).
 
 // Draft mode: shows the draft banner and any yellow placeholders,
 // and keeps search engines out (noindex + robots.txt). Set to false only when every
 // <Ph> is replaced with a real answer; the build stops if any are left.
-export const DRAFT = true;
+export const DRAFT = false;
 
 export const BUSINESS = {
   name: 'FX4 Logistics Inc.',
@@ -44,9 +44,9 @@ export const BUSINESS = {
 export const SAFETY = {
   crashes: '0',
   driverOos: '0',
-  inspections: '34',
+  inspections: '33',
   trucksOnRecord: '8',
-  source: 'Federal FMCSA data as reported by CarrierSource, September 2026. Re-check before launch.',
+  source: 'Federal FMCSA data (SAFER), 24 months to November 17, 2026.',
 };
 
 export const STATES: { name: string; code: string; home?: boolean; confirm?: string }[] = [
