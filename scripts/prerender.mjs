@@ -11,7 +11,7 @@ import path from 'node:path';
 
 const DIST = 'dist';
 const ssr = await import(path.resolve('dist-server/entry-server.js'));
-const { render, ALL_PATHS, NOT_FOUND_META, SITE_URL, DRAFT, canonicalUrl, pageMeta, pageJsonLd, placeholdersLeft } = ssr;
+const { render, ALL_PATHS, NOT_FOUND_META, SITE_URL, SHARE_IMAGE, DRAFT, canonicalUrl, pageMeta, pageJsonLd, placeholdersLeft } = ssr;
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const template = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
@@ -19,16 +19,31 @@ for (const marker of ['<!--page-head-->', '<div id="root"></div>']) {
   if (!template.includes(marker)) throw new Error(`prerender: ${marker} not found in index.html`);
 }
 
+// Fonts are self-hosted (src/fonts.ts). Preload the two every page paints first, the heading slab
+// and the body text, so they arrive with the CSS instead of after it (less font swap, less shift).
+const assets = fs.readdirSync(path.join(DIST, 'assets'));
+const fontPreloads = [/^zilla-slab-latin-700-normal-.*\.woff2$/, /^source-sans-3-latin-400-normal-.*\.woff2$/].map((re) => {
+  const file = assets.find((a) => re.test(a));
+  if (!file) throw new Error(`prerender: no font file matching ${re} in dist/assets`);
+  return `<link rel="preload" href="/assets/${file}" as="font" type="font/woff2" crossorigin />`;
+});
+
 const renderPage = (pagePath, meta, { notFound = false } = {}) => {
   const body = render(pagePath);
   const h1s = (body.match(/<h1[\s>]/g) || []).length;
   if (h1s !== 1) throw new Error(`prerender: ${pagePath} has ${h1s} <h1> elements (needs exactly one)`);
   if (!notFound && body.includes('Page not found.')) throw new Error(`prerender: ${pagePath} is in PAGE_META but has no route in App.tsx`);
-  const head = [];
+  const head = [...fontPreloads];
   if (DRAFT || notFound) head.push('<meta name="robots" content="noindex" />');
   if (!DRAFT && !notFound) {
     const url = canonicalUrl(pagePath);
     head.push(`<link rel="canonical" href="${esc(url)}" />`, `<meta property="og:url" content="${esc(url)}" />`);
+    head.push(
+      `<meta property="og:image" content="${esc(SHARE_IMAGE.url)}" />`,
+      `<meta property="og:image:width" content="${SHARE_IMAGE.width}" />`,
+      `<meta property="og:image:height" content="${SHARE_IMAGE.height}" />`,
+      `<meta property="og:image:alt" content="${esc(SHARE_IMAGE.alt)}" />`,
+    );
     for (const data of pageJsonLd(pagePath)) {
       head.push(`<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`);
     }

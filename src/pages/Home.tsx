@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <>
       {/* HERO */}
-      <div className="hero has-photo">
+      <div className="hero has-photo" data-spot="hero">
         <HeroPhoto photo={PHOTOS.home} />
         <div className="sweep" aria-hidden="true">
           <span />

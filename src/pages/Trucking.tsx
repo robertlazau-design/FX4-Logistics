@@ -4,7 +4,8 @@ import { BUSINESS, HAULS, SAFETY } from '../data/business';
 import { quoteFor, type Trailer } from '../data/quote';
 import { TrailerArt } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
-import { PHOTOS, srcSet } from '../data/photos';
+import { PHOTOS } from '../data/photos';
+import { Pic } from '../components/Pic';
 
 const RIGS: { kind: 'flatbed' | 'stepdeck' | 'dryvan' | 'hopper'; title: string; text: string; fits: string[]; equip: Trailer; cta: string }[] = [
   { kind: 'flatbed', title: 'Flatbed', text: 'Lumber, steel and building materials, strapped and tarped by experienced drivers.', fits: ['Lumber', 'Steel', 'Building materials'], equip: 'Flatbed', cta: 'Get a flatbed quote' },
@@ -78,7 +79,7 @@ export default function Trucking() {
           <div className="road">
             {PHOTOS.road.map((ph) => (
               <figure key={ph.src}>
-                <img src={ph.src} srcSet={srcSet(ph)} sizes="(max-width: 640px) 100vw, 33vw" alt={ph.alt} loading="lazy" decoding="async" />
+                <Pic photo={ph} sizes="(max-width: 640px) 100vw, 33vw" />
               </figure>
             ))}
           </div>
@@ -133,6 +134,10 @@ export default function Trucking() {
                 <dt>Equipment</dt>
                 <dd>
                   {BUSINESS.fleetText}
+                </dd>
+                <dt>Safety rating</dt>
+                <dd>
+                  {SAFETY.rating} ({SAFETY.ratingNote})
                 </dd>
               </dl>
               <div className="actions">

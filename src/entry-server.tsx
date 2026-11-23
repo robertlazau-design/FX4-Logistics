@@ -6,7 +6,7 @@ import { StaticRouter } from 'react-router-dom';
 import App from './App';
 import { usedPlaceholders } from './components/Ph';
 
-export { ALL_PATHS, NOT_FOUND_META, SITE_URL, DRAFT, canonicalUrl, pageMeta, pageJsonLd } from './seo';
+export { ALL_PATHS, NOT_FOUND_META, SITE_URL, SHARE_IMAGE, DRAFT, canonicalUrl, pageMeta, pageJsonLd } from './seo';
 
 export const render = (path: string) =>
   renderToString(

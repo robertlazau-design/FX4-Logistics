@@ -4,12 +4,13 @@ The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, s
 
 ## Status: live
 
-Live at **https://www.fx4logistics.com** (launch PR Nov 23, 2026). `DRAFT = false` in `src/data/business.ts`, so the draft banner is gone, search engines are allowed in, and the canonical, sitemap and LocalBusiness JSON-LD are on.
+Live at **https://www.fx4logistics.com** (launch PR Nov 23, 2026). `DRAFT = false` in `src/data/business.ts`, so the draft banner is gone, search engines are allowed in, and the canonical, sitemap, share image and structured data are on.
 
 - **Domain:** `www.fx4logistics.com` is the main address (`SITE_URL` in `src/seo.ts`). `fx4logistics.com` redirects to it (set in the Vercel project), and `vercel.json` redirects `fx-4-logistics.vercel.app` there too. DNS is at Squarespace Domains (A @ 76.76.21.21, CNAME www cname.vercel-dns.com). Never touch the Google Workspace email records there (MX, SPF, DKIM, the google verification CNAME).
 - **Quote form:** sends through Robert's Web3Forms account to dispatch@fx4logistics.com. The access key is the `VITE_WEB3FORMS_ACCESS_KEY` environment variable in the Vercel project, set by Robert; it never goes in the code. Without it the form shows a "call or email us" message instead of pretending to send. Never submit the form as a test.
 - **Photo slots:** the warehouse photo, the crew photo and the Warehousing and Driver Jobs hero photos are still missing. In draft mode they show as labeled gray frames; live, the frames are hidden and those heroes show the drawn scene. When a real photo arrives, add it to `src/data/photos.ts` and pass it to the page (`photo=` on `PageHero`, or replace the frame).
-- **Safety numbers** (`SAFETY` in `business.ts`): re-checked on FMCSA SAFER on Nov 23, 2026 (24 months to Nov 17, 2026): 33 inspections, 0 driver out-of-service orders, 0 crashes, 8 power units. Re-check them every few months.
+- **Safety numbers** (`SAFETY` in `business.ts`): re-checked on FMCSA SAFER on Nov 23, 2026 (24 months to Nov 17, 2026): 33 inspections, 0 driver out-of-service orders, 0 crashes, 8 power units, and a Satisfactory safety rating (compliance review, rated Apr 9, 2024; shown on Trucking and About). Re-check them every few months. Say exactly what the numbers say: the vehicle out-of-service rate is above the national average, so never call the record "clean" or "perfect" as a whole.
+- **Analytics:** Vercel Web Analytics (`<Analytics />` in `src/main.tsx`; it has to be switched on in the Vercel project) with the same lead events as Robert's other client sites (`src/leadEvents.ts`): Call Click and Email Click (page + where on the page), Form Sent (page + what the request was for) and Form Error. Never send names, numbers, emails or message text.
 - **Google Business Profile:** Daniel sets it up under his own Google account and adds Robert as a manager (steps in his client hub, clients.robertlazau.com/fx4-vzfw).
 - `<Ph>` placeholders: none left. With `DRAFT` off the build stops if one is added.
 
@@ -30,7 +31,8 @@ Live at **https://www.fx4logistics.com** (launch PR Nov 23, 2026). `DRAFT = fals
 - The quote form lives on `/contact` only. Buttons elsewhere link there with some fields filled in through router state (`quoteFor()` in `src/data/quote.ts`), never through the address bar.
 - `npm run build` builds the client, builds `src/entry-server.tsx` for the server and runs `scripts/prerender.mjs`, which writes one HTML file per page in `PAGE_META` (plus `404.html`) with its title, description and full text. Each page needs exactly one `<h1>`, and a page in `PAGE_META` without a route stops the build.
 - `npm run lint` type-checks. `npm run dev` runs a local server (no prerender).
-- Fonts load from Google Fonts through `<link>` tags in `index.html` (not a CSS `@import`).
+- Fonts are served from the site itself, from the Fontsource packages (`src/fonts.ts`: Latin letters only, only the weights `index.css` uses), not from Google Fonts. `scripts/prerender.mjs` preloads Zilla Slab 700 and Source Sans 3 400; if headings or body text change weight, change the preload too.
+- Every page shares one picture for link previews, `public/og-image.jpg` (1200x630, the night Peterbilt cropped past the roadside billboard), set in `SHARE_IMAGE` (`src/seo.ts`).
 
 | File | What's in it |
 | --- | --- |
@@ -38,7 +40,9 @@ Live at **https://www.fx4logistics.com** (launch PR Nov 23, 2026). `DRAFT = fals
 | `src/data/pages.ts` | The menu: page paths and labels in order |
 | `src/data/photos.ts` | FX4's own truck photos: file, alt text and crop for each; `srcSet()` for the full and half-size copies |
 | `src/data/quote.ts` | Quote form fields and `quoteFor()`, which other pages use to prefill the Contact form |
-| `src/seo.ts` | Titles and descriptions for every page, `SITE_URL`, JSON-LD (live mode only: LocalBusiness on Home, breadcrumbs elsewhere) |
+| `src/seo.ts` | Titles and descriptions for every page, `SITE_URL`, the share image, and the structured data (live mode only): one connected graph per page (the page, the site, the company with its FMCSA record, the warehouse as a department, a Service on Trucking and Warehousing, breadcrumbs), typed with `schema-dts`. No prices, reviews or ratings in it until they're real |
+| `src/fonts.ts` | The self-hosted brand fonts |
+| `src/leadEvents.ts` | Call, email and quote-form events for Vercel Web Analytics |
 | `src/pages/Home.tsx` | Short overview: hero with the quick quote, safety strip, one highway sign per page, call-to-delivery steps, quote band |
 | `src/pages/Trucking.tsx` | Trailer cards, what we haul, why shippers stay, carrier packet |
 | `src/pages/Warehousing.tsx` | Warehouse photo, facility data sheet, trucking + storage, imported freight (after customs only) |
@@ -47,13 +51,13 @@ Live at **https://www.fx4logistics.com** (launch PR Nov 23, 2026). `DRAFT = fals
 | `src/pages/DriverJobs.tsx` | Why drive for FX4, pay and home time, apply button |
 | `src/pages/Contact.tsx` | Contact box and the request-for-quote form |
 | `src/pages/NotFound.tsx` | 404 page |
-| `src/components/` | Header, Footer, PhoneBar, RouteMap, Ph, PageParts (page hero with breadcrumb, quote band), Graphics (scene, shield, trailer drawings, exit arrow, icons), Logo (FX4's logo) |
+| `src/components/` | Header, Footer, PhoneBar, RouteMap, Ph, PageParts (page hero with breadcrumb and optional kicker line, quote band), Pic (a photo as WebP with a JPG fallback), Graphics (scene, shield, trailer drawings, exit arrow, icons), Logo (FX4's logo) |
 | `src/effects.tsx` | Motion effects (see below) |
 | `src/index.css` | Brand tokens and all styles |
 
 ## Photos
 
-- FX4's own truck photos (from Daniel, Nov 2026) live in `public/photos/`, each at full size and half size (`-sm`), with GPS and camera data stripped. `src/data/photos.ts` lists them with alt text and crop.
+- FX4's own truck photos (from Daniel, Nov 2026) live in `public/photos/`, each at full size and half size (`-sm`), as JPG and as a WebP copy (quality 72, about a third lighter), with GPS and camera data stripped. `src/data/photos.ts` lists them with alt text and crop; `<Pic>` shows one. A new photo needs all four files.
 - Where they are: the Home hero (night Peterbilt), the Trucking hero (loaded flatbed) and its "On the road" row, the About and Service Area heroes, and the Driver Jobs frame (Peterbilt in snow).
 - `PageHero` takes `photo={PHOTOS.x}` in place of `slot`; the hero then shows the photo under a darker gradient (`.has-photo`) instead of the drawn scene. Hero photos load first (`fetchPriority="high"`); everything else lazy-loads.
 - Never caption a photo with a place, load or trailer type Daniel hasn't confirmed.

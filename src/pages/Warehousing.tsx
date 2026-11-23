@@ -16,7 +16,8 @@ export default function Warehousing() {
     <>
       <PageHero
         crumb="Warehousing"
-        title="Store it with us. Ship it with us."
+        kicker="Store it with us. Ship it with us."
+        title="Pallet storage & warehousing in Wood Village, Oregon."
         lede="Need somewhere to keep inventory, overflow or a job-site delivery until it's time? Store it with us and we'll truck it out when you're ready."
         slot="Photo slot: the warehouse from the yard, dock doors open"
       >
