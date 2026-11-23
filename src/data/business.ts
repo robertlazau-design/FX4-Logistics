@@ -40,13 +40,17 @@ export const BUSINESS = {
     'https://safer.fmcsa.dot.gov/query.asp?searchtype=ANY&query_type=queryCarrierSnapshot&query_param=USDOT&query_string=3783174',
 };
 
-// FMCSA data as reported by CarrierSource, September 2026 (24-month window).
+// FMCSA data from SAFER, re-checked Nov 23, 2026 (24-month window). Re-check every few months.
 export const SAFETY = {
   crashes: '0',
   driverOos: '0',
   inspections: '33',
   trucksOnRecord: '8',
   source: 'Federal FMCSA data (SAFER), 24 months to November 17, 2026.',
+  // FMCSA safety rating on SAFER (re-checked Nov 23, 2026): Satisfactory, compliance review,
+  // rated April 9, 2024. It's the best rating FMCSA gives; shown on Trucking and About.
+  rating: 'Satisfactory',
+  ratingNote: 'FMCSA compliance review, April 2024',
 };
 
 export const STATES: { name: string; code: string; home?: boolean; confirm?: string }[] = [

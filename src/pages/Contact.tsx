@@ -11,6 +11,7 @@ import { QUOTE_DEFAULT, type QuoteNav, type QuoteState, type Service, type Trail
 import { Shield } from '../components/Graphics';
 import { PageHero } from '../components/PageParts';
 import { reducedMotion } from '../effects';
+import { trackForm } from '../leadEvents';
 
 const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
 type Status = 'idle' | 'sending' | 'sent' | 'missing' | 'error';
@@ -111,6 +112,7 @@ export default function Contact() {
                   return;
                 }
                 if (!ACCESS_KEY) {
+                  trackForm('Form Error');
                   setStatus('error');
                   return;
                 }
@@ -140,14 +142,17 @@ export default function Contact() {
                   });
                   const json = (await res.json().catch(() => null)) as { success?: boolean } | null;
                   if (res.ok && json?.success) {
+                    trackForm('Form Sent', quote.service);
                     form.reset();
                     setQuote(QUOTE_DEFAULT);
                     setImported('No');
                     setStatus('sent');
                   } else {
+                    trackForm('Form Error');
                     setStatus('error');
                   }
                 } catch {
+                  trackForm('Form Error');
                   setStatus('error');
                 }
               }}

@@ -1,6 +1,6 @@
 // About Us: the owner's note, the company data sheet and FX4's day-or-night line (Daniel's
 // words, in FX4's own voice). A customer quote goes here only if a real shipper or broker gives one.
-import { BUSINESS, DRAFT } from '../data/business';
+import { BUSINESS, DRAFT, SAFETY } from '../data/business';
 import { quoteFor } from '../data/quote';
 import { PhotoTag, Shield } from '../components/Graphics';
 import { PageHero, QuoteBand } from '../components/PageParts';
@@ -87,6 +87,13 @@ export default function About() {
                 <dd className="mono">{BUSINESS.usdot}</dd>
                 <dt>MC</dt>
                 <dd className="mono">{BUSINESS.mc}</dd>
+                <dt>Safety rating</dt>
+                <dd>
+                  <a href={BUSINESS.fmcsaUrl} target="_blank" rel="noopener">
+                    {SAFETY.rating}
+                  </a>{' '}
+                  ({SAFETY.ratingNote})
+                </dd>
                 <dt>Sister company</dt>
                 <dd>{BUSINESS.sister}, heavy truck &amp; trailer repair</dd>
               </dl>

@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { BUSINESS, DRIVERS, SAFETY } from '../data/business';
 import { quoteFor } from '../data/quote';
 import { PageHero } from '../components/PageParts';
-import { PHOTOS, srcSet } from '../data/photos';
+import { PHOTOS } from '../data/photos';
+import { Pic } from '../components/Pic';
 
 export default function DriverJobs() {
   const apply = quoteFor('Driver job');
@@ -28,7 +29,7 @@ export default function DriverJobs() {
         <div className="wrap two">
           <div>
             <p className="eyebrow">Why drive for FX4</p>
-            <h2>Good equipment, a clean record, a local home base.</h2>
+            <h2>Good equipment, no crashes, a local home base.</h2>
             <ul className="checks">
               <li>
                 <b>Our own trucks and trailers.</b> Flatbed, step deck and dry van, owned and run by FX4.
@@ -37,7 +38,7 @@ export default function DriverJobs() {
                 <b>Kept up by our own shop.</b> Our sister company, {BUSINESS.sister}, repairs heavy trucks and trailers at the same address.
               </li>
               <li>
-                <b>A clean safety record.</b> No driver out-of-service orders in {SAFETY.inspections} roadside inspections and no reported crashes in the last two years.*
+                <b>No crashes, no driver out-of-service orders.</b> None in {SAFETY.inspections} roadside inspections over the last two years.*
               </li>
               <li>
                 <b>A local home base.</b> Right off I-84 at exit 16 in {BUSINESS.city}.
@@ -46,7 +47,7 @@ export default function DriverJobs() {
             <p className="foot">*{SAFETY.source}</p>
           </div>
           <div className="photo">
-            <img src={PHOTOS.driver.src} srcSet={srcSet(PHOTOS.driver)} sizes="(max-width: 980px) 100vw, 50vw" alt={PHOTOS.driver.alt} loading="lazy" decoding="async" />
+            <Pic photo={PHOTOS.driver} sizes="(max-width: 980px) 100vw, 50vw" />
           </div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 // FX4's own truck photos (Daniel's, Nov 2026). Each lives in public/photos at full size and
-// at half size (-sm), with GPS and camera data stripped. Heroes are 1920px wide, the Driver Jobs
-// frame 1400px, the "On the road" row 1200px. `pos` is the CSS object-position for the crop.
+// at half size (-sm), as JPG and as a lighter WebP copy, with GPS and camera data stripped.
+// Heroes are 1920px wide, the Driver Jobs frame 1400px, the "On the road" row 1200px. `pos` is
+// the CSS object-position for the crop. Show them with <Pic> (components/Pic.tsx).
 export type Photo = { src: string; sm: string; w: number; alt: string; pos?: string };
 
 const p = (name: string, w: number, alt: string, pos?: string): Photo => ({
@@ -24,5 +25,9 @@ export const PHOTOS = {
   ],
 } as const;
 
-// srcset for a photo: the half-size copy and the full one.
-export const srcSet = (ph: Photo) => `${ph.sm} ${Math.round(ph.w / 2)}w, ${ph.src} ${ph.w}w`;
+// srcset for a photo: the half-size copy and the full one, as JPG or as the WebP copies.
+const webp = (path: string) => path.replace(/\.jpg$/, '.webp');
+export const srcSet = (ph: Photo, format: 'jpg' | 'webp' = 'jpg') =>
+  format === 'webp'
+    ? `${webp(ph.sm)} ${Math.round(ph.w / 2)}w, ${webp(ph.src)} ${ph.w}w`
+    : `${ph.sm} ${Math.round(ph.w / 2)}w, ${ph.src} ${ph.w}w`;
