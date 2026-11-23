@@ -8,5 +8,15 @@
       "destination": "https://www.fx4logistics.com/:path*",
       "permanent": true
     }
+  ],
+  "rewrites": [{ "source": "/portal/:path*", "destination": "/portal" }],
+  "headers": [
+    {
+      "source": "/portal(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    }
   ]
 }
