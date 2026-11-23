@@ -1,4 +1,12 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "fx-4-logistics.vercel.app" }],
+      "destination": "https://www.fx4logistics.com/:path*",
+      "permanent": true
+    }
+  ]
 }

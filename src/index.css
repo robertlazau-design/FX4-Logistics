@@ -346,6 +346,9 @@ legend{font:600 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase
 form .send{margin-top:18px}
 form .note2{font-size:14px;color:var(--muted);margin:10px 0 0}
 .ok{margin-top:12px;background:#fff7d6;border:1px solid #eadf9f;padding:10px 12px;font-size:15px;border-radius:3px}
+.ok.err{background:#fbeceb;border-color:#e3bdb8;color:#6e1f19}
+.ok.err a{color:inherit;font-weight:600}
+.ok.done{background:#eef5ee;border-color:#bcd7bd;color:#1f4d22}
 [hidden]{display:none!important}
 
 /* Quote band near the bottom of each page */
@@ -363,6 +366,7 @@ form .note2{font-size:14px;color:var(--muted);margin:10px 0 0}
 .band .actions{display:flex;gap:12px;flex-wrap:wrap}
 
 .two.top{align-items:start}
+.two.solo{grid-template-columns:minmax(0,760px)}
 .sheet .exitline{display:flex;align-items:center;gap:10px}
 
 /* Footer */

@@ -2,18 +2,16 @@
 
 The website for FX4 Logistics Inc., a locally owned trucking carrier (flatbed, step deck, dry van; no hopper or farm loads) with a new 25,000 sq ft warehouse, based at 23605 NE Halsey St, Ste C, Wood Village, Oregon, off I-84 exit 16. Robert Lazau (Golden Boy Productions) builds and runs it for the owner, Daniel. Read this before changing anything.
 
-## Status: draft preview
+## Status: live
 
-`DRAFT = true` in `src/data/business.ts`. In draft mode the site shows a yellow draft banner and any yellow `<Ph>` placeholders, and it keeps search engines out: every page gets `noindex`, `robots.txt` blocks crawlers, and there's no canonical or sitemap.
+Live at **https://www.fx4logistics.com** (launch PR Nov 23, 2026). `DRAFT = false` in `src/data/business.ts`, so the draft banner is gone, search engines are allowed in, and the canonical, sitemap and LocalBusiness JSON-LD are on.
 
-**Before launch:**
-1. Every question for Daniel is answered and no `<Ph>` is left (`grep -rn "<Ph" src` to check). His answers are in `src/data/business.ts` (`BUSINESS`, `STATES`, `LANES`, `WAREHOUSE`, `DRIVERS`). The call agenda panel was taken out on Nov 18, 2026, once the last question (a shipper quote) was answered. Quote requests go to dispatch@fx4logistics.com (Daniel's answer). FX4 owns fx4logistics.com (WHOIS: FX4 Logistics, Oregon, at Squarespace Domains), but send a test email there before launch to make sure the mailbox works.
-2. The domain is fx4logistics.com (Daniel confirmed it's his; `SITE_URL` in `src/seo.ts` is already set). Add it to the `fx-4-logistics` Vercel project; Daniel signs in to Squarespace Domains and adds the records Vercel shows, leaving the email (MX) records alone. Then redirect `fx-4-logistics.vercel.app` to it in `vercel.json` (same as the other sites).
-3. Google Business Profile: Daniel said yes. Set it up for 23605 NE Halsey St under his Google account, with Robert as a manager.
-4. Real FX4 truck photos are in (see Photos below). Still stand-ins: the Warehousing hero and warehouse photo, the About crew photo, the Driver Jobs and Contact heroes, and the trailer drawings. FX4's real logo is in (see Brand below).
-5. Connect the quote form to Robert's Web3Forms account (never the client's), delivering to dispatch@fx4logistics.com, and never submit it as a test.
-6. Re-check the FMCSA/CarrierSource safety numbers in `SAFETY`.
-7. Set `DRAFT = false`. The build stops if any `<Ph>` is left. Draft mode off turns on the canonical, sitemap, robots `Allow` and LocalBusiness JSON-LD.
+- **Domain:** `www.fx4logistics.com` is the main address (`SITE_URL` in `src/seo.ts`). `fx4logistics.com` redirects to it (set in the Vercel project), and `vercel.json` redirects `fx-4-logistics.vercel.app` there too. DNS is at Squarespace Domains (A @ 76.76.21.21, CNAME www cname.vercel-dns.com). Never touch the Google Workspace email records there (MX, SPF, DKIM, the google verification CNAME).
+- **Quote form:** sends through Robert's Web3Forms account to dispatch@fx4logistics.com. The access key is the `VITE_WEB3FORMS_ACCESS_KEY` environment variable in the Vercel project, set by Robert; it never goes in the code. Without it the form shows a "call or email us" message instead of pretending to send. Never submit the form as a test.
+- **Photo slots:** the warehouse photo, the crew photo and the Warehousing and Driver Jobs hero photos are still missing. In draft mode they show as labeled gray frames; live, the frames are hidden and those heroes show the drawn scene. When a real photo arrives, add it to `src/data/photos.ts` and pass it to the page (`photo=` on `PageHero`, or replace the frame).
+- **Safety numbers** (`SAFETY` in `business.ts`): re-checked on FMCSA SAFER on Nov 23, 2026 (24 months to Nov 17, 2026): 33 inspections, 0 driver out-of-service orders, 0 crashes, 8 power units. Re-check them every few months.
+- **Google Business Profile:** Daniel sets it up under his own Google account and adds Robert as a manager (steps in his client hub, clients.robertlazau.com/fx4-vzfw).
+- `<Ph>` placeholders: none left. With `DRAFT` off the build stops if one is added.
 
 ## How Robert works
 

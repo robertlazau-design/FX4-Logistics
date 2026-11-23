@@ -1,8 +1,9 @@
 // Contact: the contact box and the request-for-quote form. Other pages link here with some
 // fields filled in (React Router state, see src/data/quote.ts): the home quick quote fills the
 // route and trailer, the trailer cards pick a trailer, Driver Jobs picks "Driver job".
-// The form isn't connected yet: before launch it goes to Robert's Web3Forms account (never
-// the client's), and it is never submitted as a test.
+// The form sends through Robert's Web3Forms account (never the client's) to dispatch@fx4logistics.com.
+// The access key is the VITE_WEB3FORMS_ACCESS_KEY environment variable in Vercel, which Robert sets;
+// it never goes in the code. Never submit this form as a test.
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { BUSINESS, SERVICE_OPTIONS, TRAILERS } from '../data/business';
@@ -11,10 +12,13 @@ import { Shield } from '../components/Graphics';
 import { PageHero } from '../components/PageParts';
 import { reducedMotion } from '../effects';
 
+const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
+type Status = 'idle' | 'sending' | 'sent' | 'missing' | 'error';
+
 export default function Contact() {
   const location = useLocation();
   const [quote, setQuote] = useState<QuoteState>(QUOTE_DEFAULT);
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<Status>('idle');
   const [imported, setImported] = useState('No');
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +28,7 @@ export default function Contact() {
     const nav = location.state as QuoteNav | null;
     if (!nav?.quote) return;
     setQuote({ ...QUOTE_DEFAULT, ...nav.quote });
-    setSent(false);
+    setStatus('idle');
     const t = window.setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' });
       if (nav.focus) document.getElementById('name')?.focus({ preventScroll: true });
@@ -96,9 +100,56 @@ export default function Contact() {
             </div>
             <form
               noValidate
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                setSent(true);
+                const form = e.currentTarget;
+                const v = (id: string) =>
+                  (form.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('#' + id)?.value ?? '').trim();
+                if ((form.querySelector<HTMLInputElement>('#botcheck'))?.checked) return;
+                if (!v('name') || (!v('phone') && !v('email'))) {
+                  setStatus('missing');
+                  return;
+                }
+                if (!ACCESS_KEY) {
+                  setStatus('error');
+                  return;
+                }
+                const data: Record<string, string> = {
+                  access_key: ACCESS_KEY,
+                  subject: 'Website request: ' + quote.service,
+                  from_name: 'FX4 Logistics website',
+                  Name: v('name'),
+                  Company: v('company'),
+                  Phone: v('phone'),
+                  Email: v('email'),
+                  'What they need': quote.service,
+                };
+                if (v('email')) data.replyto = v('email');
+                if (trucking) {
+                  Object.assign(data, { Pickup: v('from'), Delivery: v('to'), Trailer: v('equip'), 'Pickup date': v('date'), Freight: v('what'), Weight: v('weight') });
+                }
+                if (storage) Object.assign(data, { Pallets: v('pallets'), 'How long': v('howlong'), Imported: imported });
+                if (driver) Object.assign(data, { 'CDL class': v('cdl'), 'Years driving': v('exp') });
+                data.Message = v('msg');
+                setStatus('sending');
+                try {
+                  const res = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify(data),
+                  });
+                  const json = (await res.json().catch(() => null)) as { success?: boolean } | null;
+                  if (res.ok && json?.success) {
+                    form.reset();
+                    setQuote(QUOTE_DEFAULT);
+                    setImported('No');
+                    setStatus('sent');
+                  } else {
+                    setStatus('error');
+                  }
+                } catch {
+                  setStatus('error');
+                }
               }}
             >
               <div className="grid">
@@ -183,15 +234,29 @@ export default function Contact() {
                 <label htmlFor="msg">Anything else we should know?</label>
                 <textarea id="msg" />
               </div>
-              <button className="btn btn-red send magnetic" type="submit">
-                Send request <span aria-hidden="true">›</span>
+              <input id="botcheck" type="checkbox" tabIndex={-1} autoComplete="off" hidden aria-hidden="true" />
+              <button className="btn btn-red send magnetic" type="submit" disabled={status === 'sending'}>
+                {status === 'sending' ? 'Sending…' : 'Send request'} <span aria-hidden="true">›</span>
               </button>
               <p className="note2">We'll only use your information to reply to you.</p>
-              {sent && (
-                <div className="ok" role="status">
-                  Draft only: this form isn't connected yet. On the live site it goes to FX4 through Golden Boy's Web3Forms account.
-                </div>
-              )}
+              <div aria-live="polite">
+                {status === 'sent' && (
+                  <div className="ok done" role="status">
+                    Thanks, we got it. We'll get back to you {BUSINESS.reply}.
+                  </div>
+                )}
+                {status === 'missing' && (
+                  <div className="ok err" role="alert">
+                    Please add your name and a phone number or email so we can reply.
+                  </div>
+                )}
+                {status === 'error' && (
+                  <div className="ok err" role="alert">
+                    That didn't go through. Please call <a href={BUSINESS.phoneHref}>{BUSINESS.phoneDisplay}</a> or email{' '}
+                    <a href={BUSINESS.emailHref}>{BUSINESS.email}</a>.
+                  </div>
+                )}
+              </div>
             </form>
           </div>
         </div>

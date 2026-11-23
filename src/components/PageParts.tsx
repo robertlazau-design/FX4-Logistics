@@ -2,7 +2,7 @@
 // <h1>) and the quote band near the bottom of each page.
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { BUSINESS } from '../data/business';
+import { BUSINESS, DRAFT } from '../data/business';
 import type { QuoteNav } from '../data/quote';
 import { PhotoTag, Scene, Shield } from './Graphics';
 import { srcSet, type Photo } from '../data/photos';
@@ -27,7 +27,7 @@ export function PageHero({ crumb, title, lede, slot, photo, children }: { crumb:
   return (
     <div className={photo ? 'phero has-photo' : 'phero'}>
       {photo ? <HeroPhoto photo={photo} /> : <Scene id="ph" />}
-      {slot && !photo && (
+      {DRAFT && slot && !photo && (
         <div className="slot">
           <PhotoTag>{slot}</PhotoTag>
         </div>
