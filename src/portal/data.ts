@@ -3,19 +3,9 @@
 // showing Daniel how the portal works. Never present sample people, units or rules as real.
 // Lock codes never go in the portal, sample or real: drivers get them from Daniel or David by phone.
 import { BUSINESS, WAREHOUSE } from '../data/business';
+import type { Person, Rule, Unit, UnitKind } from './types';
 
-export type Role = 'driver' | 'dispatch' | 'owner';
-
-export type Person = {
-  id: string;
-  name: string;
-  role: Role;
-  title: string;
-  phone?: string; // display form
-  tel?: string; // tel: link
-  sample?: boolean;
-  listed: boolean; // agreed to show their number on the Team page (anyone with the portal link can see it)
-};
+export type { Person, Rule, Unit, UnitKind };
 
 export const PEOPLE: Person[] = [
   { id: 'daniel', name: BUSINESS.owner, role: 'owner', title: BUSINESS.ownerTitle, listed: true },
@@ -26,19 +16,13 @@ export const PEOPLE: Person[] = [
   { id: 'd4', name: 'Driver 4', role: 'driver', title: 'Class A driver', phone: '(503) 555-0104', tel: 'tel:+15035550104', sample: true, listed: false },
 ];
 
-export const personById = (id: string) => PEOPLE.find((p) => p.id === id);
-
-export type UnitKind = 'truck' | 'flatbed' | 'stepdeck' | 'dryvan';
-
-export type Unit = {
-  id: string;
-  label: string;
-  kind: UnitKind;
-  kindLabel: string;
-  sample: true;
-  lock: { what: string; how: string };
-  guides: string[]; // guide slugs, in the order they show on the unit page
-  specs: { k: string; v?: string }[]; // no v = still to fill in from Daniel
+// What a new unit starts with, by kind: its guides, the specs to fill in and the usual lock.
+// The lock lines are the standard answer until Daniel confirms each trailer's lock.
+export const UNIT_DEFAULTS: Record<UnitKind, { guides: string[]; specs: string[]; lock: { what: string; how: string }; short: string }> = {
+  truck: { short: 'Truck', guides: ['pre-trip', 'hook-up', 'drop', 'fuel', 'inspection', 'eld', 'breakdown', 'chains'], specs: ['Make and year', 'Plate', 'ELD', 'Fuel card'], lock: { what: 'Truck keys', how: 'Ask David where the keys are.' } },
+  flatbed: { short: 'Flatbed', guides: ['open-trailer', 'hook-up', 'secure', 'drop'], specs: ['Length', 'Axles', 'Empty weight', 'Plate'], lock: { what: 'Kingpin lock when parked', how: 'Call David for the code or key before you hook up.' } },
+  stepdeck: { short: 'Step deck', guides: ['open-trailer', 'hook-up', 'secure', 'drop'], specs: ['Length', 'Axles', 'Empty weight', 'Plate'], lock: { what: 'Kingpin lock when parked', how: 'Call David for the code or key before you hook up.' } },
+  dryvan: { short: 'Dry van', guides: ['open-trailer', 'tandems', 'hook-up', 'drop'], specs: ['Length', 'Axles', 'Empty weight', 'Plate'], lock: { what: 'Padlock on the rear doors', how: 'Call David for the code. Never write it down or pass it on.' } },
 };
 
 const TRAILER_SPECS = [{ k: 'Length' }, { k: 'Axles' }, { k: 'Empty weight' }, { k: 'Plate' }];
@@ -72,11 +56,8 @@ export const UNITS: Unit[] = [
   },
 ];
 
-export const unitById = (id?: string) => UNITS.find((u) => u.id === id);
-
 // The handbook. Sample text only: Daniel's real handbook replaces it, and his lawyer should
 // review the wording and the sign-off before launch.
-export type Rule = { id: string; title: string; points: string[] };
 
 export const RULES: Rule[] = [
   {

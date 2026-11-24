@@ -505,3 +505,12 @@ footer .legal{border-top:1px solid #23344f;margin-top:38px;padding-top:18px;disp
 /* Preflight-safe basics (Tailwind resets lists, headings and svg display) */
 svg{display:inline-block}
 .scene svg,.map svg,.rig .art svg,.sign .arrow{display:block}
+
+/* Privacy page: plain reading text */
+.prose{max-width:760px}
+.prose h2{font-size:clamp(24px,3vw,30px);margin:34px 0 10px}
+.prose h2:first-child{margin-top:0}
+.prose p,.prose li{font-size:17.5px;line-height:1.6}
+.prose ul{list-style:disc;padding-left:22px;margin:0 0 16px}
+.prose li{margin:0 0 6px}
+.prose a{color:var(--navy);font-weight:600;text-decoration:underline;text-underline-offset:2px}

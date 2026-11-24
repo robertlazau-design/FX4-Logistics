@@ -1,30 +1,50 @@
-// FX4 team portal (DEMO). One blanket portal for the whole team: no accounts and no logins;
-// anyone with the link or a sticker scan gets in. It lives under /portal, loads only when
-// someone opens a portal link, and is never linked from the public site or indexed.
-// The office side is at /portal/office, an address only Daniel and David are given.
-// Sample data and saving are simulated in this browser; see store.ts.
-import { lazy, Suspense } from 'react';
+// FX4 team portal. One portal for the whole team, no passwords: drivers sign in once per phone
+// with a texted code, and the office side (/portal/office) signs in with Google. It lives under
+// /portal, loads only when someone opens a portal link, and is never linked from the public
+// site, indexed or counted in analytics. Until the server is switched on it runs as the
+// in-browser demo with sample data; see store.ts.
+import { lazy, Suspense, useEffect } from 'react';
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { Sprites } from '../components/Graphics';
 import { FX4Mark } from '../components/Logo';
-import { personById } from './data';
-import { actions, toSign, unseenPosts, usePortal } from './store';
+import { actions, boot, personOf, toSign, unseenPosts, useMeta, usePortal, when } from './store';
 import { Icon, Page } from './ui';
 import { Home, News, Report, Team, UnitPage, Units, WhoAmI } from './Driver';
 import { GuideList, GuidePage } from './GuideScreens';
 import { Rules } from './Rules';
-import { AdminHome, Maintenance, People, Questions, Records, Signoffs } from './Admin';
+import { AdminHome, Maintenance, OfficeGate, People, Questions, Records, Signoffs, UnitsAdmin } from './Admin';
 import StartHere from './Start';
 import './portal.css';
 
 const Stickers = lazy(() => import('./Stickers'));
 
+// Keeps the portal (guides, the shell, David's number) on the phone so it opens with no signal.
+// Only the portal registers it, and it only answers for /portal pages and the site's files.
+function useOffline() {
+  useEffect(() => {
+    if (import.meta.env.DEV || !('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register('/portal-sw.js', { scope: '/portal' }).catch(() => {
+      /* fine: the portal still works online */
+    });
+  }, []);
+}
+
 export default function PortalApp() {
   const s = usePortal();
-  const me = personById(s.me ?? '');
+  const m = useMeta();
+  useEffect(() => void boot(), []);
+  useOffline();
+  const me = personOf(s, s.me);
   const sign = me ? toSign(s, me.id).length : 0;
   const news = unseenPosts(s).length;
   const office = useLocation().pathname.startsWith('/portal/office');
+
+  if (m.mode === 'loading')
+    return (
+      <div className="pt">
+        <p className="pt-loading">Loading the FX4 team portal…</p>
+      </div>
+    );
 
   return (
     <div className="pt">
@@ -32,7 +52,7 @@ export default function PortalApp() {
       <a className="pt-skip" href="#pt-main">
         Skip to content
       </a>
-      <DemoBar />
+      {m.mode === 'demo' && <DemoBar missing={m.missing} />}
       <header className="pt-head">
         <div className="pt-bar">
           <Link className="pt-brand" to="/portal" aria-label="FX4 team portal home">
@@ -43,7 +63,12 @@ export default function PortalApp() {
             </span>
           </Link>
           <Link className="pt-me" to="/portal/me">
-            {me ? (
+            {m.session.kind === 'office' ? (
+              <>
+                Office
+                <small>Signed in · Sign out</small>
+              </>
+            ) : me ? (
               <>
                 {me.name}
                 <small>Signed in · Change</small>
@@ -63,36 +88,58 @@ export default function PortalApp() {
           <Tab to="/portal/team" icon="users" label="Team" badge={news} badgeLabel="new announcement" />
         </nav>
       </header>
+      {m.offline && (
+        <p className="pt-offline" role="status">
+          No signal: showing what this phone saved{m.savedAt ? ` ${when(m.savedAt)}` : ''}. Reports and sign-offs need signal. Call David if it can’t wait.
+        </p>
+      )}
+      {m.error && (
+        <p className="pt-errbar" role="alert">
+          <span>{m.error}</span>
+          <button type="button" onClick={actions.clearError} aria-label="Dismiss">
+            OK
+          </button>
+        </p>
+      )}
       <main id="pt-main" className="pt-main">
         {!office && <PullOver />}
-        <Routes>
-          <Route path="/portal" element={<Home />} />
-          <Route path="/portal/me" element={<WhoAmI />} />
-          <Route path="/portal/start" element={<StartHere />} />
-          <Route path="/portal/units" element={<Units />} />
-          <Route path="/portal/unit/:id" element={<UnitPage />} />
-          <Route path="/portal/guides" element={<GuideList />} />
-          <Route path="/portal/guides/:slug" element={<GuidePage />} />
-          <Route path="/portal/rules" element={<Rules />} />
-          <Route path="/portal/report" element={<Report />} />
-          <Route path="/portal/team" element={<Team />} />
-          <Route path="/portal/news" element={<News />} />
-          <Route path="/portal/office" element={<AdminHome />} />
-          <Route path="/portal/office/team" element={<People />} />
-          <Route path="/portal/office/sign-offs" element={<Signoffs />} />
-          <Route path="/portal/office/maintenance" element={<Maintenance />} />
-          <Route path="/portal/office/questions" element={<Questions />} />
-          <Route path="/portal/office/records" element={<Records />} />
-          <Route
-            path="/portal/office/stickers"
-            element={
-              <Suspense fallback={<p className="pt-page">Loading stickers…</p>}>
-                <Stickers />
-              </Suspense>
-            }
-          />
-          <Route path="*" element={<Missing />} />
-        </Routes>
+        {office ? (
+          <OfficeGate>
+            <Routes>
+              <Route path="/portal/office" element={<AdminHome />} />
+              <Route path="/portal/office/team" element={<People />} />
+              <Route path="/portal/office/units" element={<UnitsAdmin />} />
+              <Route path="/portal/office/sign-offs" element={<Signoffs />} />
+              <Route path="/portal/office/maintenance" element={<Maintenance />} />
+              <Route path="/portal/office/questions" element={<Questions />} />
+              <Route path="/portal/office/records" element={<Records />} />
+              <Route
+                path="/portal/office/stickers"
+                element={
+                  <Suspense fallback={<p className="pt-page">Loading stickers…</p>}>
+                    <Stickers />
+                  </Suspense>
+                }
+              />
+              <Route path="*" element={<Missing />} />
+            </Routes>
+          </OfficeGate>
+        ) : (
+          <Routes>
+            <Route path="/portal" element={<Home />} />
+            <Route path="/portal/me" element={<WhoAmI />} />
+            <Route path="/portal/start" element={<StartHere />} />
+            <Route path="/portal/units" element={<Units />} />
+            <Route path="/portal/unit/:id" element={<UnitPage />} />
+            <Route path="/portal/guides" element={<GuideList />} />
+            <Route path="/portal/guides/:slug" element={<GuidePage />} />
+            <Route path="/portal/rules" element={<Rules />} />
+            <Route path="/portal/report" element={<Report />} />
+            <Route path="/portal/team" element={<Team />} />
+            <Route path="/portal/news" element={<News />} />
+            <Route path="*" element={<Missing />} />
+          </Routes>
+        )}
       </main>
     </div>
   );
@@ -124,13 +171,15 @@ function PullOver() {
 }
 
 // The yellow strip that makes the demo obvious: sample data, a way into the office side for
-// the walkthrough, and start over.
-function DemoBar() {
+// the walkthrough, and start over. On a deploy that isn't switched on yet it also says what
+// the server still needs (the names of settings, never their values).
+function DemoBar({ missing }: { missing: string[] }) {
   return (
     <aside className="pt-demo" aria-label="Demo controls">
       <div className="pt-demo-in">
         <span>
           <b>Demo</b> with sample data. Nothing leaves this browser.
+          {missing.length > 0 && <small className="pt-demo-need"> To switch on: {missing.join(', ')}.</small>}
         </span>
         <span className="pt-demo-tools">
           <Link to="/portal/office">Office side</Link>

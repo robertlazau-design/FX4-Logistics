@@ -12,6 +12,7 @@ import About from './pages/About';
 import ServiceArea from './pages/ServiceArea';
 import DriverJobs from './pages/DriverJobs';
 import Contact from './pages/Contact';
+import Privacy from './pages/Privacy';
 import NotFound from './pages/NotFound';
 import { usePageEffects } from './effects';
 
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="/service-area" element={<ServiceArea />} />
           <Route path="/driver-jobs" element={<DriverJobs />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

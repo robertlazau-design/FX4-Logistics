@@ -1,9 +1,10 @@
-// Printable QR stickers, one per trailer and truck. Each code opens that unit's portal page.
-// The portal has no logins, so the unit page shows nothing a stranger could misuse: no codes,
-// just "call David".
+// Printable QR stickers, one per trailer and truck. Each code opens that unit's portal page at
+// FX4's own address (a phone signed in once opens it straight away). The unit page shows
+// nothing a stranger could misuse anyway: no codes, just "call David".
 // Loaded only on this screen, so the QR library never reaches the rest of the site.
 import qrcode from 'qrcode-generator';
-import { UNITS } from './data';
+import { SITE_URL } from '../seo';
+import { usePortal } from './store';
 import { Icon, Page, Sample } from './ui';
 import { FX4Logo } from '../components/Logo';
 
@@ -24,7 +25,9 @@ function Qr({ text, label }: { text: string; label: string }) {
 }
 
 export default function Stickers() {
-  const origin = typeof window === 'undefined' ? '' : window.location.origin;
+  const s = usePortal();
+  const origin = SITE_URL.replace(/\/$/, '');
+  const units = s.units.filter((u) => u.active !== false);
   return (
     <Page title="QR stickers" back={{ to: '/portal/office', label: 'Office' }} wide>
       <p className="pt-lede pt-noprint">
@@ -36,10 +39,11 @@ export default function Stickers() {
         </button>
       </div>
       <p className="pt-fine pt-noprint">
-        These point at {origin}. Reprint once FX4’s web address is set. <Sample>Sample units</Sample>
+        These point at {origin}/portal. {units.some((u) => u.sample) && <Sample>Sample units</Sample>}
+        {units.length === 0 && ' Add the trucks and trailers on the Units page first.'}
       </p>
       <ul className="pt-stickers">
-        {UNITS.map((u) => {
+        {units.map((u) => {
           const url = `${origin}/portal/unit/${u.id}`;
           return (
             <li key={u.id} className="pt-sticker">

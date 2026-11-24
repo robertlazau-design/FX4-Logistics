@@ -1,41 +1,111 @@
-// The screens a driver uses: home, picking your name, trailer and truck pages, report a
-// problem, the team list and announcements. There are no logins: picking a name only labels
-// this phone's signatures and reports.
+// The screens a driver uses: home, signing in on this phone, trailer and truck pages, report a
+// problem, the team list and announcements. A driver signs in once per phone with a code texted
+// to the number the office has for them; there are no passwords.
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { TrailerArt } from '../components/Graphics';
-import { OFFICE, PEOPLE, RULES, UNITS, personById, unitById, type Unit } from './data';
+import { OFFICE } from './data';
 import { GUIDES, guideBySlug } from './guides';
-import { INSPECTION_RESULTS, REPORT_KINDS, actions, isListed, toSign, unseenPosts, usePortal, when, type InspectionResult, type ReportKind, type Towed } from './store';
+import {
+  INSPECTION_RESULTS,
+  REPORT_KINDS,
+  TOWED,
+  actions,
+  isListed,
+  nameOf,
+  personOf,
+  toSign,
+  unitOf,
+  unseenPosts,
+  useMeta,
+  usePortal,
+  when,
+  type InspectionResult,
+  type ReportKind,
+  type State,
+  type Towed,
+  type Unit,
+} from './store';
 import { START_STEPS } from './Start';
 import { CallDavid, Icon, Page, Sample, Tbd } from './ui';
 
-/* ---------- Who's using this phone (not a login) ---------- */
+/* ---------- Signing in on this phone ---------- */
+
+// Live, with nobody signed in on this phone: the screens that need the team's data ask for a
+// sign-in first. Guides and the first-week page stay open to anyone with the link.
+export function useLocked() {
+  const m = useMeta();
+  return m.mode === 'live' && m.session.kind === 'none';
+}
+
+export function NeedSignIn({ what }: { what: string }) {
+  return (
+    <div className="pt-card pt-form">
+      <p>Sign in on this phone to see {what}. You do it once per phone, with a code we text you. No password.</p>
+      <Link className="pt-btn block" to="/portal/me">
+        Sign in
+      </Link>
+    </div>
+  );
+}
 
 // Sign in on this phone: pick your name, then type the code texted to the number the office
-// has for you. Once per phone, no password. This is the demo of the planned check: nothing is
-// texted, the code shows on screen. Daniel and David sign in on the office side instead.
+// has for you. Once per phone, no password. In the demo nothing is texted: the code shows on
+// screen. Daniel and David sign in on the office side instead.
 const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
-const masked = (phone: string) => `(•••) •••-${phone.replace(/\D/g, '').slice(-4)}`;
+const masked = (last2: string) => `(•••) •••-••${last2}`;
+const last2Of = (p: { phone?: string; last2?: string }) => p.last2 ?? p.phone?.replace(/\D/g, '').slice(-2) ?? '';
 
 export function WhoAmI() {
   const s = usePortal();
+  const m = useMeta();
+  const live = m.mode === 'live';
   const nav = useNavigate();
   const [pick, setPick] = useState<string | null>(null);
   const [code, setCode] = useState('');
   const [entry, setEntry] = useState('');
   const [err, setErr] = useState('');
-  const me = (s.me ? personById(s.me) : undefined);
-  const person = (pick ? personById(pick) : undefined);
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+  const me = personOf(s, s.me);
+  const person = personOf(s, pick);
+  const canText = person && !person.noPhone && (live ? !!person.last2 : !!person.phone);
 
   const choose = (id: string) => {
     setPick(id);
     setEntry('');
     setErr('');
-    setCode(newCode());
+    setSent(false);
+    if (!live) setCode(newCode());
+  };
+  // Live: a code goes out only when the driver taps for one, so a mis-tap never texts anyone.
+  const sendCode = async (id: string) => {
+    setBusy(true);
+    setErr('');
+    const r = await actions.sendCode(id);
+    setBusy(false);
+    if (r.ok) {
+      setSent(true);
+      setEntry('');
+    } else setErr(r.error);
   };
 
-  if (person?.role === 'owner' || (person && !person.phone))
+  if (live && m.session.kind === 'office')
+    return (
+      <Page title="Office side" back={{ to: '/portal/office', label: 'Office' }}>
+        <div className="pt-card">
+          <p className="pt-signed">
+            <Icon name="check" size={20} /> Signed in to the office side as <b>{m.session.email}</b>.
+          </p>
+          <p className="pt-fine">Drivers sign in on their own phones. Sign out here if this isn’t your device.</p>
+          <button className="pt-btn line block" type="button" onClick={() => void actions.signOut()}>
+            Sign out
+          </button>
+        </div>
+      </Page>
+    );
+
+  if (person?.role === 'owner' || (person && !canText))
     return (
       <Page title="Sign in" back={{ to: '/portal', label: 'Home' }}>
         <div className="pt-card">
@@ -50,22 +120,53 @@ export function WhoAmI() {
       </Page>
     );
 
-  if (person?.phone) {
-    const submit = (e: FormEvent) => {
+  if (person && canText) {
+    const submit = async (e: FormEvent) => {
       e.preventDefault();
       if (entry.length < 6) return setErr('Type all 6 numbers.');
-      if (entry !== code) return setErr('That code doesn’t match. Check the text, or send a new code.');
-      actions.setMe(person.id);
+      if (!live) {
+        if (entry !== code) return setErr('That code doesn’t match. Check the text, or send a new code.');
+        actions.setMe(person.id);
+        return nav('/portal');
+      }
+      setBusy(true);
+      const r = await actions.checkCode(person.id, entry);
+      setBusy(false);
+      if (!r.ok) return setErr(r.error);
       nav('/portal');
     };
+    if (live && !sent)
+      return (
+        <Page title="Check it’s you" back={{ to: '/portal', label: 'Home' }}>
+          <p className="pt-lede">
+            We’ll text a 6-digit code to <b className="mono pt-nowrap">{masked(last2Of(person))}</b>, the number the office has for {person.name}. You only do this once on this phone.
+          </p>
+          {err && (
+            <p className="pt-err" role="alert">
+              {err}
+            </p>
+          )}
+          <button className="pt-btn block" type="button" disabled={busy} onClick={() => void sendCode(person.id)}>
+            {busy ? 'Sending…' : 'Text me the code'}
+          </button>
+          <button className="pt-btn line block" type="button" onClick={() => setPick(null)}>
+            Not {person.name}?
+          </button>
+          <p className="pt-fine">
+            Wrong number? Call the office at <a href={OFFICE.tel}>{OFFICE.phone}</a>. Codes come only when you ask for one. Message and data rates may apply.
+          </p>
+        </Page>
+      );
     return (
       <Page title="Check it’s you" back={{ to: '/portal', label: 'Home' }}>
         <p className="pt-lede">
-          We texted a 6-digit code to <b className="mono pt-nowrap">{masked(person.phone)}</b>, the number the office has for {person.name}. Type it here. You only do this once on this phone.
+          We texted a 6-digit code to <b className="mono pt-nowrap">{masked(last2Of(person))}</b>, the number the office has for {person.name}. Type it here. You only do this once on this phone.
         </p>
-        <p className="pt-demo-code" role="note">
-          <b>Demo:</b> no text is sent. The code is <span className="mono">{code}</span>.
-        </p>
+        {!live && (
+          <p className="pt-demo-code" role="note">
+            <b>Demo:</b> no text is sent. The code is <span className="mono">{code}</span>.
+          </p>
+        )}
         <form className="pt-card pt-form" onSubmit={submit} noValidate>
           <label htmlFor="pt-code">Code from the text</label>
           <input
@@ -87,22 +188,27 @@ export function WhoAmI() {
               {err}
             </p>
           )}
-          <button className="pt-btn block" type="submit">
-            Sign in on this phone
+          <button className="pt-btn block" type="submit" disabled={busy}>
+            {busy ? 'Checking…' : 'Sign in on this phone'}
           </button>
         </form>
         <div className="pt-row2">
-          <button className="pt-btn line" type="button" onClick={() => choose(person.id)}>
+          <button className="pt-btn line" type="button" disabled={busy} onClick={() => (live ? void sendCode(person.id) : choose(person.id))}>
             Send a new code
           </button>
           <button className="pt-btn line" type="button" onClick={() => setPick(null)}>
             Not {person.name}?
           </button>
         </div>
-        <p className="pt-fine">Wrong number? Call the office at <a href={OFFICE.tel}>{OFFICE.phone}</a>. They update it, then you try again.</p>
+        <p className="pt-fine">
+          Wrong number? Call the office at <a href={OFFICE.tel}>{OFFICE.phone}</a>. They update it, then you try again.
+          {live && ' Codes come only when you ask for one. Message and data rates may apply.'}
+        </p>
       </Page>
     );
   }
+
+  const names = s.people.filter((p) => p.id !== me?.id && p.role !== 'owner' && p.active !== false);
 
   return (
     <Page title={me ? 'Signed in' : 'Sign in'} back={{ to: '/portal', label: 'Home' }}>
@@ -112,27 +218,42 @@ export function WhoAmI() {
             <Icon name="check" size={20} /> {me.name} is signed in on this phone.
           </p>
           {s.meAt && <p className="pt-fine">Checked by text code {when(s.meAt)}. It goes on the rules you sign and the problems you report.</p>}
-          <button className="pt-btn line block" type="button" onClick={() => actions.setMe(null)}>
+          <button className="pt-btn line block" type="button" onClick={() => void actions.signOut()}>
             Sign out of this phone
           </button>
         </div>
       ) : (
         <p className="pt-lede">Pick your name, then type the code we text you. Once per phone, no password. It goes on the rules you sign and the problems you report.</p>
       )}
-      {me && <h2 className="pt-h2">Someone else using this phone?</h2>}
-      <ul className="pt-names">
-        {PEOPLE.filter((p) => p.id !== me?.id).map((p) => (
-          <li key={p.id}>
-            <button type="button" onClick={() => choose(p.id)}>
-              <span>
-                <b>{p.name}</b> {p.sample && <Sample />}
-                <small>{p.title}</small>
-              </span>
-              <Icon name="chevron" size={20} />
-            </button>
-          </li>
-        ))}
-      </ul>
+      {live && !m.ready.sms && !me && (
+        <p className="pt-err" role="note">
+          Text codes aren’t switched on yet. Call the office.
+        </p>
+      )}
+      {err && !person && (
+        <p className="pt-err" role="alert">
+          {err}
+        </p>
+      )}
+      {!(live && me) && (
+        <>
+          {me && <h2 className="pt-h2">Someone else using this phone?</h2>}
+          <ul className="pt-names">
+            {names.map((p) => (
+              <li key={p.id}>
+                <button type="button" onClick={() => choose(p.id)}>
+                  <span>
+                    <b>{p.name}</b> {p.sample && <Sample />}
+                    <small>{p.title}</small>
+                  </span>
+                  <Icon name="chevron" size={20} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {live && me && <p className="pt-fine">Someone else using this phone? Sign out first, then they sign in with their own code.</p>}
       <p className="pt-fine">
         Not on the list? Call the office at <a href={OFFICE.tel}>{OFFICE.phone}</a>.
       </p>
@@ -143,7 +264,10 @@ export function WhoAmI() {
 // Who a signature or a report comes from: the person signed in on this phone, or a way to sign in.
 export function SignedInAs({ action }: { action: string }) {
   const s = usePortal();
-  const me = (s.me ? personById(s.me) : undefined);
+  const m = useMeta();
+  const me = personOf(s, s.me);
+  if (m.mode === 'live' && m.session.kind === 'office')
+    return <p className="pt-fine">You’re on the office side. Drivers do this from their own phones.</p>;
   return me ? (
     <p className="pt-signas-line">
       <Icon name="check" size={18} />
@@ -170,11 +294,11 @@ const BIG = [
 
 export function Home() {
   const s = usePortal();
-  const me = personById(s.me ?? '');
+  const me = personOf(s, s.me);
   const sign = me ? toSign(s, me.id) : [];
   const news = unseenPosts(s);
   const [q, setQ] = useState('');
-  const hits = useMemo(() => search(q), [q]);
+  const hits = useMemo(() => search(q, s), [q, s]);
   return (
     <Page title={me ? `Hi, ${me.sample ? me.name : me.name.split(' ')[0]}` : 'FX4 Team'} kicker="FX4 team portal">
       {(!me || sign.length > 0 || news.length > 0) && (
@@ -271,7 +395,7 @@ export function Home() {
   );
 }
 
-function search(q: string) {
+function search(q: string, s: State) {
   const t = q.trim().toLowerCase();
   if (!t) return [];
   const has = (...xs: (string | undefined)[]) => xs.some((x) => x?.toLowerCase().includes(t));
@@ -279,8 +403,8 @@ function search(q: string) {
   return [
     ...GUIDES.filter((g) => has(g.title, g.summary, g.keywords, ...g.steps.flatMap((s) => [s.title, s.text]))).map((g) => ({ to: `/portal/guides/${g.slug}`, title: g.title, kind: 'Guide' })),
     ...(start ? [{ to: '/portal/start', title: 'New here? Start here', kind: 'First week' }] : []),
-    ...UNITS.filter((u) => has(u.label, u.kindLabel, u.id)).map((u) => ({ to: `/portal/unit/${u.id}`, title: u.label, kind: `${u.kindLabel} · sample` })),
-    ...RULES.filter((r) => has(r.title, ...r.points)).map((r) => ({ to: '/portal/rules', title: r.title, kind: 'Rule' })),
+    ...s.units.filter((u) => has(u.label, u.kindLabel, u.id)).map((u) => ({ to: `/portal/unit/${u.id}`, title: u.label, kind: u.sample ? `${u.kindLabel} · sample` : u.kindLabel })),
+    ...s.rules.filter((r) => has(r.title, ...r.points)).map((r) => ({ to: '/portal/rules', title: r.title, kind: 'Rule' })),
   ].slice(0, 8);
 }
 
@@ -297,6 +421,8 @@ function UnitArt({ unit }: { unit: Unit }) {
 }
 
 export function Units() {
+  const s = usePortal();
+  const locked = useLocked();
   return (
     <Page title="Scan my trailer" back={{ to: '/portal', label: 'Home' }}>
       <div className="pt-card pt-how">
@@ -306,8 +432,10 @@ export function Units() {
         </p>
       </div>
       <h2 className="pt-h2">Or pick it here</h2>
+      {locked && <NeedSignIn what="FX4’s trucks and trailers" />}
+      {!locked && s.units.length === 0 && <p className="pt-fine">No units on the list yet. The office adds them.</p>}
       <ul className="pt-units">
-        {UNITS.map((u) => (
+        {s.units.map((u) => (
           <li key={u.id}>
             <Link to={`/portal/unit/${u.id}`}>
               <span className="pt-unit-art">
@@ -316,7 +444,13 @@ export function Units() {
               <span className="pt-unit-txt">
                 <b>{u.label}</b>
                 <small>
-                  {u.kindLabel} · <Sample />
+                  {u.kindLabel}
+                  {u.sample && (
+                    <>
+                      {' · '}
+                      <Sample />
+                    </>
+                  )}
                 </small>
               </span>
               <Icon name="chevron" size={20} />
@@ -330,8 +464,16 @@ export function Units() {
 
 export function UnitPage() {
   const { id } = useParams();
-  const unit = unitById(id);
   const s = usePortal();
+  const unit = unitOf(s, id);
+  const locked = useLocked();
+  if (!unit && locked)
+    return (
+      <Page title={`Unit ${id ?? ''}`} back={{ to: '/portal/units', label: 'All units' }}>
+        <NeedSignIn what="this unit’s lock, guides and specs" />
+        <CallDavid block />
+      </Page>
+    );
   if (!unit)
     return (
       <Page title="Unit not found" back={{ to: '/portal/units', label: 'All units' }}>
@@ -341,7 +483,7 @@ export function UnitPage() {
     );
   const open = s.reports.filter((r) => r.unit === unit.id && r.status !== 'Fixed');
   return (
-    <Page title={unit.label} back={{ to: '/portal/units', label: 'All units' }} kicker={<>{unit.kindLabel} · <Sample>Sample unit</Sample></>}>
+    <Page title={unit.label} back={{ to: '/portal/units', label: 'All units' }} kicker={unit.sample ? <>{unit.kindLabel} · <Sample>Sample unit</Sample></> : unit.kindLabel}>
       <div className="pt-unitart">
         <UnitArt unit={unit} />
       </div>
@@ -358,7 +500,8 @@ export function UnitPage() {
       <h2 className="pt-h2">Guides for this {unit.kind === 'truck' ? 'truck' : 'trailer'}</h2>
       <ul className="pt-list">
         {unit.guides.map((slug) => {
-          const g = guideBySlug(slug)!;
+          const g = guideBySlug(slug);
+          if (!g) return null;
           return (
             <li key={slug}>
               <Link to={`/portal/guides/${slug}`}>
@@ -389,7 +532,7 @@ export function UnitPage() {
                   <b>{r.kind}:</b> {r.text}
                 </p>
                 <small>
-                  {personById(r.by)?.name} · {when(r.at)}
+                  {nameOf(s, r.by)} · {when(r.at)}
                 </small>
               </li>
             ))}
@@ -414,8 +557,12 @@ export function UnitPage() {
 
 export function Report() {
   const s = usePortal();
+  const m = useMeta();
+  const live = m.mode === 'live';
   const location = useLocation();
   const by = s.me ?? '';
+  const [busy, setBusy] = useState(false);
+  const [photoNote, setPhotoNote] = useState('');
   const pre = (location.state ?? {}) as { unit?: string; kind?: ReportKind };
   const [unit, setUnit] = useState(pre.unit ?? '');
   const [kind, setKind] = useState<ReportKind>(pre.kind ?? 'Defect');
@@ -439,8 +586,9 @@ export function Report() {
   const previews = useMemo(() => files.map((f) => URL.createObjectURL(f)), [files]);
   useEffect(() => () => previews.forEach((u) => URL.revokeObjectURL(u)), [previews]);
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (busy) return;
     if (!by) return setErr('Sign in first: tap Sign in at the top.');
     if (!unit) return setErr('Pick the truck or trailer.');
     if ((crash || roadside) && (!place.trim() || !usState.trim())) return setErr('Say the town and state where it happened.');
@@ -448,16 +596,22 @@ export function Report() {
     if (roadside && !result) return setErr('Pick the inspection result.');
     if (text.trim().length < 3) return setErr('Say what’s wrong in a few words.');
     setErr('');
-    actions.report({
-      unit,
-      kind,
-      text: text.trim(),
-      urgent,
-      by,
-      photos: files.length,
-      crash: crash && towed ? { place: place.trim(), state: usState.trim().toUpperCase(), hurt: count(hurt), deaths: count(deaths), towed, hazmat, police: police.trim() } : undefined,
-      roadside: roadside && result ? { place: place.trim(), state: usState.trim().toUpperCase(), result } : undefined,
-    });
+    setBusy(true);
+    const r = await actions.report(
+      {
+        unit,
+        kind,
+        text: text.trim(),
+        urgent,
+        crash: crash && towed ? { place: place.trim(), state: usState.trim().toUpperCase(), hurt: count(hurt), deaths: count(deaths), towed, hazmat, police: police.trim() } : undefined,
+        roadside: roadside && result ? { place: place.trim(), state: usState.trim().toUpperCase(), result } : undefined,
+      },
+      files,
+    );
+    setBusy(false);
+    if (!r.ok) return setErr(r.error);
+    const failed = 'photosFailed' in r ? (r.photosFailed ?? 0) : 0;
+    setPhotoNote(failed ? `${failed === files.length ? 'The photos' : `${failed} of the photos`} didn’t go through. Text them to David.` : '');
     setSentAt(Date.now());
   };
 
@@ -467,10 +621,15 @@ export function Report() {
         <div className="pt-card pt-done">
           <Icon name="check" size={32} />
           <p>
-            <b>{unitById(unit)?.label}</b>: {kind.toLowerCase()} report saved at {when(sentAt)}
+            <b>{unitOf(s, unit)?.label}</b>: {kind.toLowerCase()} report saved at {when(sentAt)}
             {urgent ? ', marked urgent' : ''}. It’s on the office {crash ? 'maintenance board and the accident record' : roadside ? 'inspection record, with its 15-day deadline' : 'maintenance board'}.
           </p>
         </div>
+        {photoNote && (
+          <p className="pt-err" role="alert">
+            {photoNote}
+          </p>
+        )}
         {urgent && <CallDavid label="Urgent? Call David too" block />}
         <div className="pt-row2">
           <button
@@ -489,7 +648,13 @@ export function Report() {
             Home
           </Link>
         </div>
-        <p className="pt-fine">Demo: nothing was sent. The report is saved in this browser only, and the office side on this same browser shows it. In the real portal, Daniel and David get it right away.</p>
+        <p className="pt-fine">
+          {live
+            ? urgent || kind === 'Crash'
+              ? 'The office sees it now, and Daniel gets an email.'
+              : 'The office sees it now.'
+            : 'Demo: nothing was sent. The report is saved in this browser only, and the office side on this same browser shows it. In the real portal, Daniel and David get it right away.'}
+        </p>
       </Page>
     );
 
@@ -501,9 +666,10 @@ export function Report() {
         <label htmlFor="pt-unit">Truck or trailer</label>
         <select id="pt-unit" value={unit} onChange={(e) => setUnit(e.target.value)}>
           <option value="">Pick one</option>
-          {UNITS.map((u) => (
+          {s.units.map((u) => (
             <option key={u.id} value={u.id}>
-              {u.label} (sample)
+              {u.label}
+              {u.sample ? ' (sample)' : ''}
             </option>
           ))}
         </select>
@@ -545,7 +711,7 @@ export function Report() {
                 </div>
                 <fieldset className="pt-chips">
                   <legend>Was any vehicle towed away?</legend>
-                  {(['Yes', 'No', 'Not sure'] as Towed[]).map((t) => (
+                  {TOWED.map((t) => (
                     <label key={t} className={t === towed ? 'pt-on' : undefined}>
                       <input type="radio" name="towed" value={t} checked={t === towed} onChange={() => setTowed(t)} />
                       {t}
@@ -603,10 +769,10 @@ export function Report() {
             {err}
           </p>
         )}
-        <button className="pt-btn red" type="submit">
-          Send report
+        <button className="pt-btn red" type="submit" disabled={busy}>
+          {busy ? (files.length ? 'Sending report and photos…' : 'Sending…') : 'Send report'}
         </button>
-        <p className="pt-fine">The time is added for you. Demo: it’s saved in this browser only.</p>
+        <p className="pt-fine">The time is added for you.{live ? ' Photos are made smaller on your phone before they go.' : ' Demo: it’s saved in this browser only.'}</p>
       </form>
     </Page>
   );
@@ -616,8 +782,11 @@ export function Report() {
 
 export function Team() {
   const s = usePortal();
-  const listed = PEOPLE.filter((p) => isListed(s, p.id));
-  const hidden = PEOPLE.length - listed.length;
+  const m = useMeta();
+  const locked = useLocked();
+  const people = s.people.filter((p) => p.active !== false);
+  const listed = people.filter((p) => isListed(s, p.id));
+  const hidden = people.length - listed.length;
   return (
     <Page title="Team" kicker={OFFICE.name}>
       <section className="pt-card" aria-labelledby="pt-office">
@@ -652,7 +821,8 @@ export function Team() {
       </section>
 
       <h2 className="pt-h2">People</h2>
-      <ul className="pt-people">
+      {locked && <NeedSignIn what="the team list" />}
+      <ul className="pt-people" hidden={locked}>
         {listed.map((p) => (
           <li key={p.id}>
             <span>
@@ -669,10 +839,12 @@ export function Team() {
           </li>
         ))}
       </ul>
-      <p className="pt-fine">
-        Numbers show only for people who agreed to list them. Anyone with the portal link can see this page.
-        {hidden > 0 ? ` ${hidden === 1 ? '1 person isn’t' : `${hidden} people aren’t`} listed.` : ''}
-      </p>
+      {!locked && (
+        <p className="pt-fine">
+          Numbers show only for people who agreed to list them. {m.mode === 'live' ? 'Only people signed in to the FX4 portal see this page.' : 'Anyone with the portal link can see this page.'}
+          {hidden > 0 ? ` ${hidden === 1 ? '1 person isn’t' : `${hidden} people aren’t`} listed.` : ''}
+        </p>
+      )}
       <Link className="pt-btn line block" to="/portal/news">
         Announcements
       </Link>
@@ -684,12 +856,15 @@ export function Team() {
 
 export function News() {
   const s = usePortal();
+  const locked = useLocked();
   const ids = s.posts.map((p) => p.id).join(',');
   useEffect(() => {
     actions.seen(ids ? ids.split(',') : []);
   }, [ids]);
   return (
     <Page title="Announcements" back={{ to: '/portal/team', label: 'Team' }}>
+      {locked && <NeedSignIn what="announcements" />}
+      {!locked && s.posts.length === 0 && <p className="pt-fine">No announcements yet.</p>}
       <ul className="pt-posts">
         {s.posts.map((p) => (
           <li key={p.id} className="pt-card">
@@ -698,7 +873,7 @@ export function News() {
             </h2>
             {p.body && <p>{p.body}</p>}
             <small>
-              {personById(p.by)?.name ?? 'FX4 office'} · {when(p.at)}
+              {nameOf(s, p.by)} · {when(p.at)}
             </small>
           </li>
         ))}

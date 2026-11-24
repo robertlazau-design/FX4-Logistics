@@ -132,47 +132,79 @@ export function GuidePage() {
   );
 }
 
-// 49 CFR 393.110 minimum tiedowns and 393.106(d) working load limit, for one article.
+// 49 CFR 393.110 minimum tiedowns and 393.106(d) working load limit, for one article. Some
+// loads have their own federal rules (part 393, subpart I) that this count doesn't cover, so
+// those go to their rule and to David instead of a number.
+const LOADS = [
+  { id: 'general', label: 'General freight' },
+  { id: 'logs', label: 'Logs', rule: '49 CFR 393.116' },
+  { id: 'coils', label: 'Metal coils, 5,000 lb or more', rule: '49 CFR 393.120' },
+  { id: 'machinery', label: 'Machinery or a vehicle, 10,000 lb or more', rule: '49 CFR 393.130' },
+  { id: 'other', label: 'Something else with its own rules (lumber, paper rolls, concrete pipe, cars, boulders)', rule: '49 CFR part 393, subpart I' },
+] as const;
+
 function Calculator() {
   const id = useId();
+  const [what, setWhat] = useState<(typeof LOADS)[number]['id']>('general');
   const [len, setLen] = useState('');
   const [lb, setLb] = useState('');
   const [blocked, setBlocked] = useState(false);
   const L = parseFloat(len);
   const W = parseFloat(lb);
   const n = minTiedowns(L, W, blocked);
+  const special = LOADS.find((x) => x.id === what && 'rule' in x) as { label: string; rule: string } | undefined;
   return (
     <div className="pt-card pt-calc">
       <h2>Tiedown calculator</h2>
-      <div className="pt-calc-in">
-        <div>
-          <label htmlFor={`${id}-l`}>Length (feet)</label>
-          <input id={`${id}-l`} inputMode="decimal" value={len} onChange={(e) => setLen(e.target.value)} />
+      <label htmlFor={`${id}-what`}>What’s the load?</label>
+      <select id={`${id}-what`} className="pt-calc-what" value={what} onChange={(e) => setWhat(e.target.value as typeof what)}>
+        {LOADS.map((x) => (
+          <option key={x.id} value={x.id}>
+            {x.label}
+          </option>
+        ))}
+      </select>
+      {special ? (
+        <div className="pt-calc-out" aria-live="polite">
+          <p>
+            <b>{special.label.split(',')[0]}</b> {what === 'other' ? 'loads have' : 'have'} their own federal tiedown rules ({special.rule}). This calculator doesn’t cover them.
+          </p>
+          <p>Ask David how FX4 secures this load before you strap it.</p>
+          <CallDavid block />
         </div>
-        <div>
-          <label htmlFor={`${id}-w`}>Weight (lb)</label>
-          <input id={`${id}-w`} inputMode="decimal" value={lb} onChange={(e) => setLb(e.target.value)} />
-        </div>
-      </div>
-      <label className="pt-check">
-        <input type="checkbox" checked={blocked} onChange={(e) => setBlocked(e.target.checked)} />
-        Blocked from moving forward (headerboard, bulkhead or other cargo)
-      </label>
-      <div className="pt-calc-out" aria-live="polite">
-        {n > 0 ? (
-          <>
-            <p className="pt-calc-big">
-              At least <b>{n}</b> {n === 1 ? 'tiedown' : 'tiedowns'}
-            </p>
-            <p>
-              Their working load limits must add up to at least <b>{Math.ceil(W / 2).toLocaleString('en-US')} lb</b> (half the weight).
-            </p>
-          </>
-        ) : (
-          <p>Enter the length and weight of one piece.</p>
-        )}
-      </div>
-      <p className="pt-fine">Federal minimums. Logs, metal coils and heavy machinery have their own rules.</p>
+      ) : (
+        <>
+          <div className="pt-calc-in">
+            <div>
+              <label htmlFor={`${id}-l`}>Length (feet)</label>
+              <input id={`${id}-l`} inputMode="decimal" value={len} onChange={(e) => setLen(e.target.value)} />
+            </div>
+            <div>
+              <label htmlFor={`${id}-w`}>Weight (lb)</label>
+              <input id={`${id}-w`} inputMode="decimal" value={lb} onChange={(e) => setLb(e.target.value)} />
+            </div>
+          </div>
+          <label className="pt-check">
+            <input type="checkbox" checked={blocked} onChange={(e) => setBlocked(e.target.checked)} />
+            Blocked from moving forward (headerboard, bulkhead or other cargo)
+          </label>
+          <div className="pt-calc-out" aria-live="polite">
+            {n > 0 ? (
+              <>
+                <p className="pt-calc-big">
+                  At least <b>{n}</b> {n === 1 ? 'tiedown' : 'tiedowns'}
+                </p>
+                <p>
+                  Their working load limits must add up to at least <b>{Math.ceil(W / 2).toLocaleString('en-US')} lb</b> (half the weight).
+                </p>
+              </>
+            ) : (
+              <p>Enter the length and weight of one piece.</p>
+            )}
+          </div>
+          <p className="pt-fine">Federal minimums for general freight (49 CFR 393.110).</p>
+        </>
+      )}
     </div>
   );
 }

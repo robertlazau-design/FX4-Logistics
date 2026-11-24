@@ -1,5 +1,7 @@
 import { track } from '@vercel/analytics';
 
+const isPortal = (path: string) => path === '/portal' || path.startsWith('/portal/');
+
 // Lead events for the monthly growth report (Vercel Web Analytics custom events), named the same
 // as on Robert's other client sites. Every event carries two properties at most: the page, and
 // where on it the tap was (or, for the quote form, what the request was for). Never send names,
@@ -39,6 +41,7 @@ export function startLeadEvents() {
   document.addEventListener(
     'click',
     (e) => {
+      if (isPortal(window.location.pathname)) return; // drivers' taps in the team portal are never counted
       const link = (e.target as Element | null)?.closest?.('a[href]');
       if (!link) return;
       const href = link.getAttribute('href') || '';

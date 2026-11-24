@@ -66,8 +66,9 @@ for (const pagePath of ALL_PATHS) {
 fs.writeFileSync(path.join(DIST, '404.html'), renderPage('/404', NOT_FOUND_META, { notFound: true }));
 console.log('prerendered 404.html');
 
-// The team portal (demo): an empty shell the app fills in the browser. Never indexed, in draft
-// or live mode; vercel.json sends every /portal/... address here and adds X-Robots-Tag.
+// The team portal: an empty shell the app fills in the browser. Never indexed, in draft or
+// live mode; vercel.json sends every /portal/... address here and adds X-Robots-Tag. It can be
+// added to a phone's home screen (portal.webmanifest) and opens with no signal (portal-sw.js).
 const portalTitle = 'FX4 Team Portal';
 const portalDesc = 'Sign-in page for the FX4 Logistics team.';
 fs.writeFileSync(
@@ -77,9 +78,91 @@ fs.writeFileSync(
     .replace(/(<meta name="description" content=")[^"]*(")/, `$1${portalDesc}$2`)
     .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${portalTitle}$2`)
     .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${portalDesc}$2`)
-    .replace('<!--page-head-->', '<meta name="robots" content="noindex, nofollow" />'),
+    .replace(
+      '<!--page-head-->',
+      '<meta name="robots" content="noindex, nofollow" />\n    <link rel="manifest" href="/portal.webmanifest" />\n    <meta name="theme-color" content="#1d3150" />\n    <meta name="apple-mobile-web-app-title" content="FX4 Team" />',
+    ),
 );
-console.log('wrote portal.html (team portal shell, noindex)');
+fs.writeFileSync(
+  path.join(DIST, 'portal.webmanifest'),
+  JSON.stringify(
+    {
+      name: 'FX4 Team Portal',
+      short_name: 'FX4 Team',
+      start_url: '/portal',
+      scope: '/portal',
+      display: 'standalone',
+      background_color: '#f6f3ec',
+      theme_color: '#1d3150',
+      icons: [
+        { src: '/portal-icon-192.png', sizes: '192x192', type: 'image/png' },
+        { src: '/portal-icon-512.png', sizes: '512x512', type: 'image/png' },
+      ],
+    },
+    null,
+    2,
+  ) + '\n',
+);
+
+// The service worker keeps the portal shell and the site's built files (scripts, styles, fonts)
+// on the phone. Portal pages try the network first and fall back to the saved shell; built
+// files are named by their contents, so a saved copy is never stale. /api is never saved: the
+// screens keep their own copy of a driver's data (src/portal/store.ts).
+const keep = assets.filter((a) => /\.(js|css|woff2)$/.test(a)).map((a) => `/assets/${a}`);
+const version = `fx4-portal-${Buffer.from(keep.join('|')).reduce((h, b) => (h * 31 + b) >>> 0, 7).toString(36)}`;
+fs.writeFileSync(
+  path.join(DIST, 'portal-sw.js'),
+  `// Written by scripts/prerender.mjs. Only the team portal registers this (scope /portal).
+const VERSION = ${JSON.stringify(version)};
+const SHELL = '/portal';
+const FILES = ${JSON.stringify(keep)};
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(VERSION).then((c) => c.addAll([SHELL, '/portal-icon-192.png', ...FILES])).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k.startsWith('fx4-portal-') && k !== VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
+  );
+});
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
+  if (req.mode === 'navigate') {
+    if (url.pathname !== '/portal' && !url.pathname.startsWith('/portal/')) return;
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(VERSION).then((c) => c.put(SHELL, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(SHELL)),
+    );
+    return;
+  }
+  if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/portal-icon-')) {
+    e.respondWith(
+      caches.match(req).then(
+        (hit) =>
+          hit ||
+          fetch(req).then((res) => {
+            if (res.ok) {
+              const copy = res.clone();
+              caches.open(VERSION).then((c) => c.put(req, copy));
+            }
+            return res;
+          }),
+      ),
+    );
+  }
+});
+`,
+);
+console.log(`wrote portal.html (team portal shell, noindex), portal.webmanifest and portal-sw.js (${keep.length} files kept offline)`);
 
 const left = placeholdersLeft();
 if (!DRAFT && left.length) {

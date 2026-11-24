@@ -48,6 +48,7 @@ export default function Footer() {
         </div>
         <div className="legal">
           <span>© 2026 {BUSINESS.name} All rights reserved.</span>
+          <Link to="/privacy">Privacy and text messages</Link>
           <span>Website by Golden Boy Productions</span>
         </div>
       </div>

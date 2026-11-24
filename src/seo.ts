@@ -45,6 +45,10 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       'Request a trucking or storage quote from FX4 Logistics, 23605 NE Halsey St, Ste C, Wood Village, Oregon, off I-84 exit 16. Or call (971) 380-0602.',
   },
+  '/privacy': {
+    title: 'Privacy and Text Messages | FX4 Logistics',
+    description: 'What the FX4 Logistics website and team portal keep, who sees it, and the sign-in texts the portal sends to FX4 drivers.',
+  },
 };
 
 export const NOT_FOUND_META: PageMeta = {
@@ -195,6 +199,7 @@ const PAGE_GRAPH: Record<string, { type: 'WebPage' | 'AboutPage' | 'ContactPage'
   '/service-area': { type: 'WebPage', about: [] },
   '/driver-jobs': { type: 'WebPage', about: [] },
   '/contact': { type: 'ContactPage', about: [business] },
+  '/privacy': { type: 'WebPage', about: [] },
 };
 
 export const pageJsonLd = (path: string): Graph[] => {
